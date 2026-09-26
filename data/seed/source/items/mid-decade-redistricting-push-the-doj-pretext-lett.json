@@ -1,0 +1,27 @@
+{
+  "disputed": "Whether Texas's true motive was racial or purely partisan remains legally significant because partisan gerrymandering (per the Supreme Court's 2019 Rucho v. Common Cause ruling) is not federally justiciable, while racial gerrymandering is unconstitutional - Texas's shifting justification is precisely why this distinction was litigated. The Supreme Court's stay is not a final ruling on the merits; the underlying question of whether the map is an illegal racial gerrymander remains technically unresolved even though the map will be used in 2026.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "On July 7, 2025, the Trump DOJ (signed by Harmeet Dhillon) sent Texas a letter claiming four to five 'coalition districts' (districts with a non-white majority but no single racial group in the majority) were unconstitutional, threatening legal action if not redrawn. Gov. Abbott cited this letter when adding redistricting to a special legislative session's agenda. (CNN (https://www.cnn.com/2025/11/21/politics/texas-supreme-court-congressional-redistricting))",
+        "A three-judge federal panel (including Judge Jeffrey Brown, a Trump first-term appointee) later found the letter itself was central evidence of racial motive, calling it riddled with 'factual, legal, and typographical errors' and concluding it 'urges Texas to inject racial considerations into what Texas insists was a race-blind process.' (Democracy Docket (https://www.democracydocket.com/news-alerts/trump-dojs-ham-fisted-letter-key-to-ruling-blocking-texas-gerrymander/))",
+        "The court found Texas's new map dismantled the exact districts DOJ identified, targeting precise racial percentages (e.g., 50.3% Hispanic, 50.5% Black), and ruled on November 18, 2025 that this constituted an unconstitutional racial gerrymander, ordering Texas to revert to its 2021 map for 2026. (Texas Policy Research (https://www.texaspolicyresearch.com/federal-court-blocks-texas-new-congressional-map/))",
+        "When the DOJ's own letter became a legal liability, Texas officials pivoted their public justification from 'complying with DOJ's racial concerns' to 'this was purely partisan, not racial' - the same map, a different stated rationale. The Texas AG called the administration's own letter 'erroneous,' 'ham-fisted,' and 'a mess.' The DOJ itself later filed a brief claiming its letter was mischaracterized and never intended to encourage racial gerrymandering. (Brennan Center (https://www.brennancenter.org/our-work/research-reports/supreme-court-messes-texass-voting-map); Democracy Docket (https://www.democracydocket.com/news-alerts/doj-tries-to-undo-damage-of-its-ham-fisted-letter-in-texas-gerrymander-case/))"
+      ],
+      "label": "The DOJ letter as pretext"
+    },
+    {
+      "items": [
+        "Trump personally called for and pushed the Texas redistricting to secure Republicans up to five additional US House seats; the Center for American Progress noted the demand correlated with his record-low approval rating at the time. (CAP (https://www.americanprogress.org/article/trump-ordered-texas-to-gerrymander-5-new-republican-leaning-congressional-districts-this-is-how-other-states-can-fight-back/))",
+        "The Texas House approved the new map on August 20, 2025 after Democratic legislators staged a two-week walkout to delay it, arguing it diluted Black and Latino voting power. (Texas Tribune (https://www.texastribune.org/2025/08/20/texas-house-vote-congressional-map-redistricting-democrats-trump/))",
+        "The Supreme Court paused the lower court's injunction on November 21, 2025 (Justice Alito) and on December 4, 2025 formally allowed Texas to use the challenged map for 2026 despite the lower court's racial-gerrymandering finding, ruling 'Texas is likely to succeed on the merits.' Justices Kagan, Sotomayor, and Jackson dissented, with Kagan writing the order 'announces that Texas may run next year's elections with a map the District Court found to have violated all our oft-repeated strictures about the use of race in districting.' (SCOTUSblog (https://www.scotusblog.com/2025/12/supreme-court-allows-texas-to-use-redistricting-map-challenged-as-racially-discriminatory/))",
+        "The push spread beyond Texas: Missouri and North Carolina Republicans each targeted one Democratic-held seat; Indiana's House passed a map targeting two Democratic seats. California Democrats countered by passing their own new map (bypassing the state's independent redistricting commission via ballot measure) aiming to flip five Republican-held seats. (NPR (https://www.npr.org/2025/12/08/nx-s1-5634585/redistricting-2026midterm-election-trump-congress))"
+      ],
+      "label": "Trump's role and outcome"
+    }
+  ],
+  "summary": "Redistricting normally happens once a decade after the census. In June 2025, Trump floated mid-decade redistricting in Texas specifically to protect the GOP's slim US House majority ahead of the 2026 midterms, telling reporters 'Texas will be the biggest one.' This set off what NPR described as the largest multi-state redistricting race since the 1960s.",
+  "title": "Mid-decade redistricting push, the DOJ pretext letter, and Trump condoning it",
+  "type": "case"
+}

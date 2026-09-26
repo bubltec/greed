@@ -1,0 +1,6 @@
+# Only the pre-built bundle goes into the image (see Dockerfile). Also keeps
+# node_modules out of the CDK asset hash, so unrelated installs do not redeploy.
+*
+!Dockerfile
+!dist/lambda.js
+!dist/lambda.js.map

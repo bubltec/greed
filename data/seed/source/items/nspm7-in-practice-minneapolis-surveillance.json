@@ -1,0 +1,23 @@
+{
+  "disputed": "DOJ and DHS have not publicly conceded that NSPM-7 is being used to target viewpoint or ideology rather than genuine criminal conduct; prosecutors describe the Direct Action Minnesota charges as addressing actual conspiracy to impede law enforcement, not pure speech. The Brennan Center, ACLU, Reason, and The Intercept characterize the pattern as viewpoint-based targeting of protected activity; this is the assessment of civil-liberties-focused organizations and outlets, though notably a friend-of-the-court brief was also filed by conservative/libertarian groups (Cato Institute, FIRE, Society for the Rule of Law) making the same argument, suggesting the concern is not confined to left-leaning critics. The full scope of financial surveillance (which organizations, how many, what was found) is not yet public; what's documented so far comes from litigation discovery and leaked/disclosed documents, not a comprehensive government accounting.",
+  "sections": [
+    {
+      "items": [
+        "In June 2026, federal prosecutors filed charges against 15 people connected to a Minneapolis group described as 'Direct Action Minnesota,' explicitly citing NSPM-7 as the basis for combating 'Antifa groups that violently opposed the enforcement of federal [immigration law].' This is described as the first prosecution case to emerge directly from the NSPM-7 framework. (Brennan Center; TPM)",
+        "Newly released emails (via case discovery) show Homeland Security Investigations (HSI) agents used a PATRIOT Act-era financial surveillance tool (Section 314(a), created in the early War on Terror) to canvass financial institutions nationwide for information related to the Minneapolis 'Antifa cell' investigation, obtaining financial information without a judicial search warrant. (TPM)",
+        "In August 2026, three ideologically diverse groups — the Cato Institute, the Foundation for Individual Rights and Expression (FIRE), and the Society for the Rule of Law — filed a joint friend-of-the-court brief arguing ICE illegally used undercover agents to infiltrate left-wing protest groups in Minneapolis based on their ideology, and sought disclosure of confidential surveillance files. Notably, this is a bipartisan/cross-ideological objection, not solely from left-leaning civil liberties groups. (The Intercept)"
+      ],
+      "label": "First NSPM-7 prosecution: Direct Action Minnesota (2026)"
+    },
+    {
+      "items": [
+        "Separately, per Reason (citing HSI's own investigative report), an investigation opened at a church (Prince of Peace) was documented as having been opened 'in accordance with' NSPM-7. Using administrative summonses and subpoenas — bypassing judicial scrutiny — HSI sought over three years of financial records from labor unions (SEIU, Communications Workers of America, International Federation of Professional and Technical Engineers) and progressive nonprofits (Sunrise Movement, Voices for Racial Justice), without those organizations' knowledge. FIRE had specifically predicted at NSPM-7's issuance that it would lead to investigating government critics for First-Amendment-protected activity absent evidence of crime; Reason describes this as materializing. (Reason)",
+        "By March 2026, the FBI and IRS had formalized an 'NSPM-7 Joint Mission Center,' staffed by 10 agencies, explicitly tasked to 'proactively identify networks and prosecute domestic terrorist and related criminal actors' based on the memo's listed indicators (anti-Christianity, anti-capitalism, 'extremism on...gender,' hostility to 'traditional' family/religion/morality views, and support for 'overthrow' of government). A separate Deputy AG's office task force investigates funding of 'antifa-linked' groups. The FY2027 FBI budget requested $166 million for this apparatus. (Brennan Center; Charity & Security Network)"
+      ],
+      "label": "Broader civil-society surveillance under NSPM-7"
+    }
+  ],
+  "summary": "Roughly a year after NSPM-7 was issued, it has moved from a policy memo into active use: the first criminal prosecutions (15 people charged in Minneapolis, June 2026), warrantless PATRIOT Act-era financial surveillance of protest-linked individuals, and administrative subpoenas for years of financial records from major labor unions and progressive nonprofits who were not informed of the requests — drawing formal legal objections from both civil liberties groups and conservative/libertarian organizations alike.",
+  "title": "NSPM-7 in practice: first prosecutions and civil society financial surveillance (2026)",
+  "type": "case"
+}

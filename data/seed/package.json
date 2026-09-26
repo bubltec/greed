@@ -1,0 +1,24 @@
+{
+  "name": "@greed/seed",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -b --noEmit",
+    "lint": "oxlint -c ../../.oxlintrc.json src",
+    "test": "vitest run",
+    "seed:local": "tsx src/run.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.1136.0",
+    "@aws-sdk/lib-dynamodb": "3.1136.0",
+    "@greed/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@greed/config": "workspace:*",
+    "@types/node": "26.6.2",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
+  }
+}

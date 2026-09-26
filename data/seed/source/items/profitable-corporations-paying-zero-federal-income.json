@@ -1,0 +1,26 @@
+{
+  "disputed": "These outcomes result from legal tax provisions (R&D credits, depreciation rules, stock-option deductions, and other statutory breaks written into the tax code by Congress over decades), not evidence that any company broke the law. The companies would argue they are following the tax code as written and that responsibility for the outcome lies with tax policy, not corporate conduct - a framing critics like Sanders and ITEP dispute by arguing the code itself was shaped by corporate lobbying to produce exactly these results.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "On April 14, 2026, the Institute on Taxation and Economic Policy (ITEP), a non-partisan research organization, published an analysis finding 88 major U.S. corporations paid $0 in federal income tax in 2025 despite collectively reporting more than $105 billion in U.S. profits. The report, authored by ITEP Senior Fellow Matthew Gardner and analyst Spandan Marasini, is based entirely on SEC-mandated financial disclosures - the companies' own reported figures. (IBTimes UK (https://www.ibtimes.co.uk/88-major-us-corporations-zero-federal-income-tax-2025-1794563))",
+        "Named companies and their reported 2025 U.S. profits, per ITEP: Walt Disney ($8.3 billion), CVS Health ($6.57 billion), Tesla ($5.7 billion), United Airlines ($4.3 billion), Citigroup ($4.45 billion), Palantir ($1.58 billion), PayPal ($1.43 billion), GoDaddy ($981 million), and Yum! Brands, parent of KFC/Taco Bell/Pizza Hut ($1.03 billion). Also named: 3M, Southwest Airlines, Duke Energy, and PG&E. (Popular Information (https://popular.info/p/these-highly-profitable-corporations); Thomson Reuters Tax (https://tax.thomsonreuters.com/news/experts-find-profitable-corporations-paid-little-or-no-federal-income-tax-in-2025/))",
+        "At the statutory 21% corporate tax rate, these 88 companies would have owed roughly $22.1 billion; instead, they collectively received $4.7 billion in rebates - a total swing of about $26.7 billion versus baseline. ITEP Executive Director Amy Hanauer said: 'These findings are not isolated cases, they reflect systemic deficiencies in the corporate tax code.' (BTimes (https://www.btimesonline.com/articles/177231/20260501/tesla-amazon-among-88-u-s-corporations-paying-0-corporate-income-tax-on-105-billion-profit.htm))",
+        "The report noted the effective corporate tax rate has fallen from roughly 38% in the 1960s to about 12.8% following the 2017 Tax Cuts and Jobs Act, with 2025 legislation (the 'One Big Beautiful Bill,' referenced elsewhere in this document) accelerating that decline. U.S. Treasury data separately showed a 14.7% decline in corporate income tax receipts for 2025 even as total federal revenue rose 6%. (BTimes (https://www.btimesonline.com/articles/177231/20260501/tesla-amazon-among-88-u-s-corporations-paying-0-corporate-income-tax-on-105-billion-profit.htm))"
+      ],
+      "label": "The 2026 ITEP report"
+    },
+    {
+      "items": [
+        "Sen. Bernie Sanders has repeatedly publicized this data, including a February 2026 post naming Tesla, Ticketmaster (Live Nation), and Palantir as having paid zero federal income tax the prior year despite billions in profit, asking whether Trump would 'address this outrage' in his State of the Union - predicting he would not. (Finviz/Benzinga (https://finviz.com/news/321197/bernie-sanders-slams-tesla-palantir-for-not-paying-federal-income-taxes-questions-whether-trump-will-address-it-i-doubt-it))",
+        "Per Palantir's own annual report, the company reported $1.5 billion in Q4 U.S. income and $4.4 billion in yearly revenue, paid $0 in federal income tax, and paid just over $2.5 million in state taxes, aided by research and development tax credits. Live Nation reported over $145 million in income and paid no federal tax, citing provisions in the 2025 tax legislation. Tesla separately received more than $1.1 billion in federal income tax breaks and was criticized on this point by Sen. Elizabeth Warren. (Finviz/Benzinga (https://finviz.com/news/321197/bernie-sanders-slams-tesla-palantir-for-not-paying-federal-income-taxes-questions-whether-trump-will-address-it-i-doubt-it))",
+        "A separate 2026 report (Institute for Policy Studies and Americans for Tax Fairness) found 35 major companies paid their top five executives more, combined, than they paid in federal income tax between 2018-2022; Tesla ranked first, paying its top five executives $2.5 billion over five years while reporting $4.4 billion in U.S. profit over the same period. (Benzinga (https://benzinga.com/z/37754539))"
+      ],
+      "label": "Sanders's statements and specific examples"
+    }
+  ],
+  "summary": "On April 14, 2026, the Institute on Taxation and Economic Policy (ITEP), a non-partisan research organization, published an analysis finding 88 major U.S. corporations paid $0 in federal income tax in 2025 despite collec",
+  "title": "Profitable corporations paying zero federal income tax",
+  "type": "case"
+}

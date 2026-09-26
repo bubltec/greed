@@ -1,0 +1,33 @@
+{
+  "disputed": "Whether Trump personally selects/knowingly posts each piece of AI content or whether staff/aides curate and post on his behalf is not fully established in reporting reviewed. The White House maintains Trump personally approves all content before it's posted. Whether this constitutes deliberate disinformation versus 'shitposting'/meme-style political humor that supporters and even some critics treat as obviously fake is a matter of interpretation — researchers note the spectrum runs from clearly-fake mythmaking to content with real potential to mislead (e.g., the MedBed and Kharg Island videos). Whether a larger paid team beyond one named aide is involved, and any total taxpayer cost, is not established in reporting reviewed. The 'cult-like following' characterization is an interpretive framing, not a documented finding in the cited sources, and is not asserted here as fact.",
+  "sections": [
+    {
+      "items": [
+        "Trump's Truth Social account posted, then deleted about a day later, an AI-generated video framed as a Fox News segment with a deepfaked Lara Trump announcing 'America's first MedBed hospitals' and a 'national MedBed card' that would give every citizen 'guaranteed access' to hospitals designed to 'restore every citizen to full health and strength.' (Snopes; CNN; Democracy Now)",
+        "Fox News stated the segment had 'never aired' on its network — it was entirely fabricated. There were no White House announcements about any such program. The clip appears to have originated on other social media accounts (traced to Instagram as early as Sept. 24, 2025) before being shared from Trump's account. (Snopes; Wikipedia: Medbed)",
+        "'MedBeds' is a preexisting QAnon-adjacent conspiracy theory claiming secret military/alien technology can cure any disease or regrow limbs. Misinformation researchers noted the specific harm risk: people with serious illnesses (e.g., Stage 4 cancer patients, stroke victims) reported believing the promised hospitals were real and imminent. (HuffPost/AOL, citing NYT reporting)"
+      ],
+      "label": "MedBed hoax (Sept 2025)"
+    },
+    {
+      "items": [
+        "During the June 2025 Iran conflict, Trump posted an AI-generated video appearing to show a strike on Iran's Kharg Island oil facility that never happened; a Defense Department official confirmed Kharg Island was not among the targets struck, and Iran's national oil company called the claim 'laughable.' Because the White House has insisted Trump's Truth Social posts constitute official government statements, experts noted this made a fabricated video an official (if false) wartime communication from the commander in chief. (The Independent/Yahoo; Daily Beast)",
+        "An NBC News review found Trump posted dozens of AI-generated images and deepfake videos on Truth Social since returning to office in January 2025, with roughly half of them concentrated in August–September 2025 alone; many originated elsewhere online before he reshared them. Content spans from obvious fantasy imagery (Trump as a lion, as Jesus, as 'King Trump' in a fighter jet) to higher-mislead-risk fakes, such as a manipulated video of Jeffries and Schumer with fabricated audio. (NBC News)",
+        "Other documented instances include a fabricated video of Barack Obama being arrested, an AI 'New America' reimagining of New Mexico posted over Labor Day weekend 2026 that drew backlash from local historians and officials, and a 43-image posting spree in one afternoon in July 2026 mocking critics and depicting Trump with JFK and George Washington. (NYT via Managing Editor newsletter; Wikipedia: AI-generated content in American politics; Forbes)",
+        "Separately, AI-generated content fabricated by other accounts (not Trump's own posts) has circulated at scale attacking or sexualizing Trump's association with Jeffrey Epstein, including fake images/video racking up over 7.2 million views per disinformation watchdog NewsGuard — illustrating the same synthetic-media environment cuts in multiple political directions, not just pro-Trump. (Malay Mail/NewsGuard)"
+      ],
+      "label": "Broader pattern of AI/fabricated media"
+    },
+    {
+      "items": [
+        "The White House aide most closely tied to this content is Natalie Harp, who holds the official, taxpayer-funded position of 'Special Assistant to the President and Executive Assistant to the President' since Jan. 20, 2025, reported salary ~$150,000/year. (Daily Beast; Wikipedia: Natalie Harp)",
+        "Per a Wall Street Journal report, Harp has been central to nearly 8,800 posts published to Trump's account since the second term began, with 44 documented late-night 'posting spree' bursts of dozens of posts; she controls much of what content reaches Trump for approval, though the White House says Trump personally approves everything before it posts. (Alternet, citing WSJ)",
+        "Harp was the one who posted the racist Obama/Michelle-as-apes video and the Trump-as-Christ AI image; Trump said afterward he had not seen the offensive portion before approving it, blaming an editing error. Whether a larger dedicated team beyond Harp exists, and any total cost to taxpayers (salaries, tools, contractors), is not established in reporting reviewed to date. (Alternet/AOL)"
+      ],
+      "label": "Who produces this content"
+    }
+  ],
+  "summary": "Since returning to office, Trump has posted dozens of pieces of AI-generated and manipulated media on his own Truth Social account — ranging from self-glorifying fantasy images to fabricated 'news' segments and fake attack footage during an active military conflict — made possible in part by a taxpayer-funded White House aide (Natalie Harp) whose role centers on curating and posting this content, per NBC News and WSJ reporting.",
+  "title": "AI-generated disinformation and deepfakes on Truth Social",
+  "type": "case"
+}

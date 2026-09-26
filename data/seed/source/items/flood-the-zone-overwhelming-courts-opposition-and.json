@@ -1,0 +1,32 @@
+{
+  "disputed": "That any individual action in this document was undertaken specifically because it would overwhelm the system, rather than for its stated policy purpose, is not something that can be proven from public documentation alone - intent is inferred from pattern and volume, and from officials' own on-record statements about strategy (Bannon, Vought), not from an admission tied to each specific action. Critics of this framing would argue that a high volume of executive action is a normal feature of an ambitious administration, not evidence of a deliberate overload tactic.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "Steve Bannon, Trump's former chief strategist, described the approach in a 2018 interview: 'The real opposition is the media. And the way to deal with them is to flood the zone with s***.' He elaborated in a 2019 PBS Frontline interview that the media 'can only focus on one thing at a time' because they are 'dumb and lazy,' and that hitting them with multiple developments daily prevents sustained scrutiny of any one action. (Newsweek (https://www.newsweek.com/steve-bannon-flood-zone-strategy-explained-trump-policy-blitz-2027482))"
+      ],
+      "label": "Origin"
+    },
+    {
+      "items": [
+        "Legal experts told ABC News the second Trump administration explicitly employed this approach, 'overwhelming the courts and the public with constant policy changes.' As of April 2025, Trump had issued more than 140 executive orders - compared to Joe Biden's 162 over his entire four-year term. (ABC News (https://abcnews.com/Politics/trump-echoing-project-2025-flood-zone-strategy-push/story?id=121124118))",
+        "By late April 2025, ABC News counted 217 separate court cases filed against the administration, with a large majority resulting in temporary restraining orders, reversals, or blocks. Legal scholars noted that even when courts ultimately rule against the administration, the strategy still 'works' because the resulting damage (implemented policy, public confusion, exhausted opposition resources) occurs in the period before rulings catch up. (ABC News (https://abcnews.com/Politics/trump-echoing-project-2025-flood-zone-strategy-push/story?id=121124118))",
+        "Russell Vought, a Project 2025 architect and Trump's OMB Director, said in a pre-appointment 2023 speech (resurfaced during his confirmation hearing) that he wanted federal bureaucrats 'traumatically affected' and 'in trauma' - a stated goal of psychological exhaustion of opposition within the government itself, not just in courts or media. (ABC News (https://abcnews.com/Politics/trump-echoing-project-2025-flood-zone-strategy-push/story?id=121124118))"
+      ],
+      "label": "Documented application since January 2025"
+    },
+    {
+      "items": [
+        "The DOGE 'Defend the Spend' entry shows the same overload logic applied to individual grant recipients - manual review requirements imposed across thousands of grants simultaneously, straining agency and recipient capacity to respond.",
+        "The tariffs entry shows a similar pattern in trade policy: sweeping IEEPA tariffs affecting nearly all trading partners at once, followed by a shifting patchwork of exemptions and replacement authorities (Section 122, 232, 301) after the Supreme Court struck down the original basis - each shift generating new litigation and compliance burden.",
+        "The redistricting entry shows the tactic applied at the state level nearly simultaneously (Texas, Missouri, North Carolina, Indiana, prompting California's countermove), consistent with a multi-front strategy rather than a single isolated dispute.",
+        "The Venezuela entry involves a rapid sequence of military action, oil-law changes, and asset transfers within weeks, leaving limited time for independent scrutiny of any single step before the next occurred."
+      ],
+      "label": "How this connects to other entries in this document"
+    }
+  ],
+  "summary": "This entry is different from the others: it's not a single incident but a named strategy that several entries in this doc plausibly illustrate. It's included as a connective thread, not as a standalone proven conspiracy - each linked entry should still be judged on its own documentation above.",
+  "title": "'Flood the zone': overwhelming courts, opposition, and the public",
+  "type": "case"
+}

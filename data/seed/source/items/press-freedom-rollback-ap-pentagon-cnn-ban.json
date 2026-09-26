@@ -1,0 +1,43 @@
+{
+  "disputed": "DOJ frames the Pentagon rules, AP ban, and CNN/MS NOW/Politico ban as content-neutral security or professionalism/decorum measures rather than retaliation for coverage; courts have so far been skeptical (Pentagon rules struck down; 2018 Acosta precedent favors the outlets), but the AP appeals court did allow that ban to stand for non-public spaces (Oval Office, Air Force One), showing the legal line isn't absolute. Whether the Sept. 2026 CNN/MS NOW/Politico ban and its litigation resolve in the outlets' favor was not yet decided as of the hearing date.",
+  "sections": [
+    {
+      "items": [
+        "Trump indefinitely barred AP reporters from pooled press events in the Oval Office and aboard Air Force One after AP declined to rename the Gulf of Mexico the 'Gulf of America' in its style guide.",
+        "AP sued on First Amendment grounds; a district judge initially ordered access restored, but an appeals court later allowed the ban to stand for those specific non-public spaces while AP retained access to broader press pool areas."
+      ],
+      "label": "AP ban (Feb. 2025–present)"
+    },
+    {
+      "items": [
+        "On Sept. 18-20, 2025, the Pentagon under Defense Secretary Pete Hegseth issued a policy requiring credentialed journalists to pledge not to publish any information — even unclassified — without prior approval from a DoD official, and to accept government escorts in parts of the building; refusal risked losing credentials.",
+        "On Oct. 15-16, 2025, at least 30 publications and dozens of journalists forfeited their Pentagon press passes rather than sign, including traditionally administration-friendly outlets like Fox News and Newsmax; only one outlet (OANN) complied.",
+        "In Jan. 2026, the Pentagon removed NBC, NPR, Politico, and The New York Times from their dedicated Pentagon workspaces, replacing them with HuffPost (which had no Pentagon correspondent at the time) and conservative outlets Breitbart, OANN, and the New York Post.",
+        "The New York Times sued (New York Times v. Department of Defense); on March 20, 2026, a federal district judge ruled the Pentagon rules unconstitutional, finding they amounted to viewpoint discrimination and censorship in violation of the First and Fifth Amendments, and ordered a permanent injunction. DoD said it would appeal and restored credentials in the meantime."
+      ],
+      "label": "Pentagon press credential rules (Sept.–Oct. 2025) and court ruling"
+    },
+    {
+      "items": [
+        "In April 2025, then-AG Pam Bondi revised DOJ guidelines to permit subpoenaing journalists directly, reversing longstanding department policy limiting such subpoenas.",
+        "DOJ has since subpoenaed reporters at The Washington Post, The Wall Street Journal, and The New York Times, plus at least one freelancer.",
+        "In July 2026, following reporting on Trump's Qatari jet, the administration subpoenaed phone service providers for the phone and text records of multiple journalists."
+      ],
+      "label": "DOJ subpoenas and leak investigations"
+    },
+    {
+      "items": [
+        "On Sept. 19, 2026, Trump announced via Truth Social that he was banning CNN, MS Now, and Politico from the White House 'as a result of their constant reporting fake news' — explicitly tying the ban to disliked coverage.",
+        "On Sept. 20, 2026, reporters from the three outlets had their badges confiscated when attempting to enter; CNN and MS NOW also lost access to their television equipment and camera locations on the grounds, and CNN was removed from network pool coverage duties.",
+        "On Sept. 21, 2026, CNN, MS NOW, and Politico sued Trump and top officials (Susie Wiles, Steven Cheung, Sean Curran), alleging First Amendment viewpoint discrimination and Fifth Amendment due process violations. Lead attorney: Theodore J. Boutrous of Gibson Dunn, who also represented CNN in the 2018 Acosta case and NPR/Colorado public radio in a related funding case.",
+        "The case was assigned to U.S. District Judge Timothy Kelly (a Trump first-term appointee), who ruled in favor of Jim Acosta in the 2018 case restoring his White House credentials.",
+        "On Sept. 22-23, 2026, DOJ (senior counsel Michael Velchik — see related item) filed a brief opposing the outlets' motion, arguing national security grounds (citing coverage of White House ballroom construction, Iran-war ammunition levels, and the GOP midterm convention) and that 'access to the White House is a privilege — not a right,' while also urging the court to overturn the precedent protecting journalist access generally. The security-justification letters DOJ cited were dated after the ban and lawsuit were already underway.",
+        "A hearing before Judge Kelly was scheduled for Sept. 23, 2026."
+      ],
+      "label": "CNN/MS NOW/Politico White House ban and lawsuit (Sept. 2026)"
+    }
+  ],
+  "summary": "A sustained, multi-agency campaign to control and punish press coverage: Trump barred AP from the Oval Office/Air Force One in Feb. 2025 over 'Gulf of Mexico' usage; the Pentagon under Hegseth imposed rules in Sept.-Oct. 2025 requiring journalists to publish only pre-approved information, causing nearly every major outlet to forfeit credentials (a court found these unconstitutional in March 2026); DOJ revised guidelines to permit subpoenaing journalists directly; and in Sept. 2026 Trump banned CNN, MS NOW, and Politico from the White House entirely, prompting a First Amendment lawsuit now before the same judge who ruled against Trump's 2018 Acosta ban.",
+  "title": "Press freedom rollback — AP ban, Pentagon rules, CNN/MS NOW/Politico ban",
+  "type": "case"
+}

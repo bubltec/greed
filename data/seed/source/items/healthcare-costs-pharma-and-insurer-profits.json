@@ -1,0 +1,27 @@
+{
+  "disputed": "Insurers and pharmaceutical companies attribute rising costs primarily to the genuinely rising underlying cost of care, prescription drugs, and hospital services - not solely to their own profit-taking - and argue premium increases reflect real medical cost trends, not just margin expansion. The claim that manufacturing cost alone (versus R&D, regulatory compliance, and patent-protected pricing power) explains drug pricing is a simplification the industry disputes; the CSRxP margin comparison is a relative measure across supply-chain sectors, not proof that any specific price is unjustified.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "The Campaign for Sustainable Rx Pricing found brand-name pharmaceutical manufacturers' average net income margin was 24.8% in 2025 - 11 times higher than every other sector of the drug supply chain (distributors, retail pharmacies, pharmacy benefit managers, and health insurers), which averaged under 2% margins over the same period. (CSRxP (https://www.csrxp.org/csrxp-analysis-big-pharmas-profit-margins-climb-to-11-times-greater-than-other-sectors-in-drug-supply-chain/))",
+        "A 2017 GAO analysis found pharmaceutical and biotech sales revenue rose from $534 billion to $775 billion between 2006 and 2015, with 67% of drug companies increasing annual profit margins over that period - some up to nearly 20%. More recent industry data puts major pharmaceutical companies' gross margin around 68% and net margin around 12-25% depending on the segment as of 2026. (GAO (https://www.gao.gov/products/gao-18-40); CSIMarket (https://csimarket.com/Industry/industry_Profitability_Ratios.php?ind=803))",
+        "Industry sources note the gap between production cost and price reflects patent exclusivity (up to 20 years) and R&D/regulatory costs, not simply manufacturing expense - one industry analysis noted a bottle of 60 tablets might cost under $0.50 to produce but sell for $150-$2,000, attributing the difference to patent protection and market exclusivity rather than inflation."
+      ],
+      "label": "Pharmaceutical margins versus production cost"
+    },
+    {
+      "items": [
+        "The five largest U.S. health insurers earned a combined $371 billion in profits since the ACA's passage in 2010, an increase of 230% - with more than 40% of that going to UnitedHealth Group alone, whose profits rose nearly 400% over the same period. (Jacobin/The Lever (https://jacobin.com/2024/12/health-insurance-profits-unitedhealthcare-aca))",
+        "UnitedHealth Group generated $34 billion in profit in 2024 (the largest of the seven biggest publicly traded insurers, which together earned $71 billion) and denied about 33% of in-network claims for ACA plans that year, per KFF data - compared to an industry-wide average denial rate of 19%. (eMarketer (https://www.emarketer.com/content/insurers-face-heat-over-rising-costs-unitedhealth-pledges-aca-rebates))",
+        "UnitedHealth raised its 2025 profit forecast to at least $16.25 adjusted earnings per share even as its medical loss ratio (share of premiums spent on actual care) sat around 89.9%, above insurers' typical target of roughly 80% - meaning the company still increased profit guidance despite paying out a higher share of premiums than targeted. (Yahoo Finance (https://finance.yahoo.com/news/unitedhealth-lifts-2025-profit-forecast-095953873.html))",
+        "At a 2025 congressional hearing, Rep. Buddy Carter (R-GA), a pharmacist, directly challenged UnitedHealth CEO Stephen Hemsley on claim denials, and Rep. Nanette Diaz Barragan (D-CA) questioned Hemsley's up-to-$60 million stock-based compensation package while patients struggle to afford premiums. (InsuranceNewsNet (https://insurancenewsnet.com/oarticle/congress-grills-unitedhealth-ceo-stephen-hemsley-on-claim-denials-insurance-costs))",
+        "Insurers attributed 2025-2026 premium hikes partly to the scheduled expiration of enhanced ACA tax credits; proposed hikes included UnitedHealthcare seeking a 66%+ increase for some New York policyholders and 37% in Washington state, while the company simultaneously spent $9 billion on stock buybacks and $7.5 billion on dividends in the prior year. (Jacobin (https://jacobin.com/2025/07/health-insurers-profits-rising-premiums))"
+      ],
+      "label": "Insurer profits amid rising premiums and denials"
+    }
+  ],
+  "summary": "The Campaign for Sustainable Rx Pricing found brand-name pharmaceutical manufacturers' average net income margin was 24.8% in 2025 - 11 times higher than every other sector of the drug supply chain (distributors, retail ",
+  "title": "Healthcare costs: pharma and insurer profits",
+  "type": "case"
+}

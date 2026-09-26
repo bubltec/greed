@@ -1,0 +1,25 @@
+{
+  "disputed": "Flock's position is that any federal access to its data occurred through individual local agencies' own choices or misconfigurations, not through any company-level arrangement with ICE or CBP - a framing privacy advocates dispute as understating the company's responsibility for a system designed to allow broad data sharing by default. Whether current safeguards (added only after public reporting and litigation) are sufficient to prevent continued federal access is unresolved and contested.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "404 Media reported ICE has asked state/local law enforcement to search Flock cameras on its behalf, without an official ICE-Flock contract. (Immigration Policy Tracking Project (https://immpolicytracking.org/policies/reported-ice-accessing-flock-automated-license-plate-reader-cameras-via-local-law-enforcement/))",
+        "A University of Washington Center for Human Rights investigation found at least eight Washington state law enforcement agencies enabled direct 1:1 data sharing with U.S. Border Patrol during 2025 ('front door' access), while Border Patrol had undisclosed 'back door' access to at least ten more agencies' networks that had not authorized such sharing, from at least May-August 2025. (UWCHR (https://jsis.washington.edu/humanrights/2025/10/21/leaving-the-door-wide-open/))",
+        "In Illinois, Evanston's police department found its ALPR data had been subject to at least seven ICE searches despite a state law banning such data sharing with ICE; the city revoked out-of-state database access as a result. In California, San Jose PD reportedly granted 'side door' access to federal agencies, with Flock audit logs showing search reasons including 'CBP' and 'ICE.' (ACLU (https://www.aclu.org/news/privacy-technology/flock-pushback); Gibbs Mura law group (https://www.classlawgroup.com/flock-safety-license-plate-reader-cameras-lawsuit))",
+        "Multiple lawsuits, including a California class action amended April 3, 2026, allege Flock's data sharing with out-of-state and federal agencies violates state privacy laws that explicitly bar sharing ALPR data outside public agencies. (Gibbs Mura law group (https://www.classlawgroup.com/flock-safety-license-plate-reader-cameras-lawsuit))"
+      ],
+      "label": "Documentation"
+    },
+    {
+      "items": [
+        "Between August 2021 and May 2026, 82 Flock contracts were terminated across 28 states; more than 20 jurisdictions cancelled contracts in July 2026 alone (the highest single-month total since tracking began in 2021), and more than 50 cities/counties cut ties with Flock in 2026. Austin, Denver, Cambridge (MA), Oak Park (IL), and Tallahassee are among cities that rejected or ended Flock contracts specifically citing immigration-enforcement data-sharing concerns. (Govtech (https://www.govtech.com/spotlight/why-flock-safety-finds-itself-in-a-surveillance-backlash); Immigration Policy Tracking Project (https://immpolicytracking.org/policies/reported-ice-accessing-flock-automated-license-plate-reader-cameras-via-local-law-enforcement/))",
+        "Flock disputes it shares data with ICE directly, states federal agencies were removed from its national search network in August 2025, and says it added safeguards over 2024-2026 including automatic keyword blocks for immigration- and reproductive-health-related searches (June 2025) and a single-toggle option for agencies to disable all federal data sharing (January 2026). (Flock Safety (https://www.flocksafety.com/blog/does-flock-share-data-with-ice))"
+      ],
+      "label": "Backlash and Flock's response"
+    }
+  ],
+  "summary": "Flock Safety operates automated license-plate-reader (ALPR) cameras - as of mid-2026, more than 120,000 cameras under contracts with roughly 7,000 law enforcement agencies nationwide. Flock has no direct contract with ICE, but federal immigration agencies have repeatedly gained access to local police camera data through local agencies.",
+  "title": "Flock Safety and the expansion of license-plate surveillance to immigration enforcement",
+  "type": "case"
+}

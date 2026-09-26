@@ -1,0 +1,31 @@
+{
+  "disputed": "Vought says the CFPB 'had overstepped its congressional mandate, creating unnecessary costs for consumers and financial institutions.' The court that vacated the medical-debt rule agreed it exceeded the CFPB's statutory authority, so that loss was not only a matter of choosing not to defend it. Credit-industry groups argue that removing accurate debt data makes lending riskier. Note on the viral clip: its caption wrongly calls Vought a 'former' official (he remains OMB Director), and its reference to 'faith' likely mixes in a separate budget hearing where Democrats questioned Vought on his religious framing of cuts (The Hill (https://thehill.com/homenews/house/5970073-house-committee-omb-budget-hearing/)).",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "The Biden-era CFPB rule would have removed about $49 billion in medical debt from roughly 15 million credit reports. Under Vought, the CFPB did not defend it in court. Judge Sean Jordan (E.D. Tex.) vacated it on July 11, 2025, ruling it exceeded the Fair Credit Reporting Act. (CBS News (https://www.cbsnews.com/amp/news/federal-judge-reverses-medical-debt-rule-credit-reports-cfpb/); Brownstein (https://www.bhfs.com/insight/federal-court-vacates-cfpbs-medical-debt-rule-finds-fcra-preempts-state-laws/))",
+        "Vought also rescinded CFPB guidance protecting consumers from unfair medical-debt collection. Rep. Ayanna Pressley introduced a Congressional Review Act resolution to restore it (May 13, 2026), part of H.R. 8777, a package of 23 Democratic bills reversing consumer-protection rollbacks. (Rep. Pressley (https://pressley.house.gov/2026/05/13/pressley-introduces-bill-to-protect-consumers-from-abusive-medical-debt-collection-practices/))",
+        "At a July 15, 2026 House Financial Services hearing, Pressley confronted Vought over the rollbacks, citing $500 billion in US medical debt and $360 million in dropped CFPB settlements meant for consumer relief. She asked: 'Give me one reason why companies should be able to harass cancer survivors to collect more than they owe.' Chairman French Hill stepped in during the exchange. (Rep. Pressley (https://pressley.house.gov/2026/07/16/video-pressley-slams-cfpb-director-vought-for-gutting-consumer-protections-for-families-with-medical-debt/))"
+      ],
+      "label": "Documentation - medical debt"
+    },
+    {
+      "items": [
+        "February 2025: Vought ordered staff to stop work. April 2025: about 1,400 layoff notices went out that would have left roughly 200 employees; a court paused them. Congress cut the CFPB budget nearly in half in July 2025. The administration then argued it could not draw Federal Reserve funding, and a judge rejected that in December 2025, calling the agency 'hanging by a thread.' The CFPB had returned $19.7 billion to consumers since 2010. (NPR (https://www.npr.org/2026/01/21/nx-s1-5683060/cfpb-consumer-watchdog-agency-trump-second-term))",
+        "It also withdrew rules, ended consent orders and dismissed cases, including the 2024 overdraft-fee limit, which Congress then repealed. (NPR (https://www.npr.org/2026/01/21/nx-s1-5683060/cfpb-consumer-watchdog-agency-trump-second-term))"
+      ],
+      "label": "Documentation - dismantling the agency"
+    },
+    {
+      "items": [
+        "Vought's acting authority expired Aug 1, 2026. Mark Paoletta, OMB general counsel who became CFPB deputy director on June 2, 2026, is now acting director. Paoletta drafted the January 2025 federal grant-pause order and is a longtime Clarence Thomas ally. (HousingWire (https://www.housingwire.com/articles/cfpb-vought-new-nomination/); Wikipedia (https://en.wikipedia.org/wiki/Mark_Paoletta))",
+        "Trump nominated Brian Johnson, a former CFPB deputy director under Kathy Kraninger, on June 10, 2026. Senate Banking advanced him 13-11 along party lines on Sept 17, 2026. A floor vote is pending before the Oct 5 recess. Some legal experts read the nomination as a shift toward 'regulatory reform' rather than dismantling. (Consumer Finance Monitor / Mondaq (https://www.mondaq.com/unitedstates/constitutional-administrative-law/1845088/senate-banking-committee-advances-brian-johnsons-nomination-to-lead-cfpb); HousingWire (https://www.housingwire.com/articles/cfpb-vought-new-nomination/))"
+      ],
+      "label": "Documentation - the new leadership"
+    }
+  ],
+  "summary": "Russ Vought, who is also OMB Director, ran the Consumer Financial Protection Bureau as acting director from February 2025 to August 2026. In that time he tried to shut it down, declined to defend the rule removing medical debt from credit reports, rescinded medical-debt collection guidance, and dropped $360 million in consumer-relief settlements. Mark Paoletta, his OMB general counsel, is now acting director. Trump's nominee Brian Johnson cleared committee on a party-line vote.",
+  "title": "CFPB under Vought: medical-debt protections rolled back, and who runs it now",
+  "type": "case"
+}

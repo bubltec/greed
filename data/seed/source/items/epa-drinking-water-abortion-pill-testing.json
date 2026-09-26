@@ -1,0 +1,28 @@
+{
+  "disputed": "EPA's own announcement did not name mifepristone or misoprostol specifically — it framed the study as a broad 'non-targeted analysis' screening for 1,400+ pharmaceuticals, pesticides and PFAS, and tied it to the 'Make America Healthy Again' movement rather than to abortion. Anti-abortion groups (Students for Life of America, Liberty Counsel Action, 14 state AGs, 19 members of Congress) say the concern is environmental — disposed pill remnants and fetal tissue entering wastewater — not a backdoor path to restricting the drugs, and SFLA president Kristan Hawkins said 'you don't have to be pro-life to want crystal-clear drinking water.' Environmental scientists and reproductive-rights advocates call this a pretext, noting mifepristone is taken as a single one-time dose by a small fraction of the population (far less volume than many daily-use pharmaceuticals already excluded from EPA's watch lists), was not among the ~700 compounds EPA previously screened, and that no peer-reviewed study has chemically identified mifepristone in any water sample; a July 2026 paper cited by advocates found only indirect 'anti-progesterone activity' signals, not the compound itself. EPA states that even if a compound is detected, the non-targeted method shows presence only, not concentration or risk to human, animal or plant health.",
+  "sections": [
+    {
+      "items": [
+        "EPA Administrator Lee Zeldin announced the study Sept. 9, 2026, describing it as 'cutting edge' non-targeted analysis that screens water samples from several metropolitan areas against a library of more than 1,400 pharmaceuticals, pesticides, PFAS ('forever chemicals') and other chemicals — including mifepristone, misoprostol, misoprostol acid, several mifepristone metabolites, and hormones such as testosterone, progesterone and levonorgestrel (used in some contraceptives and the morning-after pill). The announcement itself did not single out the abortion drugs by name in its framing. (The Hill; RedState; LifeSite)",
+        "This is the first time the federal government has tested drinking water specifically for abortion-pill compounds. Mifepristone had not been on EPA's existing Contaminant Candidate List (CCL6) or its prior ~700-compound pharmaceutical watch list; anti-abortion groups are separately lobbying to add it to CCL6 going forward. (19th News)"
+      ],
+      "label": "The study (Sept. 2026)"
+    },
+    {
+      "items": [
+        "Students for Life of America (SFLA) met with EPA in Nov. 2025 to push for the testing and calls the result 'an exciting first step,' while saying it will keep pushing for 'mandated, ongoing testing.' Fourteen state attorneys general and 19 members of Congress filed public comments backing the push during EPA's 2026 comment period. SFLA cites its own claim that '50+ tons of medical waste' from abortion drugs are flushed into water systems yearly; SFLA spokesperson John Hamrick told Politico 'people need to understand that they are likely drinking other people's abortions.' (The Hill; RedState; 19th News; AOL/Mirror)",
+        "Nathan Donley, environmental health science director at the Center for Biological Diversity, disputed the waste claim and the premise: 'There are no studies finding mifepristone in the water... because we use so little of this compared to other bona fide water contaminants, and it doesn't have the chemical hallmarks of known water contaminants.' He described the effort as using environmental concerns as a pretext for limiting reproductive rights. Democratic lawmakers and reproductive-health advocates made similar 'pretext' characterizations. (19th News; Inside Health Policy)"
+      ],
+      "label": "Reactions: advocates vs. environmental scientists"
+    },
+    {
+      "items": [
+        "This is the same EPA, under the same administrator (Lee Zeldin), that in Feb. 2026 repealed the 2009 Endangerment Finding — the legal basis for federal greenhouse-gas regulation — calling it the 'single largest deregulatory action' in US history, and that cut roughly 90% of Defense/EPA-adjacent staff capacity in unrelated areas amid broader deregulation. See [[environmental-deregulation-under-epa-administrator]]. PFAS ('forever chemicals') are included in this same 1,400-compound non-targeted screening — the study is not abortion-drugs-only, though it is the abortion-drug component that has drawn the political attention and years of lobbying documented above."
+      ],
+      "label": "Context: same EPA's broader deregulation record"
+    }
+  ],
+  "summary": "In September 2026, the EPA — under years of pressure from anti-abortion groups, 14 state attorneys general and members of Congress — launched a drinking-water study that will, for the first time, screen for the abortion medications mifepristone and misoprostol alongside 1,400+ other pharmaceuticals, pesticides and PFAS. EPA's own announcement framed it as broad emerging-contaminant research tied to the 'Make America Healthy Again' agenda rather than naming the abortion drugs specifically. Environmental scientists say there is no evidence the drugs are present in water supplies or pose any risk, and call the effort a political move responding to anti-abortion lobbying rather than a science-driven testing priority; anti-abortion groups call it a public-health and environmental win years in the making.",
+  "title": "EPA drinking-water testing for abortion pills (mifepristone/misoprostol)",
+  "type": "case"
+}

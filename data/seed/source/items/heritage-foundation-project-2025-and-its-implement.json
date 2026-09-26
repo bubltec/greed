@@ -1,0 +1,35 @@
+{
+  "disputed": "Roberts's 1,055-of-1,913 implementation figure is Heritage's own self-reported count, not an independently audited number, though it is directionally consistent with independent trackers estimating roughly half. Whether specific administration actions were caused by Project 2025 versus arrived at independently is not always separable - the strongest evidence of direct linkage is the personnel overlap (140+ shared staff) and Roberts's own public statements claiming credit, rather than a documented instruction chain for each individual policy.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "Kevin Roberts (Heritage Foundation president since December 2021, previously headed the Texas Public Policy Foundation) wrote the foreword and has publicly described Heritage's role as 'institutionalizing Trumpism.' He was one of the principal advocates for overturning the 2020 election result. (ACLU (https://www.aclu.org/project-2025-explained); Wikipedia (https://en.wikipedia.org/wiki/Kevin_Roberts_(political_strategist)))",
+        "Paul Dans directed Project 2025 until stepping down in August 2024, during the campaign, as Trump sought to distance himself from the project publicly. (Wikipedia (https://en.wikipedia.org/wiki/Project_2025))",
+        "Russell Vought, a chief Project 2025 architect, became Trump's OMB Director; a 2023 speech resurfaced during his confirmation in which he said he wanted federal bureaucrats 'traumatically affected' (see the separate 'flood the zone' entry in this document).",
+        "A CNN analysis found at least 140 people who worked on Project 2025 also worked in Trump's administration. Heritage executive Mike Howell separately called the 2024 election illegitimate before any votes were cast, without evidence. (ACLU (https://www.aclu.org/project-2025-explained))"
+      ],
+      "label": "Key people"
+    },
+    {
+      "items": [
+        "During the 2024 campaign, Trump repeatedly denied involvement, saying 'I know nothing about Project 2025... I haven't read it and never will,' and called some of its ideas 'seriously extreme.'",
+        "Roberts said in April 2024 that he had discussed the project with Trump directly; the Trump campaign denied this at the time. Trump previously endorsed Heritage at a 2022 dinner, saying the group would 'lay the groundwork and detail plans for exactly what our movement will do' upon a future mandate. (Wikipedia (https://en.wikipedia.org/wiki/Project_2025))",
+        "By May 2026, Roberts stated on C-SPAN that of the plan's 1,913 recommendations, 1,055 (roughly 55%) had been implemented, explicitly crediting Trump: 'The person who deserves credit for that is one Donald J. Trump.' A separate December 2025 analysis (The 19th, citing crowd-sourced and advocacy-org trackers) independently estimated roughly half of the document's goals had been implemented by the end of 2025. (Crooks and Liars (https://crooksandliars.com/2026/05/heritage-foundation-president-brags-about); The 19th (https://19thnews.org/2025/12/project-2025-heritage-foundation-progress/))",
+        "Cited examples of implementation include mass deportation efforts, DOGE-driven federal workforce cuts (see the DOGE entry in this document), tariff actions, rollback of DEI programs, and rapid changes to public-lands policy. (VPM/NPR (https://www.vpm.org/npr-news/2025-04-30/heritage-foundation-president-on-trumps-first-100-days/); Center for Western Priorities, cited in Substack roundup (https://martindvasquez.substack.com/p/the-heritage-foundation-is-the-agency))"
+      ],
+      "label": "Trump's denial versus the documented record"
+    },
+    {
+      "items": [
+        "In autumn 2025, after podcaster Tucker Carlson conducted a friendly interview with Nick Fuentes - a Holocaust denier and self-described white nationalist - Roberts released a video defending Carlson and stating Heritage does not 'cancel our own people,' referring to a 'venomous coalition' of critics. (CBS News, cited in Substack roundup (https://martindvasquez.substack.com/p/the-heritage-foundation-is-the-agency))",
+        "The fallout was severe: at least a dozen Heritage employees left or were fired, including nearly the entire legal and economic departments, and at least two additional board members departed by December 2025. National Review headlined its coverage 'The Heritage Foundation Implodes.' (Advocate.com (https://www.advocate.com/politics/project-2025-continues-into-2026))",
+        "Roberts subsequently promoted a follow-on plan, 'Heritage 2.0' / 'Project 2026,' organized around four priorities ('The American Family,' 'The Dignity of Work and Free Enterprise,' 'National Security,' 'American Heritage and Citizenship'), announced at Turning Point USA's America Fest and continuing to praise 'the great successes of the Trump-Vance administration.' (Advocate.com (https://www.advocate.com/politics/project-2025-continues-into-2026))"
+      ],
+      "label": "The Heritage/Fuentes controversy"
+    }
+  ],
+  "summary": "Project 2025 (the '2025 Presidential Transition Project') is a 920-page policy blueprint published April 2023 by the Heritage Foundation, a conservative think tank, laying out 1,913 recommendations to consolidate executive power and reshape the federal government along right-wing policy lines. Its stated model is Reagan's 1981 transition, when Heritage claims over 60% of its recommendations became policy.",
+  "title": "Heritage Foundation, Project 2025, and its implementation",
+  "type": "case"
+}

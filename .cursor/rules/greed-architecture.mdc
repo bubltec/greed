@@ -1,0 +1,49 @@
+---
+description: Architecture and conventions for greed — content model, BFF on Lambda, web CMS, seed, CDK, testing and CI/CD. Read before changing apps, packages, data or infra.
+globs: apps/**/*.ts,apps/**/*.tsx,packages/**/*.ts,data/**/*.ts,infra/cdk/**/*.ts,.github/workflows/*.yml,*.json
+alwaysApply: false
+---
+
+# greed architecture
+
+Same shape as badthingsforpets (btfp): one NestJS BFF on Lambda behind CloudFront `/api/*`,
+a Vite/React app on S3 in the same distribution, DynamoDB, and `@bubltec/mycota-*` for the
+reusable edges. Anything architectural that mycota doesn't provide yet belongs in mycota as a
+vanilla package, not one-off here.
+
+## Layout
+
+| Path | Owns |
+| --- | --- |
+| `packages/domain` | Content model (`Topic`, `Reference`, `Perspective`, `Relation`), `ContentIndex` views, the `ContentStore` port + `InMemoryContentStore` fake, citation parsing. No Nest, no AWS, no Node-only APIs (the web app imports it). |
+| `apps/bff` | NestJS 12 + Fastify 5. `content/` (store adapter, service, DTOs, controllers), `auth/` (editor guard, session), `lambda.ts` / `main.ts` entry points. |
+| `apps/web` | Reader (`/`, `/t/:id`, `/map`, `/activity`, `/about`) and CMS (`/admin`). Talks only to `/api/*`. |
+| `data/seed` | Converts the original artifact export in `source/` into the content model. Insert-only. |
+| `infra/cdk` | `GreedDns`, `GreedCi`, and `GreedDev`/`GreedProd` stages (`Data`, `Api`, `Web`). |
+
+## Rules
+
+*   **Integrity lives in `ContentService`**, not the UI: references belong to one topic, points and
+    perspectives may only cite that topic's references, deleting a reference unlinks it everywhere,
+    no self or duplicate relations, deleting a topic cascades.
+*   **Every DTO property has a class-validator decorator.** The pipe runs `whitelist` +
+    `forbidNonWhitelisted`, so an undecorated field is rejected.
+*   **Writes go through `EditorGuard`**, which checks the live user row against `EDITORS`
+    (emails or `provider:accountId`). Local sign-in (`POST /api/auth/local`) is refused in prod.
+*   **Reads are one cached scan** (`CONTENT_CACHE_TTL_MS`, default 15s). Writes return the fresh
+    `TopicView`; the CMS reads with `?fresh=1`. Revisit only if the table outgrows a few thousand rows.
+*   **Secrets are SSM SecureStrings** under `/greed/{env}/…` (mycota-config convention), fetched at
+    cold start by `lambda.ts`. Never put a secret value in CDK, env files, or the repo.
+*   **Seeding never overwrites.** Every put is `attribute_not_exists(PK)`; ids are deterministic.
+*   **Palette.** The UI uses only the NES Mega Man colours defined in `apps/web/src/styles.css`
+    (`@theme`). Pixel font for headings and labels only; body text stays in the system sans.
+*   Exact version pins everywhere (`saveExact`), Node 26, TypeScript 7, `"types": ["node"]`.
+
+## Verify
+
+```bash
+pnpm lint && pnpm turbo run typecheck build && pnpm turbo run test
+```
+
+`infra/cdk`'s test synthesises both stages without credentials; it needs the BFF bundle and
+web `dist/`, which `turbo` builds first.

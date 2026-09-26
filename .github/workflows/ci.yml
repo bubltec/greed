@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Docs-only changes skip the heavy job. Done per job (not paths-ignore) so a
+  # required `CI / check` status still reports success. Keep in sync with deploy.yml.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: filter
+        run: |
+          if git diff --name-only "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" \
+            | grep -qvE '\.(md|mdc)$|^docs/|^\.cursor/|^\.claude/|^LICENSE$'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  check:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    # No AWS credentials in PR runs, by design.
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      # build before test: the infra synth test needs the Lambda bundle and web dist.
+      - run: pnpm turbo run typecheck build
+      - run: pnpm turbo run test

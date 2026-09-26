@@ -1,0 +1,23 @@
+{
+  "disputed": "The administration and its supporters frame these actions as restoring biological accuracy and protecting women's spaces/sports, not as targeting trans people per se; the White House's own executive order text uses language like 'gender ideology extremism' rather than framing itself as anti-trans. Civil liberties organizations (ACLU, HRC), medical associations (AMA, APA, AAP), and outlets like The 19th and Axios characterize the cumulative effect as targeting transgender Americans' rights, healthcare, and legal recognition — this is their characterization, though it is widely shared across mainstream medical and civil-rights bodies, not a fringe view. Legal status of individual orders varies and has changed over time through ongoing litigation (e.g., the passport policy was enjoined, then the Supreme Court allowed enforcement to continue pending appeal as of Nov. 2025, then a preliminary injunction was granted again in Feb. 2026) — treat any snapshot of 'current' legal status as time-bound to when it was reported.",
+  "sections": [
+    {
+      "items": [
+        "On Inauguration Day (Jan. 20, 2025), Trump signed Executive Order 14168, 'Defending Women from Gender Ideology Extremism and Restoring Biological Truth to the Federal Government,' declaring federal recognition of only two sexes, male and female, and mandating sex-based (not gender-identity-based) language and facilities across federal agencies. (Genspect USA timeline citing WH text; HRC; ACLU)",
+        "On Jan. 27, 2025, Executive Order 14183, 'Prioritizing Military Excellence and Readiness,' directed the Pentagon to revise policy to exclude transgender individuals from military service, citing unit cohesion and readiness concerns. (Wikipedia/EO 14183 text)",
+        "Federal agency implementation followed within days: the State Department suspended 'X' gender-marker and updated-sex-marker passports (later the subject of ongoing litigation — enjoined June 2025, Supreme Court allowed enforcement to continue Nov. 2025 pending appeal, preliminary injunction granted again Feb. 2026); the EEOC removed LGBTQ+ workplace guidance; agencies ordered pronoun removal from email signatures; CDC/FDA/NIH removed thousands of trans/LGBTQ+ health resources from public websites by a Jan. 31, 2025 deadline. (CNN; Reuters; Genspect USA timeline; AIDS Law Project of PA; LGBTQ+ Bar litigation tracker)"
+      ],
+      "label": "Executive orders and federal implementation (Jan. 2025)"
+    },
+    {
+      "items": [
+        "Additional documented actions per The 19th and Axios: restricting/denying gender-affirming care by threatening hospitals' federal funding, banning transgender girls from school sports (with schools facing loss of federal funds under a Title IX-based order and Trump stating he'd bar trans athletes from 2028 Olympics visas), erasing trans history/resources from federal websites and schools, cutting funding for LGBTQ+ programs, and directives affecting treatment of transgender people in federal prisons. (19thnews.org; Axios)",
+        "The ACLU notes that on Trump's first day, he also signed an order dismantling federal DEI initiatives, which had separately included protections extending sex-discrimination coverage to sexual orientation and gender identity — compounding the effect of EO 14168. Medical associations (AMA, APA, AAP) and their consensus positions on gender-affirming care were characterized in the EOs as 'ideology' rather than medical consensus, per HRC's analysis. (ACLU; HRC)"
+      ],
+      "label": "Healthcare, education, sports, and federal records"
+    }
+  ],
+  "summary": "Beginning on Trump's first day back in office, the administration issued a series of executive orders and agency directives — recognizing only two sexes federally, banning transgender military service, restricting passports, gender-affirming care, and school sports participation, and removing trans-related federal resources — which civil rights and medical organizations describe as a coordinated rollback of transgender Americans' legal recognition and rights.",
+  "title": "Anti-transgender executive orders and federal policy rollback",
+  "type": "case"
+}

@@ -1,0 +1,20 @@
+{
+  "disputed": "A National Review analysis disputed the narrative of reduced food-inspector capacity specifically, citing Partnership for Public Service data showing 473 federal food inspectors as of February 2026, versus 443 in 2024 - a modest increase in that specific inspector headcount, separate from the broader support-staff and FSIS cuts documented above. The cited outbreaks (Listeria, E. coli, Salmonella) are not shown in this reporting to have been directly caused by the staffing cuts - the documented link is reduced inspection volume and support capacity, which experts warn increases risk, not a proven causal chain for any specific outbreak.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "As of 2026, the Trump administration had cut 913 full-time roles from the USDA's Food Safety Inspection Service (out of 7,526 employees) and 2,889 jobs from the CDC (out of 9,769). More than 1,100 FSIS roles have been eliminated since 2024 according to Office of Personnel Management data. (FoodNavigator (https://www.foodnavigator.com/Article/2026/02/16/fda-and-usda-staff-cuts-under-trump-raise-food-safety-risks/); Fortune (https://fortune.com/2026/09/04/cyclospora-outbreak-fda-food-recalls-doge-cuts-elon-musk-making-worse/))",
+        "FDA Deputy Commissioner Jim Jones, who oversaw the Human Foods Program, resigned in February 2025 after 89 staff in his program were fired; he called the firings 'beyond short-sighted' given the team's technical and professional standards. (FoodNavigator (https://www.foodnavigator.com/Article/2026/02/16/fda-and-usda-staff-cuts-under-trump-raise-food-safety-risks/))",
+        "Kennedy said food and drug safety inspectors themselves would not be affected by the March 2025 cuts, but dozens of support staff who enable that work were let go, including lab scientists who test food samples for contamination and staff who coordinate international plant inspections and public safety-recall communications. The FDA moved to hire outside contractors to cover some of these functions. (Fortune/AP (https://fortune.com/well/2025/04/18/rfk-jr-fda-food-safety-inspectors-doge-job-cuts))",
+        "Comparing FDA foreign food inspections: 805 in fiscal 2024, dropping to 723 in fiscal 2025, and just 214 in the first two quarters of fiscal 2026 - a steep downward trend, notable because imports make up roughly 20% of the U.S. food supply. The FDA was already conducting 36% fewer inspections than before the pandemic prior to these additional cuts. (Fortune (https://fortune.com/2026/09/04/cyclospora-outbreak-fda-food-recalls-doge-cuts-elon-musk-making-worse/); MarketBeat (https://www.marketbeat.com/articles/fda-hiring-contractors-to-replace-fired-staff-who-supported-safety-inspections-2025-04-18))",
+        "A Rutgers food science professor, Don Schaffner, said the cuts risk 'los[ing] visibility into what's going on,' noting a significant number of foodborne illnesses and outbreaks already go undetected even before these reductions. (Fortune (https://fortune.com/2026/09/04/cyclospora-outbreak-fda-food-recalls-doge-cuts-elon-musk-making-worse/))",
+        "Specific documented outbreaks during this period include a deadly multistate Listeria outbreak linked to Fresh & Ready Foods ready-to-eat products (10 hospitalizations, one death) - notably linked to a facility that had tested positive for Listeria back in 2017 - and separate outbreaks involving E. coli-linked onions served at McDonald's and Salmonella-linked cucumbers that hospitalized 155 people. (PIRG (https://pirg.org/edfund/?p=19872); Marler Blog/CSPI (https://mta-sts.billmarler.com/blog/p22))"
+      ],
+      "label": "Documentation"
+    }
+  ],
+  "summary": "FDA and USDA staffing cuts under RFK Jr. and DOGE have coincided with reduced inspection activity, which food-safety experts say increases outbreak risk.",
+  "title": "Food safety: inspector cuts and foodborne illness",
+  "type": "case"
+}

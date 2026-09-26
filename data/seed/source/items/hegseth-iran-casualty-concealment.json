@@ -1,0 +1,28 @@
+{
+  "disputed": "Hegseth has publicly denied undercounting, calling the Washington Post's reporting 'DISGUSTING and FAKE' and 'a complete LIE.' The Pentagon says the reclassification of four soldiers into an 'Overseas Operations' category reflects a change in how casualties are categorized, not an effort to conceal them. The Post's sourcing is anonymous US officials (five to six, described as familiar with internal casualty data), not an independently released document; a member of the House Armed Services Committee (Rep. Pat Ryan) has said the reporting is consistent with what he has seen, without detailing classified information.",
+  "sections": [
+    {
+      "items": [
+        "The Pentagon's public database, the Defense Casualty Analysis System, listed 18 US military deaths since the Iran war began as of mid-September 2026; five US officials told the Washington Post the real figure is at least 22, and a sixth put it at 23 since Feb. 28, when the US and Israel launched the war. More than 820 service members have been wounded in action, many with traumatic brain injuries from Iranian strikes on US bases in the region. (Washington Post, via Raw Story)",
+        "Rep. Jason Crow (D-CO) and 11 other House Democrats who are military veterans announced legislation to bar the Pentagon from manipulating government casualty data. Rep. Pat Ryan (D-NY), an Army combat veteran on the House Armed Services Committee, said based on what he has seen as a lawmaker the Post's report 'appears to be accurate' and called Hegseth 'the most incompetent and immoral Secretary of Defense by 10x that we've ever had.' (Washington Post; MS NOW)"
+      ],
+      "label": "Undercount reported by the Washington Post (Sept. 2026)"
+    },
+    {
+      "items": [
+        "In an earlier episode, four recently killed US service members were briefly removed from the Pentagon's public casualty tally, prompting calls for Hegseth's resignation; the four later reappeared, but under a newly created 'Overseas Operations' category rather than under the Iran-war tally itself. Pentagon officials said this reflected a categorization change, not concealment; critics, including social-media commentary, continued to call for Hegseth to be fired. (Wonderwall/MEGA)"
+      ],
+      "label": "Earlier casualty-tally episode (July 2026)"
+    },
+    {
+      "items": [
+        "Six US service members, including Sgt. 1st Class Nicole M. Amor and Sgt. Declan Coady, were killed in an Iranian drone strike at Port Shuaiba, Kuwait, on March 1, 2026, as Iran responded to the initial US-Israeli strikes. At a press conference, Hegseth said the US would 'avenge' the deaths but also criticized media focus on casualties as trying 'to make the president look bad,' saying 'when a few drones get through or tragic things happen, it's front page news.' (Yahoo/Des Moines Register)",
+        "This sits alongside a separately documented pattern of Hegseth's Pentagon spending roughly $93 billion in September 2025 alone on items including lobster tail and a Steinway piano, while a March 2026 Pentagon request for approximately $200 billion in supplemental Iran-war funding drew Hegseth's comment that 'it takes money to kill bad guys.' See [[hegseth-s-pentagon-spending-versus-food-shortages]]."
+      ],
+      "label": "Confirmed deaths and Hegseth's public posture"
+    }
+  ],
+  "summary": "Since the US-Israeli war on Iran began Feb. 28, 2026 ('Operation Epic Fury'), Defense Secretary Pete Hegseth's Pentagon has kept its public casualty database below the death toll described by multiple US officials to the Washington Post, briefly removed some deaths from the public tally, then restored them under a newly created non-Iran-war category — drawing bipartisan-adjacent criticism, a veteran-led push for legislation, and calls for his resignation.",
+  "title": "Hegseth's Pentagon undercounting/concealing US casualties in the Iran war",
+  "type": "case"
+}

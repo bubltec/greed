@@ -1,0 +1,15 @@
+---
+description: Stash-and-restart sequence to use when the current branch's PR already merged into main
+alwaysApply: false
+---
+
+# Recover from a merged branch
+
+**Precondition:** no merge or rebase in progress. If one exists, stop and ask the user.
+
+1. Confirm: `gh pr list --state merged --head <current-branch> --json number,mergedAt,mergeCommit`.
+2. `git stash -u`
+3. Fast-forward `main` without checking it out: `git fetch . origin/main:main`
+   (on `main` already: `git merge --ff-only origin/main`).
+4. `git checkout -b <new-branch-name> main`
+5. `git stash apply` (not `pop`), verify what is still needed, then `git stash drop`.

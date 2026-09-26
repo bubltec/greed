@@ -1,0 +1,20 @@
+{
+  "disputed": "Kennedy has publicly told people not to take his personal medical advice while continuing to make specific health claims in his official capacity as Secretary. Whether any single treatment (e.g., leucovorin) helps some individual patients is a separate clinical question from whether it is an established, evidence-based treatment for autism generally - the latter is what fact-checkers and medical organizations dispute.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "On November 19, 2025, Kennedy directed the CDC to change its website's vaccine safety page to remove language stating no link exists between vaccines and autism and add claims suggesting the issue is unsettled. Rep. Kelly Morrison, a physician, and other Democratic doctors in Congress called the change 'reckless and dangerous,' noting the scientific consensus, drawn from studies worldwide, shows autism rates are the same in vaccinated and unvaccinated populations. (CBS News, via Rep. Morrison (https://morrison.house.gov/media/press-releases/us-rep-kelly-morrison-and-democratic-doctors-slam-rfk-jr-promoting-false-claim); KFF Health News (https://kffhealthnews.org/news/article/cdc-autism-baseless-new-guidance-website/))",
+        "FactCheck.org documented Kennedy repeating false vaccine claims at a September 2026 Children's Health Defense conference (an anti-vaccine nonprofit he previously led) after appearing with Trump for an executive order calling for splitting up the MMR vaccine; Trump inaccurately called the MMR vaccine 'quite lethal' at that signing. (FactCheck.org (https://www.factcheck.org/2026/09/factchecking-rfk-jr-s-childrens-health-defense-keynote/))",
+        "Snopes has cataloged at least nine specific false or misleading claims by Kennedy, including that autism means a child will never hold a job or write a poem (April 2025), a false claim linking early circumcision to double the autism rate via Tylenol exposure (May 2026), and a repeated false claim that the MMR vaccine contains fetal tissue (August 2026). (Snopes (https://www.snopes.com/collections/rfk-false-misleading-claims/))",
+        "In an August 2026 CNN interview, Kennedy again promoted a claimed link between prenatal Tylenol use and autism; CNN noted the single review he cited explicitly stated it did not prove causation, and other large studies following millions of children found no such link. The interview came during a measles outbreak year with the highest case count in 35 years, over 90% among unvaccinated people, including a nearly-1,000-case outbreak in South Carolina. (CNN (https://www.cnn.com/2026/08/02/politics/rfk-jr-fauci-medical-misinformation))",
+        "Kennedy has banned NIH research on mRNA vaccines and on vaccine hesitancy itself, restricted CDC reporting on measles risk in low-vaccination areas, and fired the FDA's top vaccine official, Dr. Peter Marks, in March 2025; Marks said Kennedy wanted 'subservient confirmation' of his views rather than transparency. (Paul Offit / Substack (https://pauloffit.substack.com/p/senator-cassidy-please-save-our-children))",
+        "The administration has also promoted leucovorin, a cancer medication, as an autism treatment without established evidence, according to a March 2026 congressional letter to Kennedy. (Sen. Lujan letter (https://www.lujan.senate.gov/wp-content/uploads/2026/03/Letter-to-HHS-Sec-RFK-re-Website-Autism-Vaccine-Misinformation.pdf))"
+      ],
+      "label": "Documentation"
+    }
+  ],
+  "summary": "Since taking office, Kennedy has repeated numerous claims that scientific and fact-checking organizations have documented as false or misleading, primarily regarding vaccines and autism.",
+  "title": "RFK Jr.'s false and misleading health claims as HHS Secretary",
+  "type": "case"
+}

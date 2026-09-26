@@ -1,0 +1,153 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.mdc'
+      - 'docs/**'
+      - '.cursor/**'
+      - '.claude/**'
+      - 'LICENSE'
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+env:
+  GREED_HOSTED_ZONE_ID: ${{ vars.GREED_HOSTED_ZONE_ID }}
+  GREED_GITHUB_REPO: ${{ vars.GREED_GITHUB_REPO }}
+  GREED_GITHUB_CLIENT_ID: ${{ vars.GREED_GITHUB_CLIENT_ID }}
+  GREED_EDITORS: ${{ vars.GREED_EDITORS }}
+  GREED_DEV_BASIC_AUTH_USER: ${{ secrets.GREED_DEV_BASIC_AUTH_USER }}
+  GREED_DEV_BASIC_AUTH_PASSWORD: ${{ secrets.GREED_DEV_BASIC_AUTH_PASSWORD }}
+
+jobs:
+  # One build, promoted unchanged from dev to prod.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run typecheck build
+      - run: pnpm turbo run test
+      - uses: actions/upload-artifact@v7
+        with:
+          name: bff-dist
+          path: apps/bff/dist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: web-dist
+          path: apps/web/dist
+
+  deploy-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v8
+        with:
+          name: bff-dist
+          path: apps/bff/dist
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-dist
+          path: apps/web/dist
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+      # Docker build + push of the BFF image happens inside this call.
+      - name: cdk deploy GreedDev
+        working-directory: infra/cdk
+        run: npx cdk deploy 'GreedDev/*' --require-approval never
+
+  # No `environment:` so the diff is visible before anyone approves production.
+  prod-diff:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v8
+        with:
+          name: bff-dist
+          path: apps/bff/dist
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-dist
+          path: apps/web/dist
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: cdk diff GreedProd + GreedCi
+        working-directory: infra/cdk
+        run: |
+          {
+            echo '## GreedProd diff'; echo '```'
+            npx cdk diff 'GreedProd/*' 2>&1 || true
+            echo '```'; echo '## GreedCi diff'; echo '```'
+            npx cdk diff GreedCi 2>&1 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-prod:
+    needs: prod-diff
+    runs-on: ubuntu-latest
+    # The real gate: required reviewers on the `production` GitHub Environment.
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v8
+        with:
+          name: bff-dist
+          path: apps/bff/dist
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-dist
+          path: apps/web/dist
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+      # GreedDns is a one-shot laptop deploy; never recreate it from Actions.
+      - name: cdk deploy GreedCi
+        working-directory: infra/cdk
+        run: npx cdk deploy GreedCi --require-approval never
+      - name: cdk deploy GreedProd
+        working-directory: infra/cdk
+        run: npx cdk deploy 'GreedProd/*' --require-approval never

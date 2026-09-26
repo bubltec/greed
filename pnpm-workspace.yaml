@@ -1,0 +1,28 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "infra/*"
+  - "data/*"
+allowBuilds:
+  '@bubltec/mycota-cdk': true
+  '@bubltec/mycota-config': true
+  '@nestjs/core': true
+  esbuild: true
+# Pin exact versions when adding dependencies. Kept in sync with .npmrc.
+saveExact: true
+# Fail (not just warn) when the running Node does not satisfy `engines` (Node 26).
+# Only this setting works: pnpm 11 ignores `engine-strict` in .npmrc.
+engineStrict: true
+# Native optional deps (rollup, oxlint, esbuild) for both Mac arches, same as btfp.
+supportedArchitectures:
+  os:
+    - current
+  cpu:
+    - arm64
+    - x64
+# First-party packages published by our own CI; exempt from the release-age gate.
+minimumReleaseAgeExclude:
+  - '@bubltec/*'
+# @nestjs/platform-fastify pins `fastify` exactly; keep one copy (same as btfp).
+overrides:
+  fastify: 5.12.5

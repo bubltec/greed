@@ -1,0 +1,134 @@
+@import 'tailwindcss';
+@import '@fontsource/press-start-2p/400.css';
+
+/*
+ * Palette: the NES (2C02) colours the 1990s Mega Man games are drawn with.
+ * Black stage backdrop, Mega Man's two blues, the cyan highlight, the
+ * yellow of the energy bar, and the red used for damage. Nothing else.
+ */
+@theme {
+  --color-void: #000000;
+  --color-night: #00003c;
+  --color-mega: #0070ec;
+  --color-sky: #3cbcfc;
+  --color-ice: #a4e4fc;
+  --color-deep: #0000bc;
+  --color-bolt: #f8b800;
+  --color-cream: #fce4a0;
+  --color-hurt: #f83800;
+  --color-snow: #fcfcfc;
+  --color-steel: #bcbcbc;
+  --color-slate: #747474;
+
+  --font-pixel: 'Press Start 2P', ui-monospace, monospace;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@layer base {
+  html {
+    background: var(--color-void);
+    color: var(--color-snow);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100dvh;
+  }
+  ::selection {
+    background: var(--color-bolt);
+    color: var(--color-void);
+  }
+  a {
+    color: var(--color-ice);
+    text-decoration: underline;
+    text-decoration-color: var(--color-mega);
+    text-underline-offset: 3px;
+  }
+  a:hover {
+    color: var(--color-snow);
+    text-decoration-color: var(--color-bolt);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-bolt);
+    outline-offset: 2px;
+  }
+  input,
+  textarea,
+  select {
+    background: var(--color-void);
+    color: var(--color-snow);
+    border: 2px solid var(--color-mega);
+    padding: 0.5rem 0.625rem;
+    width: 100%;
+    font: inherit;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-slate);
+  }
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--color-sky);
+  }
+}
+
+@layer components {
+  /* Pixel headings: small sizes only, the face is wide. */
+  .pixel {
+    font-family: var(--font-pixel);
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+  .panel {
+    border: 2px solid var(--color-mega);
+    background: var(--color-void);
+  }
+  .btn {
+    font-family: var(--font-pixel);
+    font-size: 0.625rem;
+    line-height: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--color-sky);
+    color: var(--color-snow);
+    background: var(--color-deep);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn:hover {
+    background: var(--color-mega);
+    color: var(--color-snow);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--color-mega);
+  }
+  .btn-danger {
+    background: transparent;
+    border-color: var(--color-hurt);
+    color: var(--color-hurt);
+  }
+  .btn-danger:hover {
+    background: var(--color-hurt);
+    color: var(--color-void);
+  }
+  .label {
+    font-family: var(--font-pixel);
+    font-size: 0.5625rem;
+    color: var(--color-sky);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .prose-body {
+    line-height: 1.65;
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "disputed": "The administration says offshore wind poses national-security, cost and wildlife risks. The courts that reviewed the classified material found the security rationale insufficient to justify the stoppages. The $1.8 billion and 160-project figures come from the Democratic minority report, and the methodology behind them is not independently verified here.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "In December 2025 the administration issued stop-work orders on five East Coast offshore wind projects (off CT, MA, NY, RI and VA), citing classified national-security concerns. Five separate court decisions ruled against it, and all five projects have restarted. Judge Royce Lamberth: 'Every court to review this question has now found that the loss of specialized vessels and resulting delays amounts to irreparable harm.' (Stateline (https://stateline.org/2026/02/19/offshore-wind-triumphs-over-trump-in-court-but-future-projects-face-delays/); EDF (https://www.edf.org/media/courts-strike-down-all-five-stop-work-orders-offshore-wind-projects))",
+        "The administration also canceled $679 million in offshore-wind port and manufacturing funding and moved to revoke Maryland offshore wind permits. Analysts expect no other offshore projects to advance for about three years. (Stateline (https://stateline.org/2026/02/19/offshore-wind-triumphs-over-trump-in-court-but-future-projects-face-delays/))",
+        "The Senate Democratic report counts more than 160 wind projects frozen and $1.8 billion in taxpayer funds paid to cancel wind projects. (Senate EPW Democrats (https://www.epw.senate.gov/public/index.cfm/press-releases-democratic?ID=D17E87C8-BA5B-4D3A-BA7A-CAD03C4B6F2D))",
+        "A federal court also blocked Interior policies restricting wind and solar permitting on federal land. (Utility Dive (https://www.utilitydive.com/news/court-trump-wind-solar-permitting/818152/))"
+      ],
+      "label": "Documentation"
+    }
+  ],
+  "summary": "While opening public land to oil, the administration halted offshore wind construction, froze permits for more than 160 wind projects, and canceled federal funding for wind ports and manufacturing. Courts struck down every stop-work order it issued.",
+  "title": "War on wind: stop-work orders, frozen projects, and canceled clean-energy funding",
+  "type": "case"
+}

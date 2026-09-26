@@ -1,0 +1,33 @@
+{
+  "disputed": "The administration says the cancelled awards were rushed out in Biden's final months (about 26%, or $3.1B, were issued between Election Day and Inauguration) and were not economically viable. It argues that wind and solar need subsidies and that dispatchable coal, gas and nuclear are needed for reliability. It also backs nuclear, including a $1B loan for the Three Mile Island restart. Recent price increases also reflect the Iran war oil shock, data-center demand growth, and grid costs. Not all of the rise is caused by these policies, and analysts disagree on how much is. DOE's own filing makes the political basis for the grant cancellations a documented fact, not an inference.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "Oct 2, 2025: DOE terminated $7.56 billion for 223 clean-energy projects, all in 16 states that voted for Harris. OMB Director Russ Vought called it ending 'Green New Scam funding.' (Utility Dive (https://www.utilitydive.com/news/doe-cancel-clean-energy-awards/801764/); Axios (https://www.axios.com/2025/10/02/doe-ends-awards-vought-tweet))",
+        "In a July 15, 2026 court filing, DOE stated the cancellations were 'based solely on the political identity of the grant recipient's state,' with no 'programmatic, statutory, cost-reduction, or performance-based' consideration. (Utility Dive (https://www.utilitydive.com/news/backlash-trumps-vindictive-grant-cancellations-doe-energy/826226/))",
+        "The cuts included $2.2 billion for the California and Pacific Northwest hydrogen hubs. Thirteen states sued over the hydrogen-hub and clean-energy cuts. (gasworld (https://www.gasworld.com/story/trumps-doe-axes-2-2bn-funding-for-california-and-pacific-northwest-hydrogen-hubs/2166099.article/); S&P Global (https://www.spglobal.com/energy/en/news-research/latest-news/electric-power/021926-13-states-sue-trump-administration-over-hydrogen-hub-clean-energy-cuts))",
+        "EPA terminated the $7 billion Solar for All program for low-income households in August 2025. On Sept 18, 2026, Judge Mary McElroy (a Trump appointee) ruled the termination illegal and restored the program. (Utility Dive (https://www.utilitydive.com/news/federal-judge-restores-7b-solar-for-all-program-says-epa-illegally-axed-i/830879/))",
+        "The July 2025 tax law phased out wind and solar credits. Rhodium projects new clean capacity will be 57-62% lower through 2035, with over half a trillion dollars in clean investment at risk (including $263 billion in wind, solar and storage). (Rhodium Group (https://rhg.com/research/assessing-the-impacts-of-the-final-one-big-beautiful-bill/))"
+      ],
+      "label": "Documentation - funding cut"
+    },
+    {
+      "items": [
+        "The administration declared a national energy emergency and used 90-day emergency orders to keep aging coal plants running. DOE also directed more than $600 million in subsidies to coal plants. It froze wind permitting and delayed or canceled renewables on federal land, including Nevada's Esmeralda 7 solar-and-battery project, even though clean energy made up over 90% of new grid capacity the prior year. (EDF (https://www.edf.org/media/electricity-bills-have-risen-47-states-while-trump-administration-blocks-cheapest-cleanest); CS Monitor (https://www.csmonitor.com/Business/2026/0912/trump-gas-prices-energy-policy))"
+      ],
+      "label": "Documentation - steering the market toward fossil fuels"
+    },
+    {
+      "items": [
+        "Electricity bills rose in 47 states over the year to Nov 2025, by at least 10% in 10 of them. (EDF (https://www.edf.org/media/electricity-bills-have-risen-47-states-while-trump-administration-blocks-cheapest-cleanest))",
+        "As of Sept 2026: gasoline went from $3.12 (Jan 2025) to $4.29, diesel is above $6, and electricity is expected at 18.2 cents/kWh compared with 16.5 cents before Trump took office. Energy employment fell in 2025. (CS Monitor (https://www.csmonitor.com/Business/2026/0912/trump-gas-prices-energy-policy))",
+        "Rhodium projects household energy costs rising $78-192 a year by 2035 because of the tax law. (Rhodium Group (https://rhg.com/research/assessing-the-impacts-of-the-final-one-big-beautiful-bill/))"
+      ],
+      "label": "Documentation - what consumers pay"
+    }
+  ],
+  "summary": "Beyond boosting oil and gas directly, the administration cut or canceled tens of billions in clean-energy funding and phased out wind and solar tax credits. It used emergency powers to keep fossil plants running and blocked the cheapest new power sources. In a court filing, DOE admitted that $7.6 billion of those cancellations were based solely on which way the recipient's state voted. Household electricity and energy bills have gone up, not down.",
+  "title": "Tilting the energy market to fossil fuels: clean-energy funding cuts and rising bills",
+  "type": "case"
+}

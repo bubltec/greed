@@ -1,0 +1,30 @@
+{
+  "name": "@greed/infra",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run",
+    "cdk": "cdk",
+    "synth": "cdk synth --quiet",
+    "deploy:dns": "cdk deploy GreedDns",
+    "deploy:dev": "cdk deploy \"GreedDev/*\""
+  },
+  "dependencies": {
+    "@bubltec/mycota-cdk": "1.0.1",
+    "aws-cdk-lib": "2.270.0",
+    "constructs": "10.8.1",
+    "source-map-support": "0.5.21"
+  },
+  "devDependencies": {
+    "@greed/bff": "workspace:*",
+    "@greed/config": "workspace:*",
+    "@greed/web": "workspace:*",
+    "@types/node": "26.6.2",
+    "aws-cdk": "2.1142.0",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
+  }
+}

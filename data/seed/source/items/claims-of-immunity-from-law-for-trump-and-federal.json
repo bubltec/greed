@@ -1,0 +1,26 @@
+{
+  "disputed": "No court has endorsed the administration's 'absolute immunity' framing for ICE agents; legal experts across the spectrum call it overstated. On the pardon question, whether any specific pardon was corruptly exchanged for payment has not been proven in any single case - the concern documented here is a pattern of suspicious timing and a legal environment (post-Trump v. United States) where such a link would be extremely difficult to prosecute even if true, not a proven instance of bribery.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "The Supreme Court's 2024 ruling in Trump v. United States granted presidents broad immunity from criminal prosecution for official acts, including core constitutional powers like pardons. Legal scholars note this makes it effectively impossible to criminally prosecute a president even for an alleged corrupt pardon-for-payment arrangement, since pardons are a core presidential power under the ruling. (CAP (https://www.americanprogress.org/article/trump-v-united-states-revisiting-the-presidential-immunity-ruling-1-year-later/))",
+        "A law professor and pardon scholar (Frank Bowman, University of Missouri) has said Trump is using pardons to reshape the DOJ into an institution that 'protects allies and punishes opponents,' creating what he called a 'permission structure for illegality,' including preemptive pardons for people not yet charged over 2020 election-related conduct. (Davis Vanguard (https://davisvanguard.org/2026/04/trump-pardon-power-abuse-report/))",
+        "One documented case cited by CAP: a defendant's mother attended a $1 million-per-person Mar-a-Lago fundraiser in April 2025, and the defendant received a full pardon three weeks later. CAP is explicit there is no direct evidence of a quid pro quo, calling it only an 'appearance of impropriety.' Under Trump v. United States, even direct evidence of a bribery-for-pardon arrangement would face serious legal obstacles to prosecution, leaving impeachment (requiring 67 Senate votes) as the only clear remedy. (CAP (https://www.americanprogress.org/article/trump-v-united-states-revisiting-the-presidential-immunity-ruling-1-year-later/))"
+      ],
+      "label": "Presidential immunity and the pardon power"
+    },
+    {
+      "items": [
+        "Following the fatal shooting of Renee Good by ICE officer Jonathan Ross, VP JD Vance and White House deputy chief of staff Stephen Miller both publicly stated ICE agents have 'federal immunity' from prosecution for actions taken in the course of their duties; Miller told all ICE agents 'anybody who lays a hand on you or tries to stop you or tries to obstruct you is committing a felony.' (NewsNation (https://www.newsnationnow.com/us-news/immigration/do-ice-officers-have-absolute-immunity/))",
+        "Legal experts widely disputed this characterization as inaccurate. Georgetown law professor Stephen Vladeck said 'the federal government absolutely retains the ability to prosecute federal law enforcement officers who break the law, even in the course of carrying out their duties.' PolitiFact rated Miller's 'federal immunity' claim as false - agents have some Supremacy Clause protection from state prosecution for job-related conduct, decided case by case by a judge, but are not immune from federal prosecution or from state prosecution when they violate the law. (PolitiFact (https://politifact.com/factchecks/2025/oct/29/stephen-miller/ICE-agent-immigration-raids-legal-immunity/); Time (https://time.com/7329034/stephen-miller-ice-immunity-pritzker/))",
+        "In practice, this claimed immunity has coincided with a documented pattern of no prosecutions: e.g., in one November 2025 case a federal judge ordered 615 people released in Chicago after finding ICE conducted unconstitutional arrests, and no agents were prosecuted; ICE reportedly conducted a similar operation, arresting 47 more people, the very next day. (State of Surveillance (https://stateofsurveillance.org/articles/surveillance/qualified-immunity-ice-agents-shield-accountability/))",
+        "Miller separately threatened Illinois Gov. J.B. Pritzker with arrest for 'seditious conspiracy' over Pritzker's efforts to hold ICE accountable, while some local officials (e.g., Chicago's 'ICE On Notice' executive order, January 2026) have directed local police to document and pursue prosecution of federal agents for misconduct. (Time (https://time.com/7329034/stephen-miller-ice-immunity-pritzker/); Wikipedia (https://en.wikipedia.org/wiki/ICE_On_Notice))"
+      ],
+      "label": "Claims of immunity for ICE agents"
+    }
+  ],
+  "summary": "The Supreme Court's 2024 ruling in Trump v. United States granted presidents broad immunity from criminal prosecution for official acts, including core constitutional powers like pardons. Legal scholars note this makes i",
+  "title": "Claims of immunity from law for Trump and federal agents",
+  "type": "case"
+}

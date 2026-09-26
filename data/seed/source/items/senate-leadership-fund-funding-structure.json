@@ -1,0 +1,16 @@
+{
+  "disputed": "This structure (a disclosing super PAC paired with a non-disclosing affiliated 501(c)(4) 'dark money' nonprofit funneling it money) is common on both sides of the aisle, not unique to Republicans — e.g., Senate Democrats' equivalent leadership PAC has received large sums from The Democracy PAC, which itself is funded substantially by a non-disclosing 501(c)(4) (Fund for Policy Reform), per Center for Financial Integrity/FollowTheMoney research. So the dark-money mechanism itself is a bipartisan feature of the current campaign finance system, even though SLF specifically is Republican-only in which candidates it supports.",
+  "sections": [
+    {
+      "items": [
+        "Senate Leadership Fund (SLF PAC) was founded in January 2015 by allies of then-Senate Majority Leader Mitch McConnell; it is now aligned with current Senate Majority Leader John Thune. Per its own website (as of Aug. 2025), it describes itself as 'the only outside organization solely dedicated to protecting and expanding the Republican Senate Majority' — it exclusively supports Republican Senate candidates and opposes Democratic ones; it does not claim bipartisanship. Executive Director Alex Latcham previously served as a deputy assistant to President Trump and director of the White House Office of Public Liaison. (FactCheck.org; Wikipedia; Ballotpedia)",
+        "SLF is a 'super PAC' under FEC rules: it can accept unlimited contributions and must disclose its direct donors, but cannot legally coordinate spending with candidate campaigns. It is closely affiliated with One Nation, a 501(c)(4) nonprofit ('dark money' group) that is not required to disclose its own donors; One Nation has transferred at least $46 million to SLF, allowing the original source of a portion of SLF's war chest to remain publicly untraceable. One Nation's president, Steven Law, previously led SLF itself before stepping down in 2024. (FactCheck.org; Wikipedia)",
+        "SLF spent $211 million on 2024 election independent expenditures (third-most of any super PAC nationally, per OpenSecrets), and told the New York Times in April 2026 it planned to spend approximately $350 million in the 2026 cycle. North Carolina received the second-largest state allocation of SLF spending. Historically, top disclosed individual donors have included Sheldon and Miriam Adelson ($50 million combined in 2020), Blackstone CEO Stephen Schwarzman, and investor Paul Singer. (FactCheck.org; OpenSecrets via FactCheck.org)"
+      ],
+      "label": "Senate Leadership Fund: structure and funding"
+    }
+  ],
+  "summary": "Senate Leadership Fund is a Republican-only super PAC (McConnell-founded, now Thune-aligned) that spends hundreds of millions of dollars per election cycle exclusively to elect Republican senators and defeat Democrats, funded partly through a non-disclosing affiliated 'dark money' nonprofit (One Nation) that obscures a portion of its donor base — the same organization behind the disputed Ronald Hayes ad against Roy Cooper.",
+  "title": "Senate Leadership Fund: Republican-only super PAC funding structure",
+  "type": "case"
+}

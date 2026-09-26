@@ -1,0 +1,26 @@
+---
+description: Sync with origin and check merged PRs before editing code
+alwaysApply: true
+---
+
+# Sync before code changes
+
+Work sometimes gets committed, pushed, and merged to `main` outside the current
+session, so local state can be stale in ways `git status` alone won't show.
+
+Before **any** file edit, commit, or new branch work:
+
+1. `git fetch origin`
+2. Compare local `main` with `origin/main`: `git log main..origin/main --oneline`
+3. Compare the **current branch**:
+   - `git status -sb`
+   - `git log HEAD..origin/main --oneline` (behind main?)
+   - `git log origin/main..HEAD --oneline` (unpushed or unmerged work?)
+4. Check whether the branch's PR already merged:
+   `gh pr list --head <branch> --state all --json number,state,mergedAt,mergeCommit`
+5. Decide:
+   - **PR merged**: stop committing on this branch and follow `recover-from-merged-branch`.
+   - **PR not merged, branch has commits not in `origin/main`**: keep working here; rebase if behind.
+   - **`origin/main` moved for unrelated reasons**: tell the user; don't act unilaterally.
+6. **Merge/rebase guard.** If `git rev-parse --verify MERGE_HEAD` succeeds or
+   `.git/rebase-merge` exists, finish or abort that first and ask the user.

@@ -1,0 +1,15 @@
+node_modules/
+.pnpm-store/
+dist/
+dist-dev/
+.tsc-out/
+.turbo/
+cdk.out/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
+*.log
+test-results/

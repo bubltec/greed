@@ -1,0 +1,19 @@
+{
+  "disputed": "The administration frames Defend the Spend as fraud prevention, not obstruction. Critics, including grant recipients and oversight advocates, call the added justification requirements redundant given existing audit and reporting mechanisms already in place (e.g., under 4% improper payment rate for child-care funding in 2023) — that dispute over intent versus effect is not resolved by a court or agency finding.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "DOGE's 'Defend the Spend' initiative added a new manual-review layer to the Payment Management Services (PMS) system, which handled nearly $1 trillion in federal disbursements in FY2024 across more than 15 agencies, mostly to nonprofits, states, and tribal governments. Recipients must now submit line-item justifications for already-awarded funds before payment releases. (CBPP (https://www.cbpp.org/research/federal-budget/doge-interference-in-federal-grantmaking-adds-burden-uncertainty-and-risk))",
+        "This delayed disbursement of Temporary Assistance for Needy Families (TANF) funding to states, with direct implications for child welfare financing, despite the program's statutory requirement to disburse funds. (Zach Laris / ACF letter, April 2025 (https://www.childwelfarewonk.com/p/defend-the-spend-delays-tanf))",
+        "Missouri's state child-care office had to submit a 'comprehensive breakdown' to meet Defend the Spend requirements before releasing delayed payments to child-care providers, who still had no timeline for payment even after complying. (St. Louis Independent, via Yahoo (https://www.yahoo.com/news/articles/feds-demand-missouri-justify-child-220016149.html))",
+        "HHS Deputy Secretary Jim O'Neill's December 30, 2025 announcement reinstated Defend the Spend for Administration for Children and Families (ACF) payments; House Democrats (Rep. Judy Chu) formally requested documents on this action and its effect on child care funding and providers. (Rep. Chu (https://chu.house.gov/media-center/press-releases/rep-chu-leads-ways-means-democrats-introducing-resolution-inquiry))",
+        "Separately, a broader federal funding pause in January 2025 was found by federal judges and the Government Accountability Office (GAO) to be illegal by August 2025; judges AliKhan and McConnell issued restraining orders and injunctions against the administration in early 2025 after finding funds continued to be improperly frozen. (Wikipedia, citing court filings (https://en.wikipedia.org/wiki/2025_United_States_federal_government_grant_pause))"
+      ],
+      "label": "Documentation"
+    }
+  ],
+  "summary": "Executive Order 14222 (Feb. 26, 2025) gave DOGE authority to work with agencies to terminate or modify federal grants and contracts. DOGE has since terminated nearly 16,000 federal grants, and a national survey found one in three nonprofit service providers experienced a funding disruption in the first four to six months of 2025 (21% lost a grant outright, 27% faced delays or freezes).",
+  "title": "DOGE 'Defend the Spend': delayed and frozen funding to states",
+  "type": "case"
+}

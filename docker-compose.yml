@@ -1,0 +1,15 @@
+name: greed
+
+services:
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    # Default uid 1000 can't write to a fresh root-owned named volume (same as btfp).
+    user: root
+    ports:
+      - "8000:8000"
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/data"]
+    volumes:
+      - dynamodb-data:/data
+
+volumes:
+  dynamodb-data:

@@ -1,0 +1,35 @@
+{
+  "disputed": "Whether the oil and gold arrangements primarily serve Venezuelan reconstruction (the stated purpose) or US/corporate interests is contested and unresolved. There has been no election, transfer of sovereignty, or signed transition agreement in Venezuela; a UN fact-finding mission reported in September 2026 that 379-500 people remain detained and that reduced repression does not amount to a change of system. Whether calling the January 3 operation a 'coup' is accurate is also disputed — it was a unilateral US military capture of a sitting head of state, not a domestically organized overthrow.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "Trump announced interim Venezuelan authorities would turn over 30-50 million barrels of sanctioned oil to the US, stating on Truth Social the proceeds would be 'controlled by me, as president of the United States.' (Military.com (https://www.military.com/daily-news/2026/01/07/how-americans-feel-about-maduro-us-military-venezuela-regime-change.html))",
+        "On January 29, 2026, Rodriguez signed a law opening Venezuela's oil sector to privatization, ending PDVSA's state monopoly on production, sale, and pricing. Private companies gain full operational control (production, marketing) at their own risk; the state retains nominal ownership of the hydrocarbon reserves themselves. (AP, via CBC (https://www.cbc.ca/news/world/venezuela-oil-sector-privatization-9.7067421))",
+        "Trump hosted nearly two dozen oil executives at the White House on Jan. 10, 2026, saying US energy companies would invest $100 billion to rebuild Venezuela's oil infrastructure. That same day he signed an executive order blocking US courts from seizing Venezuelan oil revenues held in American Treasury accounts. (Fox News (https://www.foxnews.com/world/venezuelas-acting-president-overhauls-oil-industry-amid-pressure-from-trump-administration.print))",
+        "ExxonMobil and ConocoPhillips are positioned to pursue recovery of assets seized by Venezuela's 2007 nationalization; Chevron is already operating there under a Trump-granted restricted license (July 2025). (CNBC (https://www.cnbc.com/2026/01/05/maduro-overthrow-could-pave-the-way-for-us-oil-companies-to-recover-venezuela-assets.html))"
+      ],
+      "label": "Documentation - oil"
+    },
+    {
+      "items": [
+        "Venezuela's 31 metric tons of gold (roughly $4-4.3 billion) has sat in Bank of England vaults since 2019, frozen amid a legal dispute over who legitimately represents Venezuela. (ABC News Australia (https://www.abc.net.au/news/2026-04-12/venezuela-gold-reserves-history-explained/106516434))",
+        "Following Maduro's capture and US-mediated talks, the acting Rodriguez government and the opposition-majority 2015 parliament agreed to jointly seek the gold's release, breaking the seven-year deadlock. As of August 2026, the gold was set to be released and placed under US Treasury Department management, with external audits, rather than returned to Venezuelan central bank custody. (Venezuelanalysis (https://venezuelanalysis.com/news/venezuelas-uk-held-gold-to-be-released-to-us-control-foreign-audits/); Rio Times (https://www.riotimesonline.com/venezuela-gold-bank-of-england-new-york-fed-transfer-2026/))",
+        "Under the reported terms, the interim government gains legal control of the gold but cannot sell it; it is meant as collateral for loans, including for reconstruction after Venezuela's June 2026 earthquakes. (BigGo Finance (https://finance.biggo.com/news/90b9ba03-5484-4d9f-a1b8-ff7664e1a134))",
+        "Reporting differs on the exact custodial destination: the Financial Times reported the gold moving to the Federal Reserve Bank of New York, while Venezuelanalysis reported a specialized US Treasury account. Either way, this is Venezuelan sovereign gold moving into US financial-system custody, not into Venezuelan hands."
+      ],
+      "label": "Documentation - gold"
+    },
+    {
+      "items": [
+        "Jan 7, 2026: six Senate Democrats led by Whitehouse opened an investigation into whether BP, Chevron, ConocoPhillips, Continental, ExxonMobil, Shell, Halliburton, SLB, Baker Hughes, Weatherford and Citgo had advance knowledge of the strikes or could shape them. Companies were reportedly briefed 'a full 10 days before the U.S. land strikes.' (Senate EPW Democrats (https://www.epw.senate.gov/public/index.cfm/press-releases-democratic?ID=AC9F5B11-5DC9-4787-A076-EAE41A282DB1))",
+        "Aug 4, 2026: House Oversight ranking member Robert Garcia said US-controlled Venezuelan oil revenue had passed $13 billion with no transparent accounting, and sought records from Chevron, Exxon, ConocoPhillips, Continental and traders Vitol and Trafigura. (House Oversight Democrats (https://oversightdemocrats.house.gov/news/press-releases/ranking-member-robert-garcia-escalates-investigation-into-trump-administration-venezuelan-oil-management-as-revenue-exceeds-13b))",
+        "Sept 2026: a 100-year deal with North American Blue Energy Partners (owned by Alejandro Betancourt) covers 17 fields and 65 billion barrels. The Pentagon takes a 35% stake and State gets the right to buy 20% of output at cost. Chevron is expanding, and Trump said 'We have Exxon going in, we have Chevron going in.' Venezuela's National Assembly has not approved the deal, as its constitution requires. (Fortune (https://fortune.com/2026/09/01/chevron-venezuela-oil-trump-65-billion-barrels/); Euronews (https://www.euronews.com/business/2026/09/01/trump-vows-us-will-take-all-of-venezuelas-oil-as-deal-details-emerge))"
+      ],
+      "label": "Update - oil-industry access and revenue control (through Sept 2026)"
+    }
+  ],
+  "summary": "On January 3, 2026, U.S. forces launched a military operation (Operation Absolute Resolve) and captured Nicolas Maduro and his wife Cilia Flores, who now face narco-trafficking charges in New York. This was direct U.S. military action, not an internal coup. Delcy Rodriguez, Maduro's former VP, was installed as acting president.",
+  "title": "Venezuela: military capture of Maduro, oil privatization, and gold reserves",
+  "type": "case"
+}

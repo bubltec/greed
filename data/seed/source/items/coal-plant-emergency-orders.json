@@ -1,0 +1,17 @@
+{
+  "disputed": "DOE argues the orders prevent blackouts as AI and data-center demand grows, and that grid operators have warned of reliability shortfalls. Critics, including some grid operators and state regulators, say the retiring units were not needed, and several units barely ran while under order.",
+  "notes": "",
+  "sections": [
+    {
+      "items": [
+        "More than two dozen emergency orders over about 15 months, each lasting 90 days and repeatedly renewed. (S&P Global, Aug 24, 2026 (https://www.spglobal.com/market-intelligence/en/news-insights/articles/2026/8/costs-soaring-for-coal-gas-plants-under-doe-emergency-orders-105228519))",
+        "IEEFA (June 2026) estimated at least $300 million in extra costs, rising more than $30 million a month. Michigan's J.H. Campbell plant alone cost at least $185 million over 10 months. Coal burned under the orders amounted to only 0.86% of US coal generation over the period. (IEEFA (https://ieefa.org/resources/cost-coal-plant-emergency-orders-already-more-300-million))",
+        "Wisconsin Gov. Tony Evers says one order is costing that state's ratepayers $117 million. (WisPolitics (https://www.wispolitics.com/2026/evers-says-trump-order-to-keep-coal-plants-open-is-costing-ratepayers-117-million/))"
+      ],
+      "label": "Documentation"
+    }
+  ],
+  "summary": "Wright's Energy Department has used Federal Power Act 202(c) 'emergency' orders, renewed every 90 days, to stop utilities from retiring coal and gas plants. Electric customers pay the cost, which passed $300 million by mid-2026, while the plants have supplied very little power.",
+  "title": "DOE emergency orders keeping retiring coal plants open at ratepayers' expense",
+  "type": "case"
+}
