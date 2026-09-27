@@ -8,7 +8,7 @@ split into an items-and-relations index, and now lives here as its own site. Eve
 (a **topic**) carries:
 
 - **Sources.** Each point is footnoted to a reference. Sources that still need a URL are flagged.
-- **Disputed or unproven.** Denials, anonymous sourcing and gaps go at the top in red.
+- **A closing note** (one sentence) on the main denial or open question, where there is one.
 - **Perspectives.** Attributed views: critic, defender, official, legal, expert, editorial.
 - **Connections.** Typed links to other topics (same actor, same context, shared mechanism,
   cause → effect, contradicts, related), each marked sourced, inferred, or editor-added.

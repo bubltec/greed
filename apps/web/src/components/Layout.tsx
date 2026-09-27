@@ -63,7 +63,7 @@ export function Layout() {
         <Outlet />
       </main>
       <footer className="flex flex-wrap justify-between gap-3 border-t-2 border-deep py-5 text-xs text-slate">
-        <span>Every claim is sourced. Contested points are marked, not hidden.</span>
+        <span>Every claim is sourced. Every entry is cross-linked.</span>
         <span className="flex gap-4">
           <a href="/api/export">Download data</a>
           <NavLink to="/admin">Editors</NavLink>

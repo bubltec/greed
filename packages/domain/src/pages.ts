@@ -32,8 +32,8 @@ export const DEFAULT_PAGES: Record<PageId, PageContent> = {
   home: {
     title: 'Who holds power, who pays for it, and who is supposed to be watching.',
     body:
-      'A cross-linked record of documented cases. Each entry carries its sources, what is still disputed, ' +
-      'the competing perspectives on it, and the other entries it connects to.',
+      'A cross-linked record of documented cases. Each entry carries its sources, the competing ' +
+      'perspectives on it, and the other entries it connects to.',
   },
   about: {
     title: 'About',
@@ -56,7 +56,7 @@ None of this happens in isolation. The same people, the same money and the same 
 ## Built on the record
 
 - **Every point is sourced** and footnoted to the reporting, filings or documents behind it.
-- **What’s disputed is marked** in red at the top of an entry, denials included, so nothing here rests on a claim that can’t be checked.
+- **Open questions are noted.** Where a key fact is denied or still unsettled, the entry ends with a one-line note saying so.
 - **Their side is on the record too.** Official responses and defenses are quoted and attributed, next to the critics’.
 - **Connections are labelled** as sourced or inferred, so you know which links a source states and which are our read.
 

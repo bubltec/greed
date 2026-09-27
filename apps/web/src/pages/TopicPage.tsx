@@ -1,6 +1,6 @@
 import { Fragment, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { DisputedFlag, DraftFlag, ErrorBox, KindBadge, Loading, RichText, SectionTitle } from '../components/bits';
+import { DraftFlag, ErrorBox, KindBadge, Loading, RichText, SectionTitle } from '../components/bits';
 import { api } from '../lib/api';
 import { formatDate, RELATION_LABEL, STANCE_COLOR, STANCE_LABEL } from '../lib/labels';
 import { usePreview } from '../lib/preview';
@@ -57,7 +57,6 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <KindBadge kind={topic.kind} />
           {topic.status === 'draft' && <DraftFlag />}
-          {topic.disputed && <DisputedFlag />}
           {topic.tags.map((tag) => (
             <Link key={tag} to={`/?q=${encodeURIComponent(tag)}`} className="text-xs text-ice">
               #{tag}
@@ -79,15 +78,6 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
         <p className="prose-body mb-8 text-lg text-snow">
           <RichText text={topic.summary} titles={titles} />
         </p>
-
-        {topic.disputed && (
-          <aside className="mb-8 border-2 border-hurt p-4">
-            <p className="pixel mb-2 text-[0.5625rem] text-hurt">Disputed or unproven</p>
-            <p className="prose-body text-sm text-snow">
-              <RichText text={topic.disputed} titles={titles} />
-            </p>
-          </aside>
-        )}
 
         {topic.sections.map((section) => (
           <section key={section.id} className="mb-8">
@@ -133,6 +123,13 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
               <RichText text={topic.notes} titles={titles} />
             </p>
           </section>
+        )}
+
+        {topic.disputed && (
+          <p className="mb-8 border-t border-deep pt-3 text-sm text-slate">
+            <span className="pixel mr-2 text-[0.4375rem] text-steel">Note</span>
+            <RichText text={topic.disputed} titles={titles} />
+          </p>
         )}
 
         <section className="mb-8">

@@ -37,7 +37,9 @@ const topicFields = {
   kind: { type: 'string', enum: TOPIC_KINDS, description: 'case (default), person, organization, synthesis, or thesis.' },
   title: str('Specific, neutral title.'),
   summary: str('Two or three sentences a reader can trust without clicking anything.'),
-  disputed: str('What is contested or unproven: denials, anonymous sourcing, gaps. Empty if nothing.'),
+  disputed: str(
+    'One short sentence noting the main denial or open question, if any (shown small at the end of the entry). Empty if nothing.',
+  ),
   notes: str('Research notes and open leads. Shown publicly.'),
   tags: { type: 'array', items: { type: 'string' }, description: 'Lowercase tags, e.g. ["oil", "pardons"].' },
 };
@@ -62,7 +64,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_topic',
     title: 'Get topic',
-    description: 'Full topic including drafts: summary, sections with cited points, disputed notes, references (with ids), perspectives, linked topics, and each item’s status.',
+    description: 'Full topic including drafts: summary, sections with cited points, the closing note, references (with ids), perspectives, linked topics, and each item’s status.',
     inputSchema: { type: 'object', properties: { id: str('Topic id (slug).') }, required: ['id'] },
     annotations: { readOnlyHint: true },
   },

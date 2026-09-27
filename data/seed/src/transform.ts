@@ -67,6 +67,8 @@ export interface TransformReport {
 export function transform(
   items: LegacyItem[],
   relations: LegacyRelation[],
+  /** One-sentence replacements for the original long `disputed` paragraphs, by topic id. */
+  condensedNotes: Record<string, string> = {},
 ): { snapshot: ContentSnapshot; report: TransformReport } {
   // Imported content was already public in the original index, so it arrives published.
   const stamp = {
@@ -110,7 +112,7 @@ export function transform(
           };
         }),
       })),
-      disputed: (item.disputed ?? '').trim(),
+      disputed: condensedNotes[item.id] ?? (item.disputed ?? '').trim(),
       notes: (item.notes ?? '').trim(),
       tags: [],
       ...stamp,

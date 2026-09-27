@@ -4,7 +4,7 @@ Defined in `packages/domain/src/entities.ts`.
 
 | Entity | Key fields | Notes |
 | --- | --- | --- |
-| Topic | `id` (slug), `kind`, `title`, `summary`, `sections[]`, `disputed`, `notes`, `tags[]` | `kind`: case, person, organization, synthesis, thesis |
+| Topic | `id` (slug), `kind`, `title`, `summary`, `sections[]`, `disputed`, `notes`, `tags[]` | `kind`: case, person, organization, synthesis, thesis. `disputed` is a one-sentence closing note on the main denial or open question |
 | Section | `id`, `label`, `points[]` | A point is `{ text, refIds[] }` |
 | Reference | `id`, `topicId`, `label`, `url?`, `publishedOn?`, `excerpt?`, `note?` | Belongs to exactly one topic |
 | Perspective | `id`, `topicId`, `stance`, `holder`, `body`, `refIds[]` | May cite only its topic's references |

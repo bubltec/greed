@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { TOPIC_KINDS } from '@greed/domain';
-import { DisputedFlag, DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
+import { DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
 import { api } from '../lib/api';
 import { KIND_LABEL } from '../lib/labels';
 import { usePreview } from '../lib/preview';
@@ -110,7 +110,6 @@ export function HomePage() {
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <KindBadge kind={t.kind} />
                     {t.status === 'draft' && <DraftFlag />}
-                    {t.disputed && <DisputedFlag />}
                   </div>
                   <h2 className="mb-1 text-lg font-semibold leading-snug text-snow">{t.title}</h2>
                   <p className="line-clamp-2 text-sm leading-relaxed text-steel">{t.summary}</p>

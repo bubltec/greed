@@ -64,7 +64,7 @@ export interface Topic extends Timestamps {
   title: string;
   summary: string;
   sections: Section[];
-  /** What is contested or unproven about this topic. Shown prominently, never buried. */
+  /** A one-sentence note on the main denial or open question, shown small at the end of the entry. */
   disputed: string;
   /** Working notes and open research threads. */
   notes: string;

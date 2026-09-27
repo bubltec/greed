@@ -198,8 +198,11 @@ function TopicForm({
       <Field label="Summary" hint="Two or three sentences a reader can trust without clicking anything.">
         <textarea rows={4} value={form.summary} onChange={(e) => set('summary', e.target.value)} />
       </Field>
-      <Field label="Disputed or unproven" hint="Denials, anonymous sourcing, what isn’t established. Leave empty if nothing.">
-        <textarea rows={3} value={form.disputed} onChange={(e) => set('disputed', e.target.value)} />
+      <Field
+        label="Note (one sentence)"
+        hint="The main denial or open question, if any. Shown small at the end of the entry. Leave empty if nothing."
+      >
+        <textarea rows={2} maxLength={400} value={form.disputed} onChange={(e) => set('disputed', e.target.value)} />
       </Field>
 
       <div>

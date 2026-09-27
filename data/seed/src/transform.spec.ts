@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadSource } from './load-source.js';
+import { loadCondensedNotes, loadSource } from './load-source.js';
 import { relationKindFromLegacyId, transform } from './transform.js';
 
 describe('transform (real export)', () => {
@@ -26,6 +26,23 @@ describe('transform (real export)', () => {
 
   it('is deterministic', () => {
     expect(transform(items, relations).snapshot).toEqual(snapshot);
+  });
+});
+
+describe('condensed notes', () => {
+  it('replaces every long disputed paragraph with one short sentence', () => {
+    const { items, relations } = loadSource();
+    const notes = loadCondensedNotes();
+    const { snapshot } = transform(items, relations, notes);
+    const withNote = items.filter((i) => (i.disputed ?? '').trim());
+    expect(Object.keys(notes).sort()).toEqual(withNote.map((i) => i.id).sort());
+    for (const t of snapshot.topics) {
+      if (!t.disputed) continue;
+      expect(t.disputed).toBe(notes[t.id]);
+      expect(t.disputed.length).toBeLessThanOrEqual(220);
+      const withoutAbbreviations = t.disputed.replace(/\b(U\.S|Rep|Sen|Gov|Dr)\./g, '$1');
+      expect(withoutAbbreviations.match(/[.!?](\s|$)/g)?.length ?? 0).toBeLessThanOrEqual(1);
+    }
   });
 });
 
