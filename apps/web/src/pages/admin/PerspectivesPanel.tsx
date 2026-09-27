@@ -5,6 +5,7 @@ import { api } from '../../lib/api';
 import { STANCE_COLOR, STANCE_LABEL } from '../../lib/labels';
 import type { PerspectiveInput, TopicView } from '../../lib/types';
 import { Field, RefPicker } from './fields';
+import { ItemStatus } from './PublishControls';
 
 const blank: PerspectiveInput = { stance: 'critic', holder: '', body: '', refIds: [] };
 
@@ -60,7 +61,13 @@ export function PerspectivesPanel({ view, onChange }: { view: TopicView; onChang
                 <span className="pixel mr-2 text-[0.4375rem]" style={{ color: STANCE_COLOR[p.stance] }}>
                   {STANCE_LABEL[p.stance]}
                 </span>
-                <strong>{p.holder}</strong>
+                <strong>{p.holder}</strong>{' '}
+                <ItemStatus
+                  type="perspective"
+                  id={p.id}
+                  status={p.status}
+                  onChanged={() => api.topic(view.topic.id, true).then(onChange)}
+                />
                 <p className="line-clamp-2 text-steel">{p.body}</p>
               </div>
               <button className="text-xs text-ice underline" onClick={() => setEditing(p.id)}>

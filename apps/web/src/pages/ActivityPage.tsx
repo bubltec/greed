@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ErrorBox, Loading } from '../components/bits';
 import { api } from '../lib/api';
 import { formatDate } from '../lib/labels';
+import { usePreview } from '../lib/preview';
 import { useAsync } from '../lib/useAsync';
 import { useTitle } from '../lib/useTitle';
 
@@ -9,7 +10,8 @@ const TYPE_LABEL = { topic: 'Entry', reference: 'Source', perspective: 'Perspect
 
 export function ActivityPage() {
   useTitle('Log');
-  const { data, error, loading } = useAsync(() => api.activity(), []);
+  const { preview } = usePreview();
+  const { data, error, loading } = useAsync(() => api.activity(preview), [preview]);
   return (
     <div className="max-w-3xl">
       <h1 className="pixel mb-2 text-sm text-snow">Log</h1>

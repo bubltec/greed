@@ -26,6 +26,13 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `add_reference` / `update_reference` | Attach a source / fix one (e.g. add the missing URL) |
 | `add_perspective` | Attributed view: critic, defender, official, legal, expert, editorial |
 | `link_topics` / `unlink_topics` | Typed links; provenance defaults to `inferred` |
+| `list_drafts` | The review queue: everything not yet published |
+| `publish_topic` | Publish a topic with its drafts (sources, perspectives, links to live topics) |
+| `set_status` | Publish or unpublish individual items |
+
+**Everything the connector creates is a draft.** Nothing it writes is public until it is
+published, either by you in the editor or by Claude when you ask it to (`publish_topic`,
+`set_status`; the server instructions tell Claude not to publish unprompted).
 
 There is deliberately no tool to delete a topic or a reference; do that in the web editor.
 Writes go through `ContentService` with the same validation as the CMS, and are attributed

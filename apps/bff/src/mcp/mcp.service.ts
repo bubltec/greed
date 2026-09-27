@@ -1,12 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import type { TopicView } from '@greed/domain';
+import { statusOf, type TopicView } from '@greed/domain';
 import { ContentService } from '../content/content.service.js';
 import {
   PerspectiveInputDto,
   ReferenceInputDto,
   RelationInputDto,
+  SetStatusDto,
   TopicInputDto,
 } from '../content/content.dto.js';
 import { TOOLS, type ToolDefinition } from './mcp.tools.js';
@@ -16,6 +17,8 @@ type Args = Record<string, unknown>;
 /**
  * Tool implementations. Every write goes through ContentService and the same
  * DTO validation as the web CMS, so the integrity rules can't be bypassed.
+ * Everything the connector creates starts as a draft; only the explicit
+ * publish tools make content public.
  */
 @Injectable()
 export class McpService {
@@ -35,6 +38,7 @@ export class McpService {
         return this.gaps();
       case 'create_topic': {
         const input = await dto(TopicInputDto, {
+          status: 'draft',
           kind: 'case',
           sections: [],
           disputed: '',
@@ -77,7 +81,7 @@ export class McpService {
         const view = await this.content.saveReference(
           requireString(args, 'topicId'),
           undefined,
-          await dto(ReferenceInputDto, pick(args, ['label', 'url', 'publishedOn', 'excerpt', 'note'])),
+          await dto(ReferenceInputDto, { status: 'draft', ...pick(args, ['label', 'url', 'publishedOn', 'excerpt', 'note']) }),
           by,
         );
         return { ...compact(view), added: view.references.at(-1) };
@@ -96,16 +100,28 @@ export class McpService {
           await this.content.savePerspective(
             requireString(args, 'topicId'),
             undefined,
-            await dto(PerspectiveInputDto, { refIds: [], ...pick(args, ['stance', 'holder', 'body', 'refIds']) }),
+            await dto(PerspectiveInputDto, { status: 'draft', refIds: [], ...pick(args, ['stance', 'holder', 'body', 'refIds']) }),
             by,
           ),
         );
       case 'link_topics':
         return this.content.saveRelation(
           undefined,
-          await dto(RelationInputDto, { provenance: 'inferred', ...pick(args, ['fromId', 'toId', 'kind', 'note', 'provenance']) }),
+          await dto(RelationInputDto, {
+            status: 'draft',
+            provenance: 'inferred',
+            ...pick(args, ['fromId', 'toId', 'kind', 'note', 'provenance']),
+          }),
           by,
         );
+      case 'list_drafts':
+        return { drafts: (await this.content.index(true)).drafts() };
+      case 'publish_topic':
+        return compact(
+          await this.content.publishTopic(requireString(args, 'topicId'), args.includeChildren !== false, by),
+        );
+      case 'set_status':
+        return this.content.setStatus(await dto(SetStatusDto, pick(args, ['status', 'items'])), by);
       case 'unlink_topics':
         await this.content.deleteRelation(requireString(args, 'relationId'));
         return { deleted: args.relationId };
@@ -134,6 +150,7 @@ export class McpService {
     const withRefs = new Set(snapshot.references.map((r) => r.topicId));
     const topic = (id: string) => ({ id, title: title.get(id) ?? id });
     return {
+      draftsAwaitingReview: (await this.content.index(true)).drafts().length,
       sourcesMissingUrl: snapshot.references
         .filter((r) => !r.url)
         .map((r) => ({ topicId: r.topicId, referenceId: r.id, label: r.label })),
@@ -151,11 +168,17 @@ function compact(view: TopicView) {
   return {
     id: view.topic.id,
     title: view.topic.title,
+    status: statusOf(view.topic),
     url: `/t/${view.topic.id}`,
     sections: view.topic.sections.map((s) => ({ label: s.label, points: s.points.length })),
-    references: view.references.map((r) => ({ id: r.id, label: r.label, url: r.url })),
-    perspectives: view.perspectives.map((p) => ({ id: p.id, stance: p.stance, holder: p.holder })),
-    related: view.related.map((r) => ({ relationId: r.relation.id, kind: r.relation.kind, topicId: r.other.id })),
+    references: view.references.map((r) => ({ id: r.id, label: r.label, url: r.url, status: statusOf(r) })),
+    perspectives: view.perspectives.map((p) => ({ id: p.id, stance: p.stance, holder: p.holder, status: statusOf(p) })),
+    related: view.related.map((r) => ({
+      relationId: r.relation.id,
+      kind: r.relation.kind,
+      topicId: r.other.id,
+      status: statusOf(r.relation),
+    })),
   };
 }
 

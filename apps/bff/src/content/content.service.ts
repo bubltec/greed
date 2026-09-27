@@ -7,6 +7,8 @@ import {
   type Reference,
   type Relation,
   type Section,
+  type Status,
+  statusOf,
   type Topic,
   type TopicView,
   uniqueSlug,
@@ -17,6 +19,7 @@ import type {
   PerspectiveInputDto,
   ReferenceInputDto,
   RelationInputDto,
+  SetStatusDto,
   TopicInputDto,
 } from './content.dto.js';
 
@@ -25,6 +28,11 @@ import type {
  * Integrity rules (refs belong to their topic, no self or duplicate relations,
  * deleting a reference unlinks it everywhere) live here so every client gets
  * them, not just the web CMS.
+ *
+ * Publishing: new topics start as drafts. A new reference, perspective or link
+ * takes its topic's status unless one is given (the CMS adds sources to a live
+ * topic live; the MCP connector always passes `draft`). Updates keep the
+ * current status unless one is given.
  */
 @Injectable()
 export class ContentService {
@@ -57,9 +65,11 @@ export class ContentService {
     const id = input.id ? input.id : uniqueSlug(input.title, taken);
     if (taken.has(id)) throw new BadRequestException(`Topic id "${id}" already exists`);
     const now = new Date().toISOString();
+    const status = input.status ?? 'draft';
     const topic: Topic = {
       id,
       ...this.topicFields(input, new Set()),
+      ...stamp(status, undefined),
       createdAt: now,
       updatedAt: now,
       updatedBy: by,
@@ -75,6 +85,7 @@ export class ContentService {
     const topic: Topic = {
       ...current.topic,
       ...this.topicFields(input, refIds),
+      ...stamp(input.status ?? statusOf(current.topic), current.topic),
       id,
       updatedAt: new Date().toISOString(),
       updatedBy: by,
@@ -135,6 +146,7 @@ export class ContentService {
       publishedOn: input.publishedOn || undefined,
       excerpt: input.excerpt?.trim() || undefined,
       note: input.note?.trim() || undefined,
+      ...stamp(input.status ?? (existing ? statusOf(existing) : statusOf(current.topic)), existing),
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       updatedBy: by,
@@ -198,6 +210,7 @@ export class ContentService {
       holder: input.holder.trim(),
       body: input.body.trim(),
       refIds: [...new Set(input.refIds)],
+      ...stamp(input.status ?? (existing ? statusOf(existing) : statusOf(current.topic)), existing),
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       updatedBy: by,
@@ -249,6 +262,16 @@ export class ContentService {
       kind: input.kind,
       note: input.note.trim(),
       provenance: input.provenance ?? existing?.provenance ?? 'editor',
+      ...stamp(
+        input.status ??
+          (existing
+            ? statusOf(existing)
+            : statusOf(index.topicsById.get(input.fromId)!) === 'published' &&
+                statusOf(index.topicsById.get(input.toId)!) === 'published'
+              ? 'published'
+              : 'draft'),
+        existing,
+      ),
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       updatedBy: by,
@@ -266,4 +289,72 @@ export class ContentService {
     await this.store.deleteRelation(relationId);
     this.invalidate();
   }
+
+  // Publishing --------------------------------------------------------------
+
+  /** Sets the status of any mix of items. Unknown ids fail the whole call before anything is written. */
+  async setStatus(input: SetStatusDto, by: string): Promise<{ updated: number }> {
+    const { snapshot } = await this.index(true);
+    const find = {
+      topic: (id: string) => snapshot.topics.find((t) => t.id === id),
+      reference: (id: string) => snapshot.references.find((r) => r.id === id),
+      perspective: (id: string) => snapshot.perspectives.find((p) => p.id === id),
+      relation: (id: string) => snapshot.relations.find((r) => r.id === id),
+    };
+    const targets = input.items.map((item) => {
+      const found = find[item.type](item.id);
+      if (!found) throw new NotFoundException(`No ${item.type} "${item.id}"`);
+      return { type: item.type, found };
+    });
+    const now = new Date().toISOString();
+    let updated = 0;
+    for (const { type, found } of targets) {
+      if (statusOf(found) === input.status) continue;
+      const next = { ...found, ...stamp(input.status, found), updatedAt: now, updatedBy: by };
+      if (type === 'topic') await this.store.putTopic(next as Topic);
+      else if (type === 'reference') await this.store.putReference(next as Reference);
+      else if (type === 'perspective') await this.store.putPerspective(next as Perspective);
+      else await this.store.putRelation(next as Relation);
+      updated++;
+    }
+    this.invalidate();
+    return { updated };
+  }
+
+  /**
+   * Publishes a topic and, by default, every draft that hangs off it: its
+   * references and perspectives, and links whose other end is already published.
+   */
+  async publishTopic(topicId: string, includeChildren: boolean, by: string): Promise<TopicView> {
+    const view = await this.view(topicId, true);
+    const index = await this.index(true);
+    const items: SetStatusDto['items'] = [{ type: 'topic', id: topicId }];
+    if (includeChildren) {
+      for (const r of view.references) if (statusOf(r) === 'draft') items.push({ type: 'reference', id: r.id });
+      for (const p of view.perspectives) if (statusOf(p) === 'draft') items.push({ type: 'perspective', id: p.id });
+      for (const { relation, other } of view.related) {
+        const otherTopic = index.topicsById.get(other.id);
+        if (statusOf(relation) === 'draft' && otherTopic && statusOf(otherTopic) === 'published') {
+          items.push({ type: 'relation', id: relation.id });
+        }
+      }
+    }
+    await this.setStatus({ status: 'published', items }, by);
+    return this.view(topicId, true);
+  }
+
+}
+
+/** Status fields for a write; `publishedAt` moves only when something becomes published. */
+function stamp(status: Status, previous: { status?: Status; publishedAt?: string } | undefined) {
+  const wasPublished = previous ? statusOf(previous) === 'published' : false;
+  return {
+    status,
+    publishedAt:
+      status === 'published'
+        ? wasPublished
+          ? previous?.publishedAt
+          : new Date().toISOString()
+        : previous?.publishedAt,
+  };
 }

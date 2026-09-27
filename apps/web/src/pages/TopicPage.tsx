@@ -1,8 +1,9 @@
 import { Fragment, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { DisputedFlag, ErrorBox, KindBadge, Loading, RichText, SectionTitle } from '../components/bits';
+import { DisputedFlag, DraftFlag, ErrorBox, KindBadge, Loading, RichText, SectionTitle } from '../components/bits';
 import { api } from '../lib/api';
 import { formatDate, RELATION_LABEL, STANCE_COLOR, STANCE_LABEL } from '../lib/labels';
+import { usePreview } from '../lib/preview';
 import { useSession } from '../lib/session';
 import type { RelatedTopic, TopicView } from '../lib/types';
 import { useAsync } from '../lib/useAsync';
@@ -10,8 +11,9 @@ import { useTitle } from '../lib/useTitle';
 
 export function TopicPage() {
   const { id = '' } = useParams();
-  const { data, error, loading } = useAsync(() => api.topic(id), [id]);
-  const list = useAsync(() => api.topics(), []);
+  const { preview } = usePreview();
+  const { data, error, loading } = useAsync(() => api.topic(id, preview), [id, preview]);
+  const list = useAsync(() => api.topics(preview), [preview]);
   const titles = useMemo(() => new Map((list.data ?? []).map((t) => [t.id, t.title])), [list.data]);
   useTitle(data?.topic.title);
   if (loading && !data) return <Loading />;
@@ -54,6 +56,7 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
       <div className="min-w-0">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <KindBadge kind={topic.kind} />
+          {topic.status === 'draft' && <DraftFlag />}
           {topic.disputed && <DisputedFlag />}
           {topic.tags.map((tag) => (
             <Link key={tag} to={`/?q=${encodeURIComponent(tag)}`} className="text-xs text-ice">
@@ -111,6 +114,7 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
                       {STANCE_LABEL[p.stance]}
                     </span>
                     <span className="font-semibold text-snow">{p.holder}</span>
+                    {p.status === 'draft' && <DraftFlag small />}
                   </p>
                   <p className="prose-body text-sm text-snow">
                     <RichText text={p.body} titles={titles} />
@@ -149,6 +153,12 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
                       <span className="text-snow">{r.label}</span>
                     )}
                     {r.publishedOn && <span className="text-slate"> · {r.publishedOn}</span>}
+                    {r.status === 'draft' && (
+                      <>
+                        {' '}
+                        <DraftFlag small />
+                      </>
+                    )}
                     {!r.url && <span className="text-slate"> · link needed</span>}
                     {r.excerpt && <span className="mt-1 block italic text-steel">“{r.excerpt}”</span>}
                     {r.note && <span className="mt-1 block text-steel">{r.note}</span>}
@@ -193,7 +203,10 @@ function RelatedList({ related }: { related: RelatedTopic[] }) {
                     {other.title}
                   </Link>
                   {relation.note && <p className="mt-1 text-xs leading-relaxed text-steel">{relation.note}</p>}
-                  <p className="pixel mt-1 text-[0.4375rem] text-slate">{relation.provenance}</p>
+                  <p className="pixel mt-1 text-[0.4375rem] text-slate">
+                    {relation.provenance}
+                    {relation.status === 'draft' && <span className="ml-2 text-bolt">draft</span>}
+                  </p>
                 </li>
               ))}
             </ul>

@@ -5,12 +5,15 @@ import {
   type RelationProvenance,
   STANCES,
   type Stance,
+  STATUSES,
+  type Status,
   TOPIC_KINDS,
   type TopicKind,
 } from '@greed/domain';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
+  ArrayMinSize,
   IsArray,
   IsIn,
   IsOptional,
@@ -91,6 +94,11 @@ export class TopicInputDto {
   @IsString({ each: true })
   @MaxLength(40, { each: true })
   tags!: string[];
+
+  /** Omit to keep the current status (updates) or use the default (creates; see ContentService). */
+  @IsOptional()
+  @IsIn(STATUSES)
+  status?: Status;
 }
 
 export class ReferenceInputDto {
@@ -117,6 +125,11 @@ export class ReferenceInputDto {
   @IsString()
   @MaxLength(2000)
   note?: string;
+
+  /** Omit to keep the current status (updates) or use the default (creates; see ContentService). */
+  @IsOptional()
+  @IsIn(STATUSES)
+  status?: Status;
 }
 
 export class PerspectiveInputDto {
@@ -135,6 +148,11 @@ export class PerspectiveInputDto {
   @ArrayMaxSize(50)
   @IsString({ each: true })
   refIds!: string[];
+
+  /** Omit to keep the current status (updates) or use the default (creates; see ContentService). */
+  @IsOptional()
+  @IsIn(STATUSES)
+  status?: Status;
 }
 
 export class RelationInputDto {
@@ -156,4 +174,32 @@ export class RelationInputDto {
   @IsOptional()
   @IsIn(RELATION_PROVENANCES)
   provenance?: RelationProvenance;
+
+  /** Omit to keep the current status (updates) or use the default (creates; see ContentService). */
+  @IsOptional()
+  @IsIn(STATUSES)
+  status?: Status;
+}
+
+export const ITEM_TYPES = ['topic', 'reference', 'perspective', 'relation'] as const;
+
+export class ItemRefDto {
+  @IsIn(ITEM_TYPES)
+  type!: (typeof ITEM_TYPES)[number];
+
+  @IsString()
+  @Length(1, 200)
+  id!: string;
+}
+
+export class SetStatusDto {
+  @IsIn(STATUSES)
+  status!: Status;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(200)
+  @ValidateNested({ each: true })
+  @Type(() => ItemRefDto)
+  items!: ItemRefDto[];
 }

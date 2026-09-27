@@ -9,6 +9,7 @@ import type { Reference, TopicInput, TopicView } from '../../lib/types';
 import { useTitle } from '../../lib/useTitle';
 import { Field, RefPicker } from './fields';
 import { PerspectivesPanel } from './PerspectivesPanel';
+import { TopicPublishBar } from './PublishControls';
 import { ReferencesPanel } from './ReferencesPanel';
 import { RelationsPanel } from './RelationsPanel';
 
@@ -75,6 +76,12 @@ export function TopicEditor() {
           )}
         </div>
       </div>
+
+      {view ? (
+        <TopicPublishBar view={view} onChange={setView} />
+      ) : (
+        <p className="text-sm text-steel">New entries start as drafts. Publish when they’re ready.</p>
+      )}
 
       <TopicForm
         key={view?.topic.id ?? 'new'}

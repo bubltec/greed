@@ -120,8 +120,49 @@ describe('HTTP API', () => {
       headers: { cookie: editorCookie },
     });
     expect(related.statusCode).toBe(201);
-    const view = await app.inject({ method: 'GET', url: '/api/topics/a-second-case?fresh=1' });
+    const view = await app.inject({
+      method: 'GET',
+      url: '/api/topics/a-second-case?preview=1',
+      headers: { cookie: editorCookie },
+    });
     expect(view.json().related[0]).toMatchObject({ direction: 'incoming', other: { id: 'a-documented-case' } });
+  });
+
+  it('keeps drafts out of public reads until published', async () => {
+    // New topics are drafts; the source added to a draft topic is a draft too.
+    const anon = await app.inject({ method: 'GET', url: '/api/topics/a-documented-case' });
+    expect(anon.statusCode).toBe(404);
+    // ?preview=1 is ignored for anyone but an editor.
+    const sneaky = await app.inject({ method: 'GET', url: '/api/topics/a-documented-case?preview=1', headers: { cookie: strangerCookie } });
+    expect(sneaky.statusCode).toBe(404);
+
+    const drafts = await app.inject({ method: 'GET', url: '/api/drafts', headers: { cookie: editorCookie } });
+    expect(drafts.json().map((d: { type: string }) => d.type).sort()).toEqual(['reference', 'relation', 'topic', 'topic']);
+
+    const published = await app.inject({
+      method: 'POST',
+      url: '/api/topics/a-documented-case/publish',
+      payload: {},
+      headers: { cookie: editorCookie },
+    });
+    expect(published.json().topic).toMatchObject({ status: 'published' });
+    expect(published.json().references[0]).toMatchObject({ status: 'published' });
+    // The link to the still-draft second case stays a draft.
+    expect(published.json().related[0].relation).toMatchObject({ status: 'draft' });
+
+    const live = await app.inject({ method: 'GET', url: '/api/topics/a-documented-case' });
+    expect(live.statusCode).toBe(200);
+    expect(live.json().related).toEqual([]);
+
+    const unpublish = await app.inject({
+      method: 'POST',
+      url: '/api/status',
+      payload: { status: 'draft', items: [{ type: 'topic', id: 'a-documented-case' }] },
+      headers: { cookie: editorCookie },
+    });
+    expect(unpublish.json()).toEqual({ updated: 1 });
+    expect((await app.inject({ method: 'GET', url: '/api/topics/a-documented-case' })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/api/topics' })).json()).toEqual([]);
   });
 
   it('rejects unknown fields and bad values', async () => {

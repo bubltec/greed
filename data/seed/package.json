@@ -7,7 +7,10 @@
     "typecheck": "tsc -b --noEmit",
     "lint": "oxlint -c ../../.oxlintrc.json src",
     "test": "vitest run",
-    "seed:local": "tsx src/run.ts"
+    "seed:local": "tsx src/run.ts",
+    "seed:dev": "CONTENT_TABLE_NAME=greed-dev-content tsx src/run.ts --remote",
+    "seed:prod": "CONTENT_TABLE_NAME=greed-prod-content tsx src/run.ts --remote",
+    "refresh-dev": "tsx src/refresh-dev.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.1136.0",

@@ -202,6 +202,19 @@ describe('MCP connector', () => {
     expect(full.perspectives).toHaveLength(1);
     expect(full.related[0].other.id).toBe(b.id);
 
+    // Everything the connector wrote is a draft: invisible publicly until published.
+    expect((await app.inject({ method: 'GET', url: `/api/topics/${a.id}` })).statusCode).toBe(404);
+    const queue = await call(token, 'list_drafts', {});
+    expect(queue.drafts.length).toBe(5); // 2 topics, 1 reference, 1 perspective, 1 link
+    const published = await call(token, 'publish_topic', { topicId: a.id });
+    expect(published.status).toBe('published');
+    expect(published.references[0].status).toBe('published');
+    // The link points at a topic that is still a draft, so it waits.
+    expect(published.related[0].status).toBe('draft');
+    const pub = await app.inject({ method: 'GET', url: `/api/topics/${a.id}` });
+    expect(pub.statusCode).toBe(200);
+    expect(pub.json().related).toEqual([]);
+
     const found = await call(token, 'search_topics', { query: 'epa oil' });
     expect(found.total).toBe(1);
     const gaps = await call(token, 'find_gaps', {});

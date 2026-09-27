@@ -3,6 +3,7 @@ import { ErrorBox, SectionTitle } from '../../components/bits';
 import { api } from '../../lib/api';
 import type { Reference, ReferenceInput, TopicView } from '../../lib/types';
 import { Field } from './fields';
+import { ItemStatus } from './PublishControls';
 
 const blank: ReferenceInput = { label: '', url: '', publishedOn: '', excerpt: '', note: '' };
 
@@ -56,7 +57,13 @@ export function ReferencesPanel({ view, onChange }: { view: TopicView; onChange:
               />
             </li>
           ) : (
-            <ReferenceRow key={ref.id} n={i + 1} reference={ref} onEdit={() => setEditing(ref.id)} />
+            <ReferenceRow
+              key={ref.id}
+              n={i + 1}
+              reference={ref}
+              onEdit={() => setEditing(ref.id)}
+              onStatus={() => api.topic(view.topic.id, true).then(onChange)}
+            />
           ),
         )}
       </ol>
@@ -64,7 +71,17 @@ export function ReferencesPanel({ view, onChange }: { view: TopicView; onChange:
   );
 }
 
-function ReferenceRow({ n, reference, onEdit }: { n: number; reference: Reference; onEdit: () => void }) {
+function ReferenceRow({
+  n,
+  reference,
+  onEdit,
+  onStatus,
+}: {
+  n: number;
+  reference: Reference;
+  onEdit: () => void;
+  onStatus: () => void;
+}) {
   return (
     <li className="flex items-start gap-3 border-b border-deep pb-2 text-sm">
       <span className="pixel w-8 shrink-0 pt-0.5 text-[0.5rem] text-bolt">[{n}]</span>
@@ -78,7 +95,8 @@ function ReferenceRow({ n, reference, onEdit }: { n: number; reference: Referenc
             {reference.label} <span className="pixel text-[0.4375rem] text-hurt">needs link</span>
           </>
         )}
-        {reference.publishedOn && <span className="text-slate"> · {reference.publishedOn}</span>}
+        {reference.publishedOn && <span className="text-slate"> · {reference.publishedOn}</span>}{' '}
+        <ItemStatus type="reference" id={reference.id} status={reference.status} onChanged={onStatus} />
       </span>
       <button className="text-xs text-ice underline" onClick={onEdit}>
         edit

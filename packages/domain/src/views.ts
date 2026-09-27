@@ -1,11 +1,14 @@
-import type {
-  ContentSnapshot,
-  Perspective,
-  Reference,
-  Relation,
-  Topic,
-  TopicKind,
+import {
+  type ContentSnapshot,
+  type Perspective,
+  type Reference,
+  type Relation,
+  type Status,
+  statusOf,
+  type Topic,
+  type TopicKind,
 } from './entities.js';
+import { drafts, publishedOnly } from './publishing.js';
 
 export interface TopicSummary {
   id: string;
@@ -14,6 +17,7 @@ export interface TopicSummary {
   summary: string;
   tags: string[];
   disputed: boolean;
+  status: Status;
   updatedAt: string;
   counts: { references: number; perspectives: number; relations: number };
 }
@@ -33,7 +37,7 @@ export interface TopicView {
 }
 
 export interface GraphView {
-  nodes: { id: string; title: string; kind: TopicKind; degree: number }[];
+  nodes: { id: string; title: string; kind: TopicKind; status: Status; degree: number }[];
   edges: { id: string; from: string; to: string; kind: Relation['kind'] }[];
 }
 
@@ -53,6 +57,18 @@ export class ContentIndex {
   private readonly refsByTopic = new Map<string, Reference[]>();
   private readonly perspectivesByTopic = new Map<string, Perspective[]>();
   private readonly relationsByTopic = new Map<string, Relation[]>();
+
+  private publicIndex?: ContentIndex;
+
+  /** The public (published-only) view of this index, computed once. */
+  published(): ContentIndex {
+    this.publicIndex ??= new ContentIndex(publishedOnly(this.snapshot));
+    return this.publicIndex;
+  }
+
+  drafts() {
+    return drafts(this.snapshot);
+  }
 
   constructor(readonly snapshot: ContentSnapshot) {
     for (const t of snapshot.topics) this.topicsById.set(t.id, t);
@@ -75,6 +91,7 @@ export class ContentIndex {
         summary: t.summary,
         tags: t.tags,
         disputed: t.disputed.trim().length > 0,
+        status: statusOf(t),
         updatedAt: t.updatedAt,
         counts: {
           references: this.refsByTopic.get(t.id)?.length ?? 0,
@@ -115,6 +132,7 @@ export class ContentIndex {
         id: t.id,
         title: t.title,
         kind: t.kind,
+        status: statusOf(t),
         degree: this.relationsByTopic.get(t.id)?.length ?? 0,
       })),
       edges,

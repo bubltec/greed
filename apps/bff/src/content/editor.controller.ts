@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Param,
   Post,
@@ -15,8 +16,17 @@ import {
   PerspectiveInputDto,
   ReferenceInputDto,
   RelationInputDto,
+  SetStatusDto,
   TopicInputDto,
 } from './content.dto.js';
+import { IsBoolean, IsOptional } from 'class-validator';
+
+export class PublishTopicDto {
+  /** Also publish the topic's draft sources, perspectives and links (default true). */
+  @IsOptional()
+  @IsBoolean()
+  includeChildren?: boolean;
+}
 
 /** Every write. Returns the refreshed TopicView so the CMS never re-reads a stale cache. */
 @Controller()
@@ -111,4 +121,21 @@ export class EditorController {
   async deleteRelation(@Param('rid') rid: string) {
     await this.content.deleteRelation(rid);
   }
+
+  /** The review queue: every draft, newest first. */
+  @Get('drafts')
+  async drafts() {
+    return (await this.content.index(true)).drafts();
+  }
+
+  @Post('status')
+  setStatus(@Body() body: SetStatusDto, @CurrentUser() user: Editor) {
+    return this.content.setStatus(body, editorName(user));
+  }
+
+  @Post('topics/:id/publish')
+  publishTopic(@Param('id') id: string, @Body() body: PublishTopicDto, @CurrentUser() user: Editor) {
+    return this.content.publishTopic(id, body?.includeChildren ?? true, editorName(user));
+  }
+
 }

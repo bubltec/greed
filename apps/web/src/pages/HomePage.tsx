@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { TOPIC_KINDS } from '@greed/domain';
-import { DisputedFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
+import { DisputedFlag, DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
 import { api } from '../lib/api';
 import { KIND_LABEL } from '../lib/labels';
+import { usePreview } from '../lib/preview';
 import type { TopicKind, TopicSummary } from '../lib/types';
 import { useAsync } from '../lib/useAsync';
 import { useTitle } from '../lib/useTitle';
@@ -17,7 +18,8 @@ function matches(t: TopicSummary, words: string[]) {
 
 export function HomePage() {
   useTitle();
-  const { data, error, loading } = useAsync(() => api.topics(), []);
+  const { preview } = usePreview();
+  const { data, error, loading } = useAsync(() => api.topics(preview), [preview]);
   const [params, setParams] = useSearchParams();
   const [query, setQuery] = useState(params.get('q') ?? '');
   const kind = (params.get('kind') as TopicKind | null) ?? null;
@@ -107,6 +109,7 @@ export function HomePage() {
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <KindBadge kind={t.kind} />
+                    {t.status === 'draft' && <DraftFlag />}
                     {t.disputed && <DisputedFlag />}
                   </div>
                   <h2 className="mb-1 text-lg font-semibold leading-snug text-snow">{t.title}</h2>
