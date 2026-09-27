@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCondensedNotes, loadSource } from './load-source.js';
+import { loadCondensedNotes, loadReferenceUrls, loadSource } from './load-source.js';
 import { relationKindFromLegacyId, transform } from './transform.js';
 
 describe('transform (real export)', () => {
@@ -53,5 +53,27 @@ describe('relationKindFromLegacyId', () => {
     expect(relationKindFromLegacyId('x__y__same-war')).toBe('same-context');
     expect(relationKindFromLegacyId('a__b__shared-framing')).toBe('shared-mechanism');
     expect(relationKindFromLegacyId('a__b__oil11')).toBe('related');
+  });
+});
+
+describe('researched reference links', () => {
+  const { items, relations } = loadSource();
+  const list = loadReferenceUrls();
+  const { snapshot } = transform(items, relations);
+  const unlinked = new Map(snapshot.references.filter((r) => !r.url).map((r) => [r.id, r]));
+
+  it('covers exactly the sources the export cites without a link', () => {
+    expect(list.map((r) => r.referenceId).sort()).toEqual([...unlinked.keys()].sort());
+    for (const r of list) {
+      expect(unlinked.get(r.referenceId)?.topicId).toBe(r.topicId);
+      if (r.url) expect(r.url).toMatch(/^https:\/\/\S+$/);
+    }
+  });
+
+  it('fills links without changing any reference id', () => {
+    const urls = Object.fromEntries(list.filter((r) => r.url).map((r) => [r.referenceId, r.url as string]));
+    const filled = transform(items, relations, {}, urls).snapshot.references;
+    expect(filled.map((r) => r.id)).toEqual(snapshot.references.map((r) => r.id));
+    expect(filled.filter((r) => !r.url)).toHaveLength(list.filter((r) => !r.url).length);
   });
 });

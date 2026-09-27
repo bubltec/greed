@@ -24,3 +24,22 @@ export function loadSource(): { items: LegacyItem[]; relations: LegacyRelation[]
 export function loadCondensedNotes(): Record<string, string> {
   return JSON.parse(readFileSync(join(SOURCE, 'disputed-condensed.json'), 'utf8')) as Record<string, string>;
 }
+
+export interface ReferenceUrl {
+  topicId: string;
+  referenceId: string;
+  label: string;
+  /** null when no article by that outlet could be found. */
+  url: string | null;
+  title: string | null;
+  confidence: 'high' | 'medium' | 'low';
+  note: string;
+}
+
+/**
+ * Researched article links for sources the original index cited by name only
+ * (source/reference-urls.json).
+ */
+export function loadReferenceUrls(): ReferenceUrl[] {
+  return JSON.parse(readFileSync(join(SOURCE, 'reference-urls.json'), 'utf8')) as ReferenceUrl[];
+}

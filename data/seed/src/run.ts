@@ -1,6 +1,6 @@
 import { ConditionalCheckFailedException, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
-import { loadCondensedNotes, loadSource } from './load-source.js';
+import { loadCondensedNotes, loadReferenceUrls, loadSource } from './load-source.js';
 import { transform } from './transform.js';
 
 /**
@@ -24,7 +24,13 @@ const db = DynamoDBDocumentClient.from(
 );
 
 const { items, relations } = loadSource();
-const { snapshot, report } = transform(items, relations, loadCondensedNotes());
+// Low-confidence matches stay out of fresh seeds, same as the fill script's default.
+const referenceUrls = Object.fromEntries(
+  loadReferenceUrls()
+    .filter((r) => r.url && r.confidence !== 'low')
+    .map((r) => [r.referenceId, r.url as string]),
+);
+const { snapshot, report } = transform(items, relations, loadCondensedNotes(), referenceUrls);
 
 const rows = [
   ...snapshot.topics.map((t) => ({ PK: `TOPIC#${t.id}`, SK: 'TOPIC', entity: 'topic', ...t })),

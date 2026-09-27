@@ -45,7 +45,18 @@ From an AWS SSO session with account access, in `infra/cdk`:
 9. **Seed prod once** (insert-only, safe to re-run):
    ```bash
    pnpm seed:prod    # and pnpm seed:dev for dev
-   ``` Dev editors use **Local editor sign-in** behind Basic Auth.
+   ```
+   Dev editors use **Local editor sign-in** behind Basic Auth.
+
+   Tables seeded before a data fix get it with a one-off script (dry run unless `--yes`, never
+   overwrites an editor's change):
+   ```bash
+   CONTENT_TABLE_NAME=greed-prod-content pnpm data:condense-notes --yes       # one-line closing notes
+   CONTENT_TABLE_NAME=greed-prod-content pnpm data:fill-reference-urls --yes  # links for name-only sources
+   ```
+   `data/seed/source/reference-urls.json` is the reviewed list of those links, with the article
+   title, a confidence rating and a note for each. Low-confidence matches are skipped unless
+   `--include-low`.
 10. Confirm the SNS subscription email for the prod 5xx alarm.
 11. **Claude connector.** Add `https://greed.bubbletech.io/api/mcp` as a custom connector in Claude
     (see [mcp.md](mcp.md)). Needs step 7's GitHub sign-in.
