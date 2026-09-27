@@ -28,6 +28,10 @@ export function publishedOnly(snapshot: ContentSnapshot): ContentSnapshot {
     relations: snapshot.relations.filter(
       (r) => published(r) && topicIds.has(r.fromId) && topicIds.has(r.toId),
     ),
+    // Only the published copy of a page is public; working copies stay with editors.
+    pages: (snapshot.pages ?? [])
+      .filter((p) => p.published)
+      .map((p) => ({ id: p.id, draft: { ...p.published!, updatedAt: p.published!.publishedAt }, published: p.published })),
   };
 }
 

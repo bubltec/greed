@@ -1,6 +1,6 @@
 import { Controller, Get, Header, NotFoundException, Param, Query, Req } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import type { ContentIndex } from '@greed/domain';
+import { type ContentIndex, isPageId } from '@greed/domain';
 import { EditorSession } from '../auth/editor-session.js';
 import { ContentService } from './content.service.js';
 
@@ -45,6 +45,13 @@ export class PublicController {
   @Get('activity')
   async activity(@Req() req: FastifyRequest, @Query('preview') preview?: string) {
     return (await this.visible(req, preview)).activity(30);
+  }
+
+  @Get('pages/:id')
+  async page(@Req() req: FastifyRequest, @Param('id') id: string, @Query('preview') preview?: string) {
+    if (!isPageId(id)) throw new NotFoundException(`No page "${id}"`);
+    const editor = preview === '1' && (await this.session.isEditor(req));
+    return this.content.page(id, editor);
   }
 
   /** The whole dataset as JSON: published content for everyone, everything for editors in preview. */

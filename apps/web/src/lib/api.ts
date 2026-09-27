@@ -1,3 +1,4 @@
+import type { PageContent, PageId, PageView } from '@greed/domain';
 import type {
   ContentSnapshot,
   DraftEntry,
@@ -90,6 +91,11 @@ export const api = {
   updateRelation: (id: string, input: RelationInput) => request<Relation>('PUT', `/relations/${id}`, input),
   deleteRelation: (id: string) => request<void>('DELETE', `/relations/${id}`),
   exportAll: () => request<ContentSnapshot>('GET', '/export?preview=1'),
+
+  page: (id: PageId, preview?: boolean) => request<PageView>('GET', `/pages/${id}${q(preview)}`),
+  pages: () => request<PageView[]>('GET', '/pages'),
+  savePage: (id: PageId, content: PageContent) => request<PageView>('PUT', `/pages/${id}`, content),
+  publishPage: (id: PageId) => request<PageView>('POST', `/pages/${id}/publish`),
 
   drafts: () => request<DraftEntry[]>('GET', '/drafts'),
   setStatus: (status: Status, items: { type: ItemType; id: string }[]) =>

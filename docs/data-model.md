@@ -27,6 +27,15 @@ connector always writes drafts. `POST /api/topics/:id/publish` publishes a topic
 `POST /api/status` sets any mix of items; `GET /api/drafts` is the review queue. Rows imported
 before publishing existed have no `status` and count as published.
 
+## Pages
+
+The home intro and the About page are editable too (Editors → Pages, or the connector's
+`update_page`). Each page keeps a working copy and a published copy: saving changes the working
+copy, publishing copies it live, so readers never see a half-finished edit. A page that has never
+been saved shows its built-in default (`DEFAULT_PAGES` in `packages/domain/src/pages.ts`).
+Bodies are a small Markdown subset rendered as React text, never HTML. Stored as
+`PAGE#<id> / PAGE` rows in the content table.
+
 ## Environments
 
 Code moves dev → prod; content does not. Each environment has its own tables, and prod is the

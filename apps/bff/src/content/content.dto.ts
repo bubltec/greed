@@ -181,6 +181,17 @@ export class RelationInputDto {
   status?: Status;
 }
 
+export class PageInputDto {
+  @IsString()
+  @Length(1, 200)
+  title!: string;
+
+  /** Markdown subset; see packages/domain/src/pages.ts. */
+  @IsString()
+  @MaxLength(20000)
+  body!: string;
+}
+
 export const ITEM_TYPES = ['topic', 'reference', 'perspective', 'relation'] as const;
 
 export class ItemRefDto {

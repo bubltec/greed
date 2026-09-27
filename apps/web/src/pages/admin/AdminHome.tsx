@@ -7,6 +7,7 @@ import { useSession } from '../../lib/session';
 import type { ContentSnapshot, DraftEntry } from '../../lib/types';
 import { useAsync } from '../../lib/useAsync';
 import { useTitle } from '../../lib/useTitle';
+import { PAGE_LABEL, PAGE_STATE_LABEL } from './PageEditor';
 
 export function AdminHome() {
   useTitle('Editors');
@@ -90,6 +91,7 @@ function Worklist() {
         </div>
       </div>
       <DraftsPanel />
+      <PagesPanel />
       <ConnectClaude />
       {loading && <Loading />}
       {error && <ErrorBox error={error} />}
@@ -284,6 +286,29 @@ function DraftsPanel() {
                 </li>
               ))}
             </ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** The editable site pages and whether each has unpublished changes. */
+function PagesPanel() {
+  const { data, error } = useAsync(() => api.pages(), []);
+  return (
+    <section className="panel mb-8 p-4">
+      <SectionTitle>Pages</SectionTitle>
+      {error && <ErrorBox error={error} />}
+      <ul className="flex flex-col gap-2">
+        {data?.map((p) => (
+          <li key={p.id} className="flex flex-wrap items-center gap-3 text-sm">
+            <Link to={`/admin/pages/${p.id}`} className="font-semibold">
+              {PAGE_LABEL[p.id]}
+            </Link>
+            <span className={`pixel text-[0.4375rem] ${p.state === 'changed' || p.state === 'unpublished' ? 'text-bolt' : 'text-slate'}`}>
+              {PAGE_STATE_LABEL[p.state]}
+            </span>
           </li>
         ))}
       </ul>

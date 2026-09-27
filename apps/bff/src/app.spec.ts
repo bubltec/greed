@@ -181,4 +181,29 @@ describe('HTTP API', () => {
     const anon = await app.inject({ method: 'GET', url: '/api/session' });
     expect(anon.json()).toMatchObject({ user: null, editor: false });
   });
+
+  it('serves editable pages: default until published, working copy only in preview', async () => {
+    const pub = await app.inject({ method: 'GET', url: '/api/pages/about' });
+    expect(pub.json()).toMatchObject({ id: 'about', title: 'About', state: 'default' });
+    expect((await app.inject({ method: 'GET', url: '/api/pages/nope' })).statusCode).toBe(404);
+
+    const saved = await app.inject({
+      method: 'PUT',
+      url: '/api/pages/about',
+      payload: { title: 'About GREED', body: 'New lead.\n\n## Section\n\n- one' },
+      headers: { cookie: editorCookie },
+    });
+    expect(saved.json()).toMatchObject({ state: 'unpublished', title: 'About GREED' });
+    // Readers still get the default, and so does a non-editor asking for preview.
+    expect((await app.inject({ method: 'GET', url: '/api/pages/about' })).json().title).toBe('About');
+    expect((await app.inject({ method: 'GET', url: '/api/pages/about?preview=1', headers: { cookie: strangerCookie } })).json().title).toBe('About');
+    expect((await app.inject({ method: 'GET', url: '/api/pages/about?preview=1', headers: { cookie: editorCookie } })).json().title).toBe('About GREED');
+
+    const published = await app.inject({ method: 'POST', url: '/api/pages/about/publish', headers: { cookie: editorCookie } });
+    expect(published.json().state).toBe('published');
+    expect((await app.inject({ method: 'GET', url: '/api/pages/about' })).json()).toMatchObject({ title: 'About GREED', state: 'published' });
+
+    const anon = await app.inject({ method: 'PUT', url: '/api/pages/about', payload: { title: 'x', body: 'y' } });
+    expect(anon.statusCode).toBe(401);
+  });
 });

@@ -29,6 +29,7 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `list_drafts` | The review queue: everything not yet published |
 | `publish_topic` | Publish a topic with its drafts (sources, perspectives, links to live topics) |
 | `set_status` | Publish or unpublish individual items |
+| `get_page` / `update_page` / `publish_page` | Edit the home intro and About page (working copy; live on publish) |
 
 **Everything the connector creates is a draft.** Nothing it writes is public until it is
 published, either by you in the editor or by Claude when you ask it to (`publish_topic`,

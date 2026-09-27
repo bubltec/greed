@@ -3,6 +3,7 @@ import { Layout } from './components/Layout';
 import { AboutPage } from './pages/AboutPage';
 import { ActivityPage } from './pages/ActivityPage';
 import { AdminHome } from './pages/admin/AdminHome';
+import { PageEditor } from './pages/admin/PageEditor';
 import { TopicEditor } from './pages/admin/TopicEditor';
 import { HomePage } from './pages/HomePage';
 import { MapPage } from './pages/MapPage';
@@ -21,6 +22,7 @@ export function App() {
         <Route path="admin" element={<AdminHome />} />
         <Route path="admin/new" element={<TopicEditor />} />
         <Route path="admin/t/:id" element={<TopicEditor />} />
+        <Route path="admin/pages/:id" element={<PageEditor />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

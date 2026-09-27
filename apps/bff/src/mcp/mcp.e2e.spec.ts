@@ -215,6 +215,12 @@ describe('MCP connector', () => {
     expect(pub.statusCode).toBe(200);
     expect(pub.json().related).toEqual([]);
 
+    // Pages: Claude edits the working copy; the live page waits for publish_page.
+    await call(token, 'update_page', { id: 'home', title: 'Follow the money.', body: 'Sourced and cross-linked.' });
+    expect((await app.inject({ method: 'GET', url: '/api/pages/home' })).json().state).toBe('default');
+    expect((await call(token, 'publish_page', { id: 'home' })).state).toBe('published');
+    expect((await app.inject({ method: 'GET', url: '/api/pages/home' })).json().title).toBe('Follow the money.');
+
     const found = await call(token, 'search_topics', { query: 'epa oil' });
     expect(found.total).toBe(1);
     const gaps = await call(token, 'find_gaps', {});

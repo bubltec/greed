@@ -1,4 +1,4 @@
-import { RELATION_KINDS, RELATION_PROVENANCES, STANCES, STATUSES, TOPIC_KINDS } from '@greed/domain';
+import { PAGE_IDS, RELATION_KINDS, RELATION_PROVENANCES, STANCES, STATUSES, TOPIC_KINDS } from '@greed/domain';
 
 /** JSON Schemas for the MCP tools. Descriptions are written for the model that calls them. */
 export interface ToolDefinition {
@@ -231,6 +231,38 @@ export const TOOLS: ToolDefinition[] = [
       },
       required: ['status', 'items'],
     },
+    annotations: { idempotentHint: true },
+  },
+  {
+    name: 'get_page',
+    title: 'Get page',
+    description:
+      'Read an editable site page (home intro or About): its working copy, and whether that differs from what is live. ' +
+      'Bodies use a Markdown subset: paragraphs, "## " headings, "- " lists, **bold**, [text](url) and [[topic-id]] links.',
+    inputSchema: { type: 'object', properties: { id: { type: 'string', enum: PAGE_IDS } }, required: ['id'] },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'update_page',
+    title: 'Update page',
+    description:
+      'Replace a page’s working copy (title and full body). The live page does not change until publish_page, which you should only call when the user asks.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', enum: PAGE_IDS },
+        title: str('Page title (for home, the headline).'),
+        body: str('Full page body in the Markdown subset described in get_page.'),
+      },
+      required: ['id', 'title', 'body'],
+    },
+    annotations: { idempotentHint: true },
+  },
+  {
+    name: 'publish_page',
+    title: 'Publish page',
+    description: 'Make a page’s working copy live. Only when the user explicitly asks.',
+    inputSchema: { type: 'object', properties: { id: { type: 'string', enum: PAGE_IDS } }, required: ['id'] },
     annotations: { idempotentHint: true },
   },
   {

@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { statusOf, type TopicView } from '@greed/domain';
+import { isPageId, type PageId, statusOf, type TopicView } from '@greed/domain';
 import { ContentService } from '../content/content.service.js';
 import {
+  PageInputDto,
   PerspectiveInputDto,
   ReferenceInputDto,
   RelationInputDto,
@@ -122,6 +123,12 @@ export class McpService {
         );
       case 'set_status':
         return this.content.setStatus(await dto(SetStatusDto, pick(args, ['status', 'items'])), by);
+      case 'get_page':
+        return this.content.page(pageId(args), true);
+      case 'update_page':
+        return this.content.savePage(pageId(args), await dto(PageInputDto, pick(args, ['title', 'body'])), by);
+      case 'publish_page':
+        return this.content.publishPage(pageId(args), by);
       case 'unlink_topics':
         await this.content.deleteRelation(requireString(args, 'relationId'));
         return { deleted: args.relationId };
@@ -184,6 +191,11 @@ function compact(view: TopicView) {
 
 function pick(args: Args, keys: string[]): Args {
   return Object.fromEntries(keys.filter((k) => args[k] !== undefined).map((k) => [k, args[k]]));
+}
+
+function pageId(args: Args): PageId {
+  if (!isPageId(args.id)) throw new BadRequestException('id must be "home" or "about"');
+  return args.id;
 }
 
 function requireString(args: Args, key: string): string {

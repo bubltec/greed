@@ -7,8 +7,13 @@ import {
   type Reference,
   type Relation,
   type Section,
+  type Page,
+  type PageId,
+  type PageView,
+  publicPage,
   type Status,
   statusOf,
+  workingPage,
   type Topic,
   type TopicView,
   uniqueSlug,
@@ -16,6 +21,7 @@ import {
 import { cacheTtlMs } from '../env.js';
 import { CONTENT_STORE } from './content.tokens.js';
 import type {
+  PageInputDto,
   PerspectiveInputDto,
   ReferenceInputDto,
   RelationInputDto,
@@ -341,6 +347,48 @@ export class ContentService {
     }
     await this.setStatus({ status: 'published', items }, by);
     return this.view(topicId, true);
+  }
+
+
+  // Pages -------------------------------------------------------------------
+
+  private async findPage(id: PageId, fresh = false): Promise<Page | undefined> {
+    return (await this.index(fresh)).snapshot.pages?.find((p) => p.id === id);
+  }
+
+  /** The live page for readers, or the editor's working copy in preview. */
+  async page(id: PageId, preview: boolean): Promise<PageView> {
+    return preview ? workingPage(id, await this.findPage(id, true)) : publicPage(id, await this.findPage(id));
+  }
+
+  /** Saves the working copy; the live page is unchanged until publishPage. */
+  async savePage(id: PageId, input: PageInputDto, by: string): Promise<PageView> {
+    const current = await this.findPage(id, true);
+    const page: Page = {
+      id,
+      draft: { title: input.title.trim(), body: input.body.trim(), updatedAt: new Date().toISOString(), updatedBy: by },
+      published: current?.published,
+    };
+    await this.store.putPage(page);
+    this.invalidate();
+    return workingPage(id, page);
+  }
+
+  /** Publishes the working copy (the default copy, if the page was never edited). */
+  async publishPage(id: PageId, by: string): Promise<PageView> {
+    const now = new Date().toISOString();
+    const current = (await this.findPage(id, true)) ?? {
+      id,
+      draft: { ...workingPage(id, undefined), updatedAt: now, updatedBy: by },
+    };
+    const page: Page = {
+      id,
+      draft: current.draft,
+      published: { title: current.draft.title, body: current.draft.body, publishedAt: now, publishedBy: by },
+    };
+    await this.store.putPage(page);
+    this.invalidate();
+    return workingPage(id, page);
   }
 
 }

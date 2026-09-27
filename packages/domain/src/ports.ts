@@ -1,4 +1,5 @@
 import type { ContentSnapshot, Perspective, Reference, Relation, Topic } from './entities.js';
+import type { Page } from './pages.js';
 
 /**
  * Persistence port. The BFF depends on this, never on DynamoDB directly, so
@@ -15,6 +16,7 @@ export interface ContentStore {
   deletePerspective(topicId: string, perspectiveId: string): Promise<void>;
   putRelation(relation: Relation): Promise<void>;
   deleteRelation(relationId: string): Promise<void>;
+  putPage(page: Page): Promise<void>;
 }
 
 export class InMemoryContentStore implements ContentStore {
@@ -22,12 +24,14 @@ export class InMemoryContentStore implements ContentStore {
   private references = new Map<string, Reference>();
   private perspectives = new Map<string, Perspective>();
   private relations = new Map<string, Relation>();
+  private pages = new Map<string, Page>();
 
   constructor(seed?: Partial<ContentSnapshot>) {
     for (const t of seed?.topics ?? []) this.topics.set(t.id, t);
     for (const r of seed?.references ?? []) this.references.set(r.id, r);
     for (const p of seed?.perspectives ?? []) this.perspectives.set(p.id, p);
     for (const r of seed?.relations ?? []) this.relations.set(r.id, r);
+    for (const p of seed?.pages ?? []) this.pages.set(p.id, p);
   }
 
   async loadAll(): Promise<ContentSnapshot> {
@@ -36,6 +40,7 @@ export class InMemoryContentStore implements ContentStore {
       references: [...this.references.values()],
       perspectives: [...this.perspectives.values()],
       relations: [...this.relations.values()],
+      pages: [...this.pages.values()],
     });
   }
 
@@ -74,5 +79,9 @@ export class InMemoryContentStore implements ContentStore {
 
   async deleteRelation(relationId: string) {
     this.relations.delete(relationId);
+  }
+
+  async putPage(page: Page) {
+    this.pages.set(page.id, structuredClone(page));
   }
 }

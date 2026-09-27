@@ -27,6 +27,8 @@ export type RelationProvenance = (typeof RELATION_PROVENANCES)[number];
 export const STANCES = ['critic', 'defender', 'official', 'legal', 'expert', 'editorial'] as const;
 export type Stance = (typeof STANCES)[number];
 
+import type { Page } from './pages.js';
+
 /**
  * Publishing state. Drafts are visible to editors (and in `?preview=1`) only.
  * Rows written before publishing existed have no status and count as published.
@@ -105,6 +107,8 @@ export interface ContentSnapshot {
   references: Reference[];
   perspectives: Perspective[];
   relations: Relation[];
+  /** Editable site pages; absent pages use their defaults. */
+  pages?: Page[];
 }
 
 /** A row's publishing state; rows from before publishing existed are published. */
