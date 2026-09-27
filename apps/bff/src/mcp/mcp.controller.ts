@@ -1,7 +1,7 @@
 import { UsersService } from '@bubltec/mycota-auth';
 import { Body, Controller, Delete, Get, Post, Req, Res } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { isEditor } from '../auth/editor.guard.js';
+import { editorEmail, isEditor } from '../auth/editor.guard.js';
 import { publicOrigin } from '../env.js';
 import { OAuthService } from '../oauth/oauth.service.js';
 import { MCP_PATH } from '../oauth/well-known.js';
@@ -64,7 +64,7 @@ export class McpController {
         )
         .send({ error: 'invalid_token', error_description: 'Sign in as a GREED editor to use this server.' });
     }
-    const by = `${account.email ?? account.displayName} (mcp)`;
+    const by = `${editorEmail(account) ?? account.displayName} (mcp)`;
 
     const batch = Array.isArray(body);
     const messages = batch ? body : [body];

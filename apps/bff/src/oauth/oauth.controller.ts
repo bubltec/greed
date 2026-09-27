@@ -7,7 +7,7 @@ import {
 } from '@bubltec/mycota-auth';
 import { Body, Controller, Get, HttpCode, Inject, NotFoundException, Post, Query, Req, Res } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { isEditor } from '../auth/editor.guard.js';
+import { editorEmail, isEditor } from '../auth/editor.guard.js';
 import { isProduction, LOCAL_EDITOR_EMAIL, stage } from '../env.js';
 import { OAuthError, OAuthService } from './oauth.service.js';
 import { consentPage, errorPage, signInPage } from './pages.js';
@@ -83,7 +83,7 @@ export class OAuthController {
       );
     }
     if (!isEditor(user)) {
-      return html(reply, 403, errorPage('Not an editor', `${user.email ?? user.displayName} isn’t on the GREED editors list.`));
+      return html(reply, 403, errorPage('Not an editor', `${editorEmail(user) ?? user.displayName} isn’t on the GREED editors list.`));
     }
     const hidden: Record<string, string> = {};
     for (const key of AUTHORIZE_PARAMS) if (query[key]) hidden[key] = query[key];
@@ -94,7 +94,7 @@ export class OAuthController {
       consentPage({
         clientName: req.client.clientName,
         redirectHost: new URL(req.redirectUri).host,
-        user: user.email ?? user.displayName,
+        user: editorEmail(user) ?? user.displayName,
         hidden,
       }),
     );

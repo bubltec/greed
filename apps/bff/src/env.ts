@@ -48,16 +48,21 @@ export function usersTableName(): string {
 
 /**
  * Who may edit. Entries are emails or `provider:accountId` (e.g.
- * `github:1234567`), comma-separated in EDITORS. Outside prod the local
+ * `github:1234567`), comma-separated in EDITORS. An account entry can name
+ * the email its edits are recorded under, `github:1234567=me@example.com`,
+ * instead of whichever address GitHub lists first. Outside prod the local
  * sign-in identity is always an editor.
+ *
+ * Returns entry -> recorded email ('' when the entry names none).
  */
-export function editors(): Set<string> {
-  const list = (process.env.EDITORS ?? '')
-    .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-  if (stage() !== 'prod') list.push(LOCAL_EDITOR_EMAIL);
-  return new Set(list);
+export function editors(): Map<string, string> {
+  const list = new Map<string, string>();
+  for (const raw of (process.env.EDITORS ?? '').split(',')) {
+    const [key = '', signAs = ''] = raw.split('=').map((s) => s.trim().toLowerCase());
+    if (key) list.set(key, signAs);
+  }
+  if (stage() !== 'prod') list.set(LOCAL_EDITOR_EMAIL, '');
+  return list;
 }
 
 /** Read-cache lifetime. Other warm Lambdas see an edit within this window. */

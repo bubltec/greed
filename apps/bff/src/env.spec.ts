@@ -16,8 +16,14 @@ describe('env', () => {
   it('only adds the local editor outside prod', () => {
     process.env.EDITORS = 'A@x.com, github:42';
     process.env.STAGE = 'prod';
-    expect([...editors()]).toEqual(['a@x.com', 'github:42']);
+    expect([...editors().keys()]).toEqual(['a@x.com', 'github:42']);
     process.env.STAGE = 'dev';
     expect(editors().has('editor@greed.local')).toBe(true);
+  });
+
+  it('reads the email an account entry signs as', () => {
+    process.env.EDITORS = 'github:42=Me@Example.com, other@x.com';
+    expect(editors().get('github:42')).toBe('me@example.com');
+    expect(editors().get('other@x.com')).toBe('');
   });
 });

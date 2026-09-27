@@ -9,7 +9,7 @@ export {
   type ActivityEntry,
 } from './views.js';
 export { type ContentStore, InMemoryContentStore } from './ports.js';
-export { publishedOnly, drafts, type DraftEntry, type ItemType } from './publishing.js';
+export { publishedOnly, publicAuthor, drafts, type DraftEntry, type ItemType } from './publishing.js';
 export {
   PAGE_IDS,
   DEFAULT_PAGES,

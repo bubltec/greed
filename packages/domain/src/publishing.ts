@@ -3,6 +3,15 @@ import { type ContentSnapshot, statusOf } from './entities.js';
 const published = (x: { status?: 'draft' | 'published' }) => statusOf(x) === 'published';
 
 /**
+ * Editors are recorded by email so the CMS knows who changed what; the public
+ * site only ever says "editor". System writers ("import", "link-fill") stay.
+ */
+export const publicAuthor = (by: string | undefined): string | undefined =>
+  by?.includes('@') ? 'editor' : by;
+const anon = <T extends { updatedBy?: string }>(x: T): T =>
+  x.updatedBy?.includes('@') ? { ...x, updatedBy: publicAuthor(x.updatedBy) } : x;
+
+/**
  * What the public sees: published rows only. A reference, perspective or link
  * also needs its topic(s) published, and citations of draft references are
  * dropped so a published point never shows a footnote to something hidden.
@@ -15,23 +24,26 @@ export function publishedOnly(snapshot: ContentSnapshot): ContentSnapshot {
   const keepRefs = (ids: string[]) => ids.filter((id) => refIds.has(id));
   return {
     topics: topics.map((t) => ({
-      ...t,
+      ...anon(t),
       sections: t.sections.map((s) => ({
         ...s,
         points: s.points.map((p) => ({ ...p, refIds: keepRefs(p.refIds) })),
       })),
     })),
-    references,
+    references: references.map(anon),
     perspectives: snapshot.perspectives
       .filter((p) => published(p) && topicIds.has(p.topicId))
-      .map((p) => ({ ...p, refIds: keepRefs(p.refIds) })),
-    relations: snapshot.relations.filter(
-      (r) => published(r) && topicIds.has(r.fromId) && topicIds.has(r.toId),
-    ),
+      .map((p) => ({ ...anon(p), refIds: keepRefs(p.refIds) })),
+    relations: snapshot.relations
+      .filter((r) => published(r) && topicIds.has(r.fromId) && topicIds.has(r.toId))
+      .map(anon),
     // Only the published copy of a page is public; working copies stay with editors.
     pages: (snapshot.pages ?? [])
       .filter((p) => p.published)
-      .map((p) => ({ id: p.id, draft: { ...p.published!, updatedAt: p.published!.publishedAt }, published: p.published })),
+      .map((p) => {
+        const pub = { ...p.published!, publishedBy: publicAuthor(p.published!.publishedBy) };
+        return { id: p.id, draft: { ...pub, updatedAt: pub.publishedAt }, published: pub };
+      }),
   };
 }
 
