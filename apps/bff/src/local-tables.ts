@@ -3,10 +3,10 @@ import {
   DynamoDBClient,
   ResourceInUseException,
 } from '@aws-sdk/client-dynamodb';
-import { contentTableName, usersTableName } from './env.js';
+import { authTableName, contentTableName, usersTableName } from './env.js';
 
 /**
- * Local only (DYNAMODB_ENDPOINT set): create the two tables with the same
+ * Local only (DYNAMODB_ENDPOINT set): create the tables with the same
  * key schema CDK gives them, so `pnpm dev` works against a fresh DynamoDB Local.
  */
 export async function ensureLocalTables(): Promise<void> {
@@ -45,6 +45,12 @@ export async function ensureLocalTables(): Promise<void> {
           Projection: { ProjectionType: 'ALL' },
         },
       ],
+    }),
+    new CreateTableCommand({
+      TableName: authTableName(),
+      BillingMode: 'PAY_PER_REQUEST',
+      AttributeDefinitions: [{ AttributeName: 'PK', AttributeType: 'S' }],
+      KeySchema: [{ AttributeName: 'PK', KeyType: 'HASH' }],
     }),
   ];
   for (const command of tables) {

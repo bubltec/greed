@@ -48,6 +48,8 @@ From an AWS SSO session with account access, in `infra/cdk`:
    ```
    Same for dev with `greed-dev-content`. Dev editors use **Local editor sign-in** behind Basic Auth.
 10. Confirm the SNS subscription email for the prod 5xx alarm.
+11. **Claude connector.** Add `https://greed.bubbletech.io/api/mcp` as a custom connector in Claude
+    (see [mcp.md](mcp.md)). Needs step 7's GitHub sign-in.
 
 ## Cost
 

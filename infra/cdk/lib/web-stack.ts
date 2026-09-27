@@ -144,6 +144,19 @@ export class WebStack extends cdk.Stack {
       webAclId = acl.attrArn;
     }
 
+    const apiBehavior: cloudfront.BehaviorOptions = {
+      origin: new origins.HttpOrigin(apiHost, { protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY }),
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+      // Strip Host so API Gateway sees its own execute-api hostname.
+      originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+      responseHeadersPolicy: securityHeaders,
+      functionAssociations: apiFunction
+        ? [{ function: apiFunction, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }]
+        : undefined,
+    };
+
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       domainNames: [domainName],
       certificate,
@@ -157,18 +170,9 @@ export class WebStack extends cdk.Stack {
         functionAssociations: [{ function: siteFunction, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
       },
       additionalBehaviors: {
-        '/api/*': {
-          origin: new origins.HttpOrigin(apiHost, { protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY }),
-          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-          allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-          // Strip Host so API Gateway sees its own execute-api hostname.
-          originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-          responseHeadersPolicy: securityHeaders,
-          functionAssociations: apiFunction
-            ? [{ function: apiFunction, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }]
-            : undefined,
-        },
+        '/api/*': apiBehavior,
+        // OAuth discovery for the MCP connector (RFC 8414 / RFC 9728) lives at the root.
+        '/.well-known/*': apiBehavior,
       },
     });
 

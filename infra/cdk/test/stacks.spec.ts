@@ -31,6 +31,13 @@ describe('GreedProd', () => {
     });
   });
 
+  it('keeps MCP OAuth state in its own expiring table', () => {
+    data.hasResourceProperties('AWS::DynamoDB::Table', {
+      TableName: 'greed-prod-auth',
+      TimeToLiveSpecification: { AttributeName: 'ttl', Enabled: true },
+    });
+  });
+
   it('passes secret names, never secret values, to the Lambda', () => {
     api.hasResourceProperties('AWS::Lambda::Function', {
       Environment: {
@@ -49,7 +56,10 @@ describe('GreedProd', () => {
     web.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: Match.objectLike({
         Aliases: ['greed.bubbletech.io'],
-        CacheBehaviors: [Match.objectLike({ PathPattern: '/api/*' })],
+        CacheBehaviors: [
+          Match.objectLike({ PathPattern: '/api/*' }),
+          Match.objectLike({ PathPattern: '/.well-known/*' }),
+        ],
       }),
     });
     web.resourceCountIs('AWS::WAFv2::WebACL', 1);

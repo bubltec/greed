@@ -19,6 +19,7 @@ export class AppStage extends cdk.Stage {
       envConfig: props.envConfig,
       contentTable: data.contentTable,
       usersTable: data.usersTable,
+      authTable: data.authTable,
     });
     new WebStack(this, 'Web', { env: props.env, envConfig: props.envConfig, httpApi: api.httpApi });
   }
