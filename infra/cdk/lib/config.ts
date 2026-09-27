@@ -15,9 +15,9 @@ export const SSM_NAMESPACE = 'greed';
 export const HOSTED_ZONE_ID = process.env.GREED_HOSTED_ZONE_ID ?? 'REPLACE_AFTER_DNS_STACK_DEPLOY';
 
 // The bubltec org has GitHub's immutable-ID OIDC claims on, so the trust policy
-// needs `owner@ownerId/repo@repoId` (see grtzplz). Fill in the repo id once the
-// repo exists: `gh api repos/bubltec/greed --jq .id`.
-export const GITHUB_REPO = process.env.GREED_GITHUB_REPO ?? 'bubltec@310348769/greed@REPLACE_WITH_REPO_ID';
+// needs `owner@ownerId/repo@repoId` (see grtzplz/btfp). Ids from the GitHub API:
+// org bubltec = 310348769, repo bubltec/greed = 1389922719.
+export const GITHUB_REPO = 'bubltec@310348769/greed@1389922719';
 
 // Dev sits behind HTTP Basic Auth at the edge; it is not meant to be public.
 export const DEV_BASIC_AUTH_USER = process.env.GREED_DEV_BASIC_AUTH_USER ?? 'dev';

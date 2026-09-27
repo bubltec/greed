@@ -16,15 +16,20 @@ From an AWS SSO session with account access, in `infra/cdk`:
 
 1. **DNS.** `pnpm infra:dns`. Copy the `HostedZoneId` output. No registrar step: the
    delegation record is written into `bubbletech.io` automatically.
-2. **GitHub repo.** Create `bubltec/greed` and push. Get its id with
-   `gh api repos/bubltec/greed --jq .id` and set `GITHUB_REPO` in `lib/config.ts` to
-   `bubltec@310348769/greed@<id>` (the org uses immutable-ID OIDC claims).
-3. **Deploy role.** `npx cdk deploy GreedCi`. Put `DeployRoleArn` in repo secret `AWS_DEPLOY_ROLE_ARN`.
-4. **GitHub Environments.** Create `development` and `production`; add required reviewers on
-   `production`.
-5. **Repo variables:** `GREED_HOSTED_ZONE_ID` (step 1), `GREED_EDITORS`
-   (e.g. `john.josef@gmail.com,github:<your numeric id>`), `GREED_GITHUB_CLIENT_ID` (step 7).
-   **Repo secrets:** `GREED_DEV_BASIC_AUTH_USER`, `GREED_DEV_BASIC_AUTH_PASSWORD`.
+2. **Push.** `git remote add origin https://github.com/bubltec/greed.git && git push -u origin main`.
+   The deploy role already trusts this repo (`GITHUB_REPO` in `lib/config.ts`).
+3. **Deploy role.** `npx cdk deploy GreedCi`. Keep the `DeployRoleArn` output.
+4. **GitHub settings, mirroring btfp.** From the repo root, with `gh` signed in as a bubltec admin:
+   ```bash
+   GREED_HOSTED_ZONE_ID=<from step 1> AWS_DEPLOY_ROLE_ARN=<from step 3> \
+   GREED_GITHUB_CLIENT_ID=<from step 7, optional now> ./scripts/github-setup.sh
+   ```
+   Squash-only merges; the `main-merge` ruleset (PR with one approval, `check` status required,
+   linear history, no force-push or deletion; admins can bypass only through a PR, so you can merge
+   your own PRs but nobody pushes straight to `main`); `development` and `production`
+   environments with you as production's required reviewer; the Actions variables and secrets.
+5. *(Covered by step 4.)* Variables: `GREED_HOSTED_ZONE_ID`, `GREED_EDITORS`, `GREED_GITHUB_CLIENT_ID`.
+   Secrets: `AWS_DEPLOY_ROLE_ARN`, `GREED_DEV_BASIC_AUTH_USER`, `GREED_DEV_BASIC_AUTH_PASSWORD`.
 6. **Session secrets** (SSM SecureString, one per environment, never in the repo):
    ```bash
    aws ssm put-parameter --type SecureString --name /greed/dev/jwt-secret  --value "$(openssl rand -hex 32)"
@@ -32,7 +37,7 @@ From an AWS SSO session with account access, in `infra/cdk`:
    ```
 7. **GitHub OAuth app** (github.com → Settings → Developer settings → OAuth Apps): homepage
    `https://greed.bubbletech.io`, callback `https://greed.bubbletech.io/api/auth/github/callback`.
-   Put the client id in `GREED_GITHUB_CLIENT_ID` and the secret in SSM:
+   Put the client id in `GREED_GITHUB_CLIENT_ID` (re-run step 4 with it) and the secret in SSM:
    ```bash
    aws ssm put-parameter --type SecureString --name /greed/prod/github-client-secret --value '<secret>'
    ```
