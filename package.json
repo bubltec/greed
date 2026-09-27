@@ -20,6 +20,7 @@
     "seed:prod": "turbo run build --filter=@greed/domain && pnpm --filter @greed/seed run seed:prod",
     "data:refresh-dev": "turbo run build --filter=@greed/domain && pnpm --filter @greed/seed run refresh-dev",
     "data:condense-notes": "turbo run build --filter=@greed/domain && pnpm --filter @greed/seed run condense-notes",
+    "data:fill-reference-urls": "turbo run build --filter=@greed/domain && pnpm --filter @greed/seed run fill-reference-urls",
     "cdk": "pnpm --filter @greed/infra run cdk",
     "infra:dns": "pnpm --filter @greed/infra run deploy:dns",
     "infra:dev": "turbo run build --filter=@greed/web --filter=@greed/bff && pnpm --filter @greed/infra run deploy:dev"

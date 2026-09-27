@@ -1,0 +1,884 @@
+[
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_86ef103775c5",
+    "label": "Alternet, citing WSJ",
+    "url": "https://www.alternet.org/trump-posting-sprees/",
+    "title": "Mystery woman behind Trump's late-night posting sprees frustrates White House",
+    "confidence": "high",
+    "note": "May 13 2026; cites WSJ: ~8,800 posts, 44 sprees, Harp gatekeeping, Trump approves all content"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_0618d1c7f718",
+    "label": "Alternet/AOL",
+    "url": "https://www.alternet.org/trump-harp/",
+    "title": "Ex-White House staffer exposes the real scandal behind Trump's close aide",
+    "confidence": "low",
+    "note": "Aug 22 2026 Alternet says Harp supplied the Obamas-as-apes video; does not confirm Trump-as-Christ posting or Trump's 'didn't see it' remark; no Alternet item on AOL found"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_26249421c716",
+    "label": "CNN",
+    "url": "https://www.cnn.com/2025/09/28/politics/video/trump-shares-ai-video-promoting-medbeds-vrtc",
+    "title": "Trump shares apparent AI video promoting 'medbed' conspiracy theory",
+    "confidence": "high",
+    "note": "CNN Politics video (Sept 28 2025) on Trump posting then deleting AI medbed video"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_73d1af10a54e",
+    "label": "Daily Beast",
+    "url": "https://www.thedailybeast.com/trump-turns-to-bombing-fantasy-after-humiliating-reality-leaks/",
+    "title": "Trump Turns to AI Slop After Humiliating Reality Leaks",
+    "confidence": "high",
+    "note": "Aug 31 2026; covers Kharg Island AI video and names Natalie Harp as $150,000 executive assistant supplying AI content (no DoD/'laughable' quotes; exact official title not stated)"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_86b9bd86c8d0",
+    "label": "Democracy Now",
+    "url": "https://www.democracynow.org/2025/10/2/headlines/trump_posts_then_deletes_deepfake_video_promoting_medbed_conspiracy_theory",
+    "title": "Trump Posts, Then Deletes, Deepfake Video Promoting \"Medbed\" Conspiracy Theory",
+    "confidence": "high",
+    "note": "Democracy Now headline, Oct 2 2025, on the deleted medbed deepfake"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_aa1f2340abb6",
+    "label": "Forbes",
+    "url": "https://www.forbes.com/sites/siladityaray/2026/07/27/trump-mocks-critics-touts-2028-run-and-poses-with-jfk-in-bizarre-ai-posting-spree/",
+    "title": "Trump's Latest Bizarre AI Posts Target Critics, Feature JFK And George Washington",
+    "confidence": "high",
+    "note": "Forbes July 27 2026 on AI posting spree mocking critics with JFK/Washington; Forbes also covered New Mexico renaming at /sites/saradorn/2026/09/07/trump-doubles-down-on-renaming-new-mexico-in-social-media-spree/"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_c3b2564585a8",
+    "label": "HuffPost/AOL, citing NYT reporting",
+    "url": "https://www.huffpost.com/entry/trump-medbeds-magic-hospital-beds_n_68daa9c3e4b0d196a63f513a",
+    "title": "Trump Pushes Dangerous Health Care Conspiracy Theory With AI 'Medbed' Video",
+    "confidence": "medium",
+    "note": "HuffPost article (also syndicated at aol.com/articles/trump-pushes-dangerous-health-care-204525823.html); fetch blocked, NYT citation and patient details not confirmed"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_d9849dc3dbf6",
+    "label": "Malay Mail/NewsGuard",
+    "url": "https://www.malaymail.com/news/world/2025/07/26/trump-epstein-ai-deepfakes-rack-up-millions-of-views-researchers-say/185252",
+    "title": "Trump-Epstein AI deepfakes rack up millions of views, researchers say",
+    "confidence": "medium",
+    "note": "Malay Mail (AFP) July 26 2025 on Trump-Epstein AI fakes; 7.2M NewsGuard figure not confirmed by fetch"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_35092bff0e16",
+    "label": "NBC News",
+    "url": "https://www.nbcnews.com/tech/internet/truth-social-trump-embraced-ai-media-attack-foes-boost-image-rcna234978",
+    "title": "On Truth Social, Trump has embraced AI media to attack foes and boost his image",
+    "confidence": "high",
+    "note": "Oct 2025 NBC review: dozens of AI posts since January, ~half in Aug-Sept, Jeffries/Schumer fake-audio video"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_0c96d86cb0a9",
+    "label": "NYT via Managing Editor newsletter",
+    "url": null,
+    "title": null,
+    "confidence": "low",
+    "note": "Could not locate a 'Managing Editor' newsletter item or the NYT piece it cites on these instances"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_bf0d646a3a22",
+    "label": "Snopes",
+    "url": "https://www.snopes.com/news/2025/09/30/medbed-trump-ai-video/",
+    "title": "Trump posted AI-generated video about 'med beds.' Here's what to know about fictional health care",
+    "confidence": "medium",
+    "note": "Snopes Sept 30 2025 explainer on Trump's MedBed AI video; fetch blocked (402), details not confirmed"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_b8d844224e7b",
+    "label": "The Independent/Yahoo",
+    "url": "https://www.yahoo.com/news/us/articles/trump-fake-ai-video-kharg-123619950.html",
+    "title": "Trump's fake AI video of Kharg Island 'attack' leaves US military scrambling to explain",
+    "confidence": "high",
+    "note": "Independent (Aug 31 2026, confirmed via AOL mirror): DoD official says Kharg not targeted, NIOC head 'laughable', posts are official statements. Note: event is Aug 2026, not June 2025 as claim states"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_1cece9c0dbc2",
+    "label": "Wikipedia: AI-generated content in American politics",
+    "url": "https://en.wikipedia.org/wiki/AI-generated_content_in_American_politics",
+    "title": "AI-generated content in American politics",
+    "confidence": "medium",
+    "note": "Wikipedia article surfaced in searches on the New Mexico 'New America' post; specific entries not verified"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_579dd9f78590",
+    "label": "Wikipedia: Medbed",
+    "url": "https://en.wikipedia.org/wiki/Medbed",
+    "title": "Medbed",
+    "confidence": "medium",
+    "note": "Wikipedia article on the medbed conspiracy theory; specific Fox/Instagram details not verified"
+  },
+  {
+    "topicId": "ai-generated-disinformation-truth-social",
+    "referenceId": "ref_c7806ea6965c",
+    "label": "Wikipedia: Natalie Harp",
+    "url": "https://en.wikipedia.org/wiki/Natalie_Harp",
+    "title": "Natalie Harp",
+    "confidence": "medium",
+    "note": "Wikipedia bio of Harp; title/salary details not verified by fetch"
+  },
+  {
+    "topicId": "anti-christian-bias-task-force-religious-liberty",
+    "referenceId": "ref_b393349f10a3",
+    "label": "Al Jazeera",
+    "url": "https://www.aljazeera.com/news/2025/2/6/trump-announces-plan-to-launch-task-force-against-anti-christian-bias",
+    "title": "Trump announces plan to launch task force against 'anti-Christian bias'",
+    "confidence": "high",
+    "note": "Fetched; Feb 6 2025, Prayer Breakfast announcement, Bondi to lead, EO same day"
+  },
+  {
+    "topicId": "anti-christian-bias-task-force-religious-liberty",
+    "referenceId": "ref_f25e4eb86d39",
+    "label": "Axios",
+    "url": "https://www.axios.com/2025/05/01/trump-religious-liberty-commission-order",
+    "title": "Trump signs order creating commission on religious liberty",
+    "confidence": "high",
+    "note": "Fetched; May 1 2025, terms end July 4 2026, cites two-dozen leaders' letter ('cover for white supremacy'); letter exclusive also at https://www.axios.com/2025/05/01/christian-leaders-denounce-white-house-task-force"
+  },
+  {
+    "topicId": "anti-christian-bias-task-force-religious-liberty",
+    "referenceId": "ref_4397aa89c957",
+    "label": "Fox News",
+    "url": "https://www.foxnews.com/politics/trump-executive-order-white-house-faith-office",
+    "title": "Trump to sign executive order establishing White House faith office",
+    "confidence": "medium",
+    "note": "Fox article on Faith Office EO (Feb 2025); from search results, not fetched"
+  },
+  {
+    "topicId": "anti-christian-bias-task-force-religious-liberty",
+    "referenceId": "ref_c099bd6378b9",
+    "label": "Gulf News",
+    "url": "https://gulfnews.com/world/americas/trump-unveils-anti-christian-bias-task-force-1.500030326",
+    "title": "Trump unveils 'anti-Christian bias' task force",
+    "confidence": "high",
+    "note": "Fetched; Feb 6 2025, Bondi heads task force covering DOJ, IRS, FBI"
+  },
+  {
+    "topicId": "anti-christian-bias-task-force-religious-liberty",
+    "referenceId": "ref_319ed6d47a2b",
+    "label": "Justice.gov photo gallery/release",
+    "url": "https://www.justice.gov/opa/gallery/attorney-general-pamela-bondi-hosts-first-task-force-meeting-eradicate-anti-christian",
+    "title": "Attorney General Pamela Bondi Hosts First Task Force Meeting to Eradicate Anti-Christian Bias",
+    "confidence": "high",
+    "note": "DOJ photo gallery of April 22 2025 inaugural meeting; press release also at https://www.justice.gov/opa/pr/attorney-general-pamela-bondi-hosts-first-task-force-meeting-eradicate-anti-christian-bias"
+  },
+  {
+    "topicId": "anti-christian-bias-task-force-religious-liberty",
+    "referenceId": "ref_78a294cdb33d",
+    "label": "Time",
+    "url": "https://time.com/7284721/trump-religious-liberty-commission-goals-members-expert-concerns/",
+    "title": "What Exactly Is Trump's Religious Liberty Commission?",
+    "confidence": "high",
+    "note": "Fetched; quotes Deckman and Thompson, PRRI 78% oppose; letter not in Time piece (covered by Axios)"
+  },
+  {
+    "topicId": "anti-christian-bias-task-force-religious-liberty",
+    "referenceId": "ref_557ef7109229",
+    "label": "White House Fact Sheet",
+    "url": "https://www.whitehouse.gov/fact-sheets/2025/02/fact-sheet-president-donald-j-trump-eradicates-anti-christian-bias",
+    "title": "Fact Sheet: President Donald J. Trump Eradicates Anti-Christian Bias",
+    "confidence": "high",
+    "note": "Feb 2025 WH fact sheet for EO 14202; second point (Religious Liberty Commission) is a separate fact sheet: https://www.whitehouse.gov/fact-sheets/2025/05/fact-sheet-president-donald-j-trump-establishes-the-religious-liberty-commission/"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_dab266d595fd",
+    "label": "19thnews.org",
+    "url": "https://19thnews.org/2025/03/trump-anti-trans-executive-orders/",
+    "title": "All the ways Trump wants to exclude trans people from public life",
+    "confidence": "medium",
+    "note": "The 19th roundup of anti-trans actions (care, sports, websites, prisons); not fetched"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_5e15d70dde99",
+    "label": "ACLU",
+    "url": "https://www.aclu.org/news/lgbtq-rights/trumps-executive-orders-promoting-sex-discrimination-explained",
+    "title": "Trump's Executive Orders Promoting Sex Discrimination, Explained",
+    "confidence": "medium",
+    "note": "ACLU explainer on EO 14168 and related orders; not fetched"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_363f3f9f435c",
+    "label": "AIDS Law Project of PA",
+    "url": "https://www.aidslawpa.org/anti-trans-executive-orders/",
+    "title": "Anti-Trans Executive Orders - AIDS Law Project of Pennsylvania",
+    "confidence": "medium",
+    "note": "Resource page on anti-trans EOs incl. passports; not fetched"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_5a8d13756775",
+    "label": "Axios",
+    "url": "https://www.axios.com/2025/02/05/anti-trans-executive-orders-trump",
+    "title": "All of the anti-trans executive orders Trump has signed",
+    "confidence": "medium",
+    "note": "Axios roundup of anti-trans EOs incl. sports order; not fetched"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_514df5714a56",
+    "label": "CNN",
+    "url": "https://www.cnn.com/2025/01/31/politics/us-government-agencies-order-employees-to-remove-gender-pronouns-from-email-signatures/index.html",
+    "title": "US government agencies order employees to remove gender pronouns from email signatures",
+    "confidence": "medium",
+    "note": "CNN Jan 31 2025 on pronoun removal/website purge; CNN X-marker passport story: https://www.cnn.com/2025/01/24/politics/state-department-suspends-passports-x-gender-marker/index.html"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_d4b0fb76495d",
+    "label": "Genspect USA timeline",
+    "url": "https://genspect.org/trumps-2025-trans-actions-orders-bans-and-backlash/",
+    "title": "Trump's 2025 Trans Actions: Orders, Bans, and Backlash",
+    "confidence": "medium",
+    "note": "Genspect overview of 2025 actions; alt Genspect USA timeline PDF (Jan-May 2025) predates later litigation points"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_8455f84a9d76",
+    "label": "Genspect USA timeline citing WH text",
+    "url": "https://genspect.org/wp-content/uploads/2025/05/Trump-Admin-Timeline-Jan-May-2025-Genspect-USA.pdf",
+    "title": "Timeline of Trump Administration Actions on Transgender Issues (Jan-May 2025)",
+    "confidence": "medium",
+    "note": "Genspect USA timeline PDF from search; not fetched"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_e98fb8b25d5b",
+    "label": "HRC",
+    "url": "https://www.hrc.org/press-releases/background-on-trump-day-one-executive-orders-impacting-the-lgbtq-community",
+    "title": "Background On Trump Day One Executive Orders Impacting The LGBTQ+ Community",
+    "confidence": "medium",
+    "note": "HRC analysis of Day One EOs incl. EO 14168; not fetched"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_e9b6ec11d4fa",
+    "label": "LGBTQ+ Bar litigation tracker",
+    "url": "https://lgbtqbar.org/programs/advocacy-resources/trump-executive-order-tracker/",
+    "title": "Trump Anti-LGBTQ+ Executive Order Litigation Tracker",
+    "confidence": "high",
+    "note": "National LGBTQ+ Bar Association litigation tracker"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_4e278b27dd2b",
+    "label": "Reuters",
+    "url": null,
+    "title": null,
+    "confidence": "low",
+    "note": "No Reuters article on passports/agency implementation surfaced in searches"
+  },
+  {
+    "topicId": "anti-transgender-executive-orders",
+    "referenceId": "ref_574e0d45ab80",
+    "label": "Wikipedia/EO 14183 text",
+    "url": "https://en.wikipedia.org/wiki/Executive_Order_14183",
+    "title": "Executive Order 14183",
+    "confidence": "high",
+    "note": "Wikipedia article on EO 14183 Prioritizing Military Excellence and Readiness"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_1a3792bf981f",
+    "label": "ACLU",
+    "url": "https://www.aclu.org/news/national-security/how-nspm-7-seeks-to-use-domestic-terrorism-to-target-nonprofits-and-activists",
+    "title": "How NSPM-7 Seeks to Use \"Domestic Terrorism\" to Target Nonprofits and Activists",
+    "confidence": "medium",
+    "note": "ACLU analysis of NSPM-7's vague indicators and First Amendment risks; not fetched to confirm Jan 6 / Bondi memo details"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_580f69b94c81",
+    "label": "Ballotpedia",
+    "url": "https://ballotpedia.org/Executive_Order:_Designating_Antifa_as_a_Domestic_Terrorist_Organization_(Donald_Trump,_2025)",
+    "title": "Executive Order: Designating Antifa as a Domestic Terrorist Organization (Donald Trump, 2025)",
+    "confidence": "high",
+    "note": "Ballotpedia page on the Sept 22, 2025 order"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_f2396ea5bda3",
+    "label": "Brennan Center",
+    "url": "https://www.brennancenter.org/our-work/research-reports/trumps-orders-targeting-antifascism-aim-criminalize-opposition",
+    "title": "Trump's Orders Targeting Anti-Fascism Aim to Criminalize Opposition",
+    "confidence": "high",
+    "note": "Oct 9, 2025; fetched: no statutory authority to designate domestic terrorist orgs; antifa a decentralized movement"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_49700a3dcf44",
+    "label": "Charity & Security Network",
+    "url": "https://charityandsecurity.org/news/trumps-terrorism-designation-of-antifa-meaningless-or-serious-threat/",
+    "title": "Trump's Terrorism Designation of Antifa: Meaningless or Serious Threat?",
+    "confidence": "medium",
+    "note": "Covers legal basis of the Antifa designation (first point); the FBI/IRS NSPM-7 point is better supported by https://charityandsecurity.org/news/fbi-and-irs-concretize-implementation-of-nspm-7/"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_9e03b32e124b",
+    "label": "Democracy Now",
+    "url": "https://www.democracynow.org/2025/12/8/ken_klippenstein_fbi_domestic_terrorism_nspm7",
+    "title": "\"Domestic Terrorism\": Leaked DOJ Memo Targets \"Anti-Americanism, Anti-Capitalism, Anti-Christianity\"",
+    "confidence": "high",
+    "note": "Dec 8, 2025 interview with Ken Klippenstein on the leaked Bondi implementation memo"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_33f6b12287c9",
+    "label": "FIRE",
+    "url": "https://www.fire.org/news/doj-plan-target-domestic-terrorists-risks-chilling-speech",
+    "title": "DOJ plan to target 'domestic terrorists' risks chilling speech",
+    "confidence": "high",
+    "note": "FIRE analysis of the Dec 2025 DOJ/Bondi NSPM-7 implementation memo"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_ca85485b4be1",
+    "label": "ICCT",
+    "url": "https://icct.nl/publication/it-cant-happen-here-designating-antifa-terrorist-organisation-europe",
+    "title": "\"It Can't Happen Here\"? Designating Antifa as a Terrorist Organisation in Europe",
+    "confidence": "high",
+    "note": "Oct 29, 2025; fetched: says US president lacks authority to list domestic terror orgs; antifa a loose decentralised collection"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_69c70500d09f",
+    "label": "LGBTQ Nation",
+    "url": "https://www.lgbtqnation.com/2026/04/trumps-new-fbi-budget-targets-lgbtq-terrorists-to-combat-gender/",
+    "title": "Trump's new FBI budget targets LGBTQ+ \"terrorists\" to combat \"gender extremism\"",
+    "confidence": "high",
+    "note": "April 2026 article on FY2027 FBI budget 'gender extremism' task force tied to NSPM-7"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_9244ea2d353b",
+    "label": "NPR",
+    "url": "https://www.npr.org/2025/09/23/nx-s1-5551008/trump-issues-executive-order-designating-antifa-a-domestic-terrorist-organization",
+    "title": "Trump issues executive order designating antifa a 'domestic terrorist organization'",
+    "confidence": "high",
+    "note": "NPR Sept 23, 2025 report on the signed order"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_cfb97ac95b1d",
+    "label": "Snopes",
+    "url": "https://www.snopes.com/news/2026/04/21/fbi-lgbtq-people-terrorists/",
+    "title": "Does FBI classify LGBTQ+ people as terrorists? What we know",
+    "confidence": "high",
+    "note": "Apr 21, 2026 Snopes review of the FBI budget 'gender extremism' claim"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_3b061ead092b",
+    "label": "The Conversation",
+    "url": "https://theconversation.com/labeling-dissent-as-terrorism-new-us-domestic-terrorism-priorities-raise-constitutional-alarms-269161",
+    "title": "Labeling dissent as terrorism: New US domestic terrorism priorities raise constitutional alarms",
+    "confidence": "medium",
+    "note": "The Conversation piece on NSPM-7 indicators; fetch blocked by robots.txt so specifics unconfirmed"
+  },
+  {
+    "topicId": "antifa-designation-nspm7",
+    "referenceId": "ref_1ed921cc29a4",
+    "label": "White House Fact Sheet/American Presidency Project",
+    "url": "https://www.presidency.ucsb.edu/documents/white-house-fact-sheet-president-donald-j-trump-designates-antifa-domestic-terrorist",
+    "title": "White House Fact Sheet: President Donald J. Trump Designates Antifa as a Domestic Terrorist Organization",
+    "confidence": "high",
+    "note": "APP archive of the Sept 2025 WH fact sheet on the Antifa designation (original: whitehouse.gov/fact-sheets/2025/09/fact-sheet-president-donald-j-trump-designates-antifa-as-a-domestic-terrorist-organization)"
+  },
+  {
+    "topicId": "dhs-hunt-them-down-messaging",
+    "referenceId": "ref_7c27ca07bd8a",
+    "label": "letter to DHS OIG",
+    "url": "https://www.warren.senate.gov/imo/media/doc/letter_from_warren_members_of_congress_on_us_citizens_immigration_enforcement_letter.pdf",
+    "title": "Letter to DHS Inspector General on U.S. citizens and immigration enforcement",
+    "confidence": "high",
+    "note": "Letter PDF linked from the fetched Warren press release (Aug 8, 2025)"
+  },
+  {
+    "topicId": "dhs-hunt-them-down-messaging",
+    "referenceId": "ref_6beae0cb954d",
+    "label": "NBC News",
+    "url": "https://www.nbcnews.com/news/us-news/ice-shootings-list-border-patrol-trump-immigration-operations-rcna254202",
+    "title": "Trump's DHS immigration enforcement officers shot 14 people from September 2025 to February 2026. Here's what to know.",
+    "confidence": "high",
+    "note": "NBC shootings list cited in the Heinrich/Welch letter as source for the shooting tally"
+  },
+  {
+    "topicId": "dhs-hunt-them-down-messaging",
+    "referenceId": "ref_636d909427e6",
+    "label": "NYT",
+    "url": "https://www.nytimes.com/interactive/2026/01/24/us/minneapolis-shooting-alex-pretti-timeline.html",
+    "title": "Minneapolis shooting: Alex Pretti video timeline (NYT visual analysis)",
+    "confidence": "medium",
+    "note": "NYT frame-by-frame analysis showing Pretti held a phone; URL from Mediaite coverage, NYT site blocked so not fetched directly"
+  },
+  {
+    "topicId": "dhs-hunt-them-down-messaging",
+    "referenceId": "ref_3a30c95f6929",
+    "label": "Religion News Service",
+    "url": "https://religionnews.com/2025/08/19/homeland-security-quotes-bible-in-messaging-on-immigration-enforcement/",
+    "title": "DHS is using the Bible to promote ICE, claiming 'righteous' fight against immigrants",
+    "confidence": "medium",
+    "note": "Aug 19, 2025 RNS article on DHS Bible-verse messaging; not fetched to confirm Batman/'hunt them down' video detail"
+  },
+  {
+    "topicId": "dhs-hunt-them-down-messaging",
+    "referenceId": "ref_e9dac88d25f3",
+    "label": "Sen. Heinrich letter to Noem",
+    "url": "https://www.heinrich.senate.gov/imo/media/doc/letter_to_noem.pdf",
+    "title": "Letter to Secretary Noem (Welch, Heinrich, Padilla, Van Hollen, Booker)",
+    "confidence": "high",
+    "note": "Fetched letter PDF; cites 12 shootings, 32 custody deaths, training cut to ~6.5 weeks, May 2025 warrantless-entry memo"
+  },
+  {
+    "topicId": "dhs-hunt-them-down-messaging",
+    "referenceId": "ref_603a0b6c9a1a",
+    "label": "Sen. Warren press release",
+    "url": "https://www.warren.senate.gov/newsroom/press-releases/warren-kelly-padilla-correa-goldman-lead-push-for-homeland-security-department-to-investigate-arrests-detention-and-deportation-of-u-s-citizens/",
+    "title": "Warren, Kelly, Padilla, Correa, Goldman Lead Push for Homeland Security Department to Investigate Arrests, Detention, and Deportation of U.S. Citizens",
+    "confidence": "high",
+    "note": "Fetched: Aug 8, 2025 release, 48 members of Congress"
+  },
+  {
+    "topicId": "dhs-hunt-them-down-messaging",
+    "referenceId": "ref_3cd84ca0963c",
+    "label": "Sen. Welch press release",
+    "url": "https://www.welch.senate.gov/welch-to-noem-a-mission-as-important-as-protecting-our-homeland-cannot-be-placed-under-your-leadership/",
+    "title": "Welch to Noem: \"A mission as important as protecting our homeland cannot be placed under your leadership.\"",
+    "confidence": "high",
+    "note": "Fetched: Jan 30, 2026 release confirming all figures in the letter"
+  },
+  {
+    "topicId": "dhs-hunt-them-down-messaging",
+    "referenceId": "ref_f9df11cc9af2",
+    "label": "The Guardian",
+    "url": "https://www.theguardian.com/us-news/ng-interactive/2026/jan/04/ice-2025-deaths-timeline",
+    "title": "2025 was ICE's deadliest year in two decades. Here are the 32 people who died in custody",
+    "confidence": "medium",
+    "note": "URL cited in Hickenlooper senators' Feb 2026 letter and the Heinrich letter; headline confirmed via AOL syndication; Guardian site blocked for direct fetch"
+  },
+  {
+    "topicId": "epa-drinking-water-abortion-pill-testing",
+    "referenceId": "ref_8e81f8c07cb7",
+    "label": "19th News",
+    "url": "https://19thnews.org/2026/06/drinking-water-abortion-pills-environmental-policy/",
+    "title": "No, abortion pills aren't polluting your water — but the EPA is testing for it",
+    "confidence": "medium",
+    "note": "19th News explainer on EPA abortion-pill water testing and scientists' rebuttal; dated June 2026 (pre-announcement), paywalled fetch so Donley quote/CCL6 details unconfirmed"
+  },
+  {
+    "topicId": "epa-drinking-water-abortion-pill-testing",
+    "referenceId": "ref_79a1f5f45380",
+    "label": "AOL/Mirror",
+    "url": "https://www.aol.com/articles/epa-begin-screening-u-drinking-233907000.html",
+    "title": "EPA to begin screening U.S. drinking water for traces of abortion pills",
+    "confidence": "high",
+    "note": "Mirror article (Sept 21, 2026) syndicated on AOL; quotes SFLA's Hamrick 'drinking other people's abortions'; does not mention 14 AGs/19 members/50 tons"
+  },
+  {
+    "topicId": "epa-drinking-water-abortion-pill-testing",
+    "referenceId": "ref_0449fa2dc61d",
+    "label": "Inside Health Policy",
+    "url": "https://insidehealthpolicy.com/daily-news/epa-track-mifepristone-misoprostol-new-drinking-water-study",
+    "title": "EPA To Track Mifepristone, Misoprostol In New Drinking Water Study",
+    "confidence": "medium",
+    "note": "IHP article on the EPA study; robots-blocked so Donley quote unconfirmed"
+  },
+  {
+    "topicId": "epa-drinking-water-abortion-pill-testing",
+    "referenceId": "ref_573d51ae39d1",
+    "label": "LifeSite",
+    "url": "https://www.lifesitenews.com/news/epa-launches-study-to-test-drinking-water-for-abortion-pills/",
+    "title": "EPA launches study to test drinking water for abortion pills",
+    "confidence": "high",
+    "note": "Sept 18, 2026 article on EPA non-targeted analysis study incl. mifepristone/misoprostol (cites '1,000+' contaminants, not 1,400)"
+  },
+  {
+    "topicId": "epa-drinking-water-abortion-pill-testing",
+    "referenceId": "ref_4d17573c8592",
+    "label": "RedState",
+    "url": "https://redstate.com/ben-smith/2026/09/22/epa-starts-testing-drinking-water-for-traces-of-abortion-pills-n2207249",
+    "title": "EPA Wants to Know If Abortion-Pill Compounds Are in Your Drinking Water",
+    "confidence": "medium",
+    "note": "RedState Sept 22, 2026 article on EPA water study for abortion-pill compounds; not fetched"
+  },
+  {
+    "topicId": "epa-drinking-water-abortion-pill-testing",
+    "referenceId": "ref_39500ccf302f",
+    "label": "The Hill",
+    "url": "https://thehill.com/policy/healthcare/6099145-epa-testing-mifepristone-misoprostol/",
+    "title": "EPA launches drinking water study looking for traces of abortion pills",
+    "confidence": "medium",
+    "note": "The Hill's report on the Sept 2026 EPA study including mifepristone/misoprostol; fetch blocked (403), details unconfirmed"
+  },
+  {
+    "topicId": "hegseth-iran-casualty-concealment",
+    "referenceId": "ref_dbe0f3a3eb95",
+    "label": "MS NOW",
+    "url": "https://www.ms.now/news/pat-ryan-iran-war-death-total-pete-hegseth",
+    "title": "Iraq War veteran Rep. Pat Ryan accuses Hegseth of a 'blatant, unprecedented cover-up'",
+    "confidence": "medium",
+    "note": "Search result for Pat Ryan 'incompetent and immoral' quote on Hegseth death-toll omissions; page 403 on fetch."
+  },
+  {
+    "topicId": "hegseth-iran-casualty-concealment",
+    "referenceId": "ref_acb3fe7e6a27",
+    "label": "Washington Post",
+    "url": "https://www.washingtonpost.com/national-security/2026/09/18/more-us-troops-have-died-amid-iran-war-than-pentagon-has-disclosed-publicly/",
+    "title": "More U.S. troops have died amid Iran war than Pentagon has disclosed publicly",
+    "confidence": "low",
+    "note": "WaPo's original undercount report (paywalled, not fetched); could not confirm it contains the Crow bill / Pat Ryan quotes, which may be in a follow-up."
+  },
+  {
+    "topicId": "hegseth-iran-casualty-concealment",
+    "referenceId": "ref_e61cfbf5504e",
+    "label": "Washington Post, via Raw Story",
+    "url": "https://www.rawstory.com/hegseth-troop-deaths/",
+    "title": "'Perverse': Hegseth busted 'covering up' troop deaths amid new calls for removal",
+    "confidence": "high",
+    "note": "Fetched: Sept 18, 2026 Raw Story piece citing WaPo; DCAS 18 deaths, 5 officials say 22, sixth says 23, 820+ wounded."
+  },
+  {
+    "topicId": "hegseth-iran-casualty-concealment",
+    "referenceId": "ref_e9f58d02c13c",
+    "label": "Wonderwall/MEGA",
+    "url": "https://www.wonderwall.com/politics/defense-secretary-pete-hegseth-resign-fired-pentagon-iran-war-casualty-tally-changes",
+    "title": "Calls grow for Hegseth firing after Iran casualty tally changed",
+    "confidence": "medium",
+    "note": "Wonderwall article on casualty tally change and firing calls (July 2026 'Overseas Operations' shift); not fetched."
+  },
+  {
+    "topicId": "hegseth-iran-casualty-concealment",
+    "referenceId": "ref_a9763f49922a",
+    "label": "Yahoo/Des Moines Register",
+    "url": "https://www.yahoo.com/news/articles/avenge-them-pete-hegseth-says-150712531.html",
+    "title": "'We will avenge them,' Pete Hegseth says of soldiers killed in Kuwait",
+    "confidence": "high",
+    "note": "Fetched: Des Moines Register via Yahoo; Amor, Coady, Shuaiba Port March 1, 'avenge', 'make the president look bad'."
+  },
+  {
+    "topicId": "nspm7-in-practice-minneapolis-surveillance",
+    "referenceId": "ref_40636b8098f1",
+    "label": "Brennan Center",
+    "url": "https://www.brennancenter.org/our-work/analysis-opinion/how-administration-picks-its-targets-then-picks-crime",
+    "title": "How the Administration Picks Its Targets, Then Picks the Crime",
+    "confidence": "high",
+    "note": "Sept 1, 2026; fetched: 15 Direct Action Minnesota defendants charged June 2026 under NSPM-7, FBI/IRS Joint Mission Center, DAG antifa funding task force (no $166M figure)"
+  },
+  {
+    "topicId": "nspm7-in-practice-minneapolis-surveillance",
+    "referenceId": "ref_7afc9383f101",
+    "label": "Charity & Security Network",
+    "url": "https://charityandsecurity.org/news/fbi-and-irs-concretize-implementation-of-nspm-7/",
+    "title": "FBI and IRS Concretize Implementation of NSPM-7",
+    "confidence": "high",
+    "note": "Apr 2026; fetched: FBI/IRS initiative, NSPM-7 Joint Mission Center staffed by ten agencies (article lacks $166M figure and DAG task force)"
+  },
+  {
+    "topicId": "nspm7-in-practice-minneapolis-surveillance",
+    "referenceId": "ref_3c001fea2229",
+    "label": "Reason",
+    "url": "https://reason.com/2026/08/27/this-federal-case-against-minnesota-protesters-is-worth-watching-if-you-care-about-your-civil-liberties/",
+    "title": "This Federal Case Against Minnesota Protesters Is Worth Watching if You Care About Your Civil Liberties",
+    "confidence": "high",
+    "note": "Fetched: Prince of Peace probe opened 'in accordance with' NSPM-7; HSI subpoenas to SEIU, CWA, IFPTE, Sunrise, Voices for Racial Justice; FIRE prediction"
+  },
+  {
+    "topicId": "nspm7-in-practice-minneapolis-surveillance",
+    "referenceId": "ref_4cc71bce642b",
+    "label": "The Intercept",
+    "url": "https://theintercept.com/2026/08/25/minneapolis-ice-protesters-undercover-agents/",
+    "title": "Conservative Groups Side With Minneapolis Protesters Against Trump Crackdown",
+    "confidence": "high",
+    "note": "Aug 25, 2026 on Cato/FIRE/Society for the Rule of Law amicus brief re ICE undercover infiltration"
+  },
+  {
+    "topicId": "nspm7-in-practice-minneapolis-surveillance",
+    "referenceId": "ref_b761e7370671",
+    "label": "TPM",
+    "url": "https://talkingpointsmemo.com/news/dhs-nspm-7-314a-patriot-act",
+    "title": "DHS Brings PATRIOT Act Tool to Bear in NSPM-7 Investigation",
+    "confidence": "high",
+    "note": "TPM report on HSI's use of Section 314(a) in the Minneapolis 'Antifa cell' NSPM-7 case"
+  },
+  {
+    "topicId": "pronatalist-policy-push",
+    "referenceId": "ref_281510141024",
+    "label": "CNN",
+    "url": "https://edition.cnn.com/2025/04/25/politics/baby-bonus-trump-birth-rate-pronatalism/index.html",
+    "title": "What would it take to actually spark a baby boom? Way more than a $5,000 baby bonus",
+    "confidence": "medium",
+    "note": "CNN Apr 25 2025 on baby bonus proposals; fetch blocked"
+  },
+  {
+    "topicId": "pronatalist-policy-push",
+    "referenceId": "ref_c190437f5b45",
+    "label": "KFF Health News/CNN",
+    "url": "https://kffhealthnews.org/health-care-costs/trump-fertility-president-baby-bonus-pronatalism-family-aid-policy-reproductive-rights/",
+    "title": "Trump Wants Americans To Make More Babies. Critics Say His Policies Won't Help Raise Them.",
+    "confidence": "medium",
+    "note": "KFF Health News piece, republished by CNN Nov 26 2025: https://www.cnn.com/2025/11/26/health/pronatalist-movement-families-kff-health-news"
+  },
+  {
+    "topicId": "pronatalist-policy-push",
+    "referenceId": "ref_63b486048162",
+    "label": "Ms. Magazine/NWLC",
+    "url": "https://msmagazine.com/2025/08/26/moms-trump-women-pronatalist-more-babies-birth-rate-fertility/",
+    "title": "Trump's Pronatalist Agenda Weaponizes Motherhood to Push Women Out of Public Life",
+    "confidence": "medium",
+    "note": "Ms. Aug 2025 piece (also listed on NWLC); search matched Fulbright/Duffy query; not fetched"
+  },
+  {
+    "topicId": "pronatalist-policy-push",
+    "referenceId": "ref_174ddaab9fa7",
+    "label": "NWLC",
+    "url": "https://nwlc.org/press-release/nwlc-on-pronatalist-inspired-trump-accounts-ahead-of-white-house-announcement/",
+    "title": "NWLC on Pronatalist-Inspired \"Trump Accounts\" Ahead of White House Announcement",
+    "confidence": "medium",
+    "note": "NWLC statement on Trump Accounts; alt brief: https://nwlc.org/resource/baby-bonuses-and-motherhood-medals-why-we-shouldnt-trust-the-pronatalist-movement/"
+  },
+  {
+    "topicId": "pronatalist-policy-push",
+    "referenceId": "ref_3d2d94c0fa06",
+    "label": "NYT via Yahoo",
+    "url": null,
+    "title": null,
+    "confidence": "low",
+    "note": "Could not locate a Yahoo syndication of the NYT April 2025 birth-rate proposals story; Yahoo pages returned 429"
+  },
+  {
+    "topicId": "pronatalist-policy-push",
+    "referenceId": "ref_a9b70bcf8697",
+    "label": "PBS/Chicago Tonight",
+    "url": "https://news.wttw.com/2025/05/06/could-incentives-convince-americans-have-more-kids-trump-administration-pushes-baby-boom",
+    "title": "Could Incentives Convince Americans to Have More Kids? Trump Administration Pushes for Baby Boom",
+    "confidence": "high",
+    "note": "Fetched; May 6 2025 WTTW Chicago Tonight, mentions $5,000 bonus, Medal of Motherhood, menstrual education"
+  },
+  {
+    "topicId": "senate-leadership-fund-funding-structure",
+    "referenceId": "ref_22a58fb1c47c",
+    "label": "Ballotpedia",
+    "url": "https://ballotpedia.org/Senate_Leadership_Fund",
+    "title": "Senate Leadership Fund - Ballotpedia",
+    "confidence": "high",
+    "note": "Confirms Jan 2015 founding by McConnell supporters, 'only outside organization solely dedicated...' mission, Latcham as ED"
+  },
+  {
+    "topicId": "senate-leadership-fund-funding-structure",
+    "referenceId": "ref_b4ed84cdf048",
+    "label": "FactCheck.org",
+    "url": "https://www.factcheck.org/2026/08/senate-leadership-fund-5/",
+    "title": "Senate Leadership Fund (FactCheck.org group profile)",
+    "confidence": "high",
+    "note": "Profile confirms 2015 founding by McConnell allies, Thune tie, Latcham, One Nation $46M, Steven Law, $211M in 2024, ~$350M plan for 2026, NC $71M second-largest, Adelson/Singer donors (Schwarzman not mentioned)"
+  },
+  {
+    "topicId": "senate-leadership-fund-funding-structure",
+    "referenceId": "ref_90530e956b3e",
+    "label": "OpenSecrets via FactCheck.org",
+    "url": "https://www.factcheck.org/2026/08/senate-leadership-fund-5/",
+    "title": "Senate Leadership Fund (FactCheck.org group profile)",
+    "confidence": "high",
+    "note": "FactCheck.org profile citing OpenSecrets: $211M 2024 IEs, ~$350M 2026 plan, NC second-largest state, top donors"
+  },
+  {
+    "topicId": "senate-leadership-fund-funding-structure",
+    "referenceId": "ref_2e2b4715b172",
+    "label": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Senate_Leadership_Fund",
+    "title": "Senate Leadership Fund - Wikipedia",
+    "confidence": "medium",
+    "note": "Wikipedia article: formed 2015, Thune affiliation, Latcham ED; fetched summary did not show One Nation/Steven Law details"
+  },
+  {
+    "topicId": "slf-cooper-ad-hayes-tricked",
+    "referenceId": "ref_0056ad28608a",
+    "label": "AdImpact via Popular Information",
+    "url": "https://popular.info/p/how-a-gop-super-pac-tricked-a-grieving",
+    "title": "How a GOP super PAC tricked a grieving father into appearing in a political ad",
+    "confidence": "high",
+    "note": "States per AdImpact SLF spent over $6M airing Hayes' ad"
+  },
+  {
+    "topicId": "slf-cooper-ad-hayes-tricked",
+    "referenceId": "ref_bfaabb70d235",
+    "label": "Mediaite",
+    "url": "https://www.mediaite.com/politics/murder-victims-dad-accuses-gop-senate-candidate-of-tricking-him-into-attack-ad-says-hes-voting-for-the-democrat/",
+    "title": "Murder Victim's Dad Accuses GOP Senate Candidate of Tricking Him into Attack Ad, Says He's Voting for the Democrat",
+    "confidence": "high",
+    "note": "Mediaite report on Ronald Hayes saying he was tricked into anti-Cooper ad"
+  },
+  {
+    "topicId": "slf-cooper-ad-hayes-tricked",
+    "referenceId": "ref_f86b6227d72d",
+    "label": "NC Newsline",
+    "url": "https://ncnewsline.com/2026/08/31/nc-father-at-center-of-us-senate-ad-says-he-was-swindled-by-gop-political-operatives/",
+    "title": "NC father at center of US Senate ad says he was 'swindled' by GOP political operatives",
+    "confidence": "high",
+    "note": "Aug 31, 2026 NC Newsline original report on Hayes' account of the SLF ad"
+  },
+  {
+    "topicId": "slf-cooper-ad-hayes-tricked",
+    "referenceId": "ref_2d9a5aa988bc",
+    "label": "PolitiFact/WRAL via Uprise RI",
+    "url": "https://upriseri.com/article/a-grieving-father-a-super-pac-and-the-ad-he-never-meant-to-make",
+    "title": "Grieving NC Father Says Super PAC Misused Him in Cooper Ad",
+    "confidence": "high",
+    "note": "Uprise RI piece citing PolitiFact/WRAL fact-check and NC DAC spokesperson Keith Acree: no record killer in custody at time of 2021 settlement"
+  },
+  {
+    "topicId": "slf-cooper-ad-hayes-tricked",
+    "referenceId": "ref_a2b649899522",
+    "label": "Popular Information",
+    "url": "https://popular.info/p/how-a-gop-super-pac-tricked-a-grieving",
+    "title": "How a GOP super PAC tricked a grieving father into appearing in a political ad",
+    "confidence": "high",
+    "note": "Sept 3, 2026; confirms two other grieving-parent interviews, Federico/SC case, AdImpact $6M"
+  },
+  {
+    "topicId": "slf-cooper-ad-hayes-tricked",
+    "referenceId": "ref_a57dcd8103a1",
+    "label": "Progress NC Action",
+    "url": "https://progressncaction.org/2026/09/gop-super-pac-hits-new-low-in-senate-race/",
+    "title": "GOP Super PAC Hits New Low in Senate Race",
+    "confidence": "high",
+    "note": "Sept 4, 2026; Hayes called ad makers back, they claimed independence; 26M views ($17M/$6M not present)"
+  },
+  {
+    "topicId": "slf-cooper-ad-hayes-tricked",
+    "referenceId": "ref_694e26cdbaf3",
+    "label": "Raw Story",
+    "url": "https://www.rawstory.com/gop-ad/",
+    "title": "Grieving father claims Republicans 'swindled' him into bogus attack ad",
+    "confidence": "high",
+    "note": "Sept 1, 2026; Hayes a Democrat, called ad makers to object, 25M+ views, $17M campaign ($6M figure not present)"
+  },
+  {
+    "topicId": "slf-cooper-ad-hayes-tricked",
+    "referenceId": "ref_2449ee499108",
+    "label": "WFAE",
+    "url": "https://www.wfae.org/politics/2026-09-09/a-closer-look-at-those-cooper-attack-ads-featuring-grieving-fathers",
+    "title": "A closer look at those Cooper attack ads featuring grieving fathers",
+    "confidence": "high",
+    "note": "Sept 9, 2026; covers Federico ad (daughter killed in Columbia SC, father says ad is fair) and Hayes; does not mention Popular Information's other-interviews claim"
+  },
+  {
+    "topicId": "trump-truth-social-hunt-jail-threats",
+    "referenceId": "ref_192574c57ae2",
+    "label": "NPR",
+    "url": "https://www.npr.org/2024/10/21/nx-s1-5134924/trump-election-2024-kamala-harris-elizabeth-cheney-threat-civil-liberties",
+    "title": "Trump has made more than 100 threats to prosecute or punish perceived enemies",
+    "confidence": "high",
+    "note": "NPR investigation (Oct 2024) cataloguing 100+ threats since 2022"
+  },
+  {
+    "topicId": "trump-truth-social-hunt-jail-threats",
+    "referenceId": "ref_0bbe9139c14c",
+    "label": "OPB",
+    "url": "https://www.opb.org/article/2024/10/22/trump-issues-threats-to-prosecute-political-rivals/",
+    "title": "Trump has made more than 100 threats to prosecute or punish perceived enemies",
+    "confidence": "high",
+    "note": "OPB republication of the NPR investigation"
+  },
+  {
+    "topicId": "trump-truth-social-hunt-jail-threats",
+    "referenceId": "ref_0dee0ed53305",
+    "label": "Raw Story, citing Trump's Truth Social post and Washington Post reporting",
+    "url": "https://www.rawstory.com/trump-hegseth-2677664638/",
+    "title": "'Hunted down!': Trump hurls midnight jail threats in raving Truth Social post",
+    "confidence": "high",
+    "note": "Aug 6 2026; exact quote, WaPo Hegseth munitions report, Trump offered no evidence"
+  },
+  {
+    "topicId": "trump-truth-social-hunt-jail-threats",
+    "referenceId": "ref_f0735dd804b9",
+    "label": "Wikipedia: Targeting of political opponents and civil society under the second Trump administration",
+    "url": "https://en.wikipedia.org/wiki/Targeting_of_political_opponents_and_civil_society_under_the_second_Trump_administration",
+    "title": "Targeting of political opponents and civil society under the second Trump administration",
+    "confidence": "medium",
+    "note": "Wikipedia article exists; Sept 20-21 2025 Bondi post details corroborated by other outlets but not verified in this page"
+  },
+  {
+    "topicId": "us-israel-iran-war-civilian-strikes-war-crimes",
+    "referenceId": "ref_de771cf5fd9a",
+    "label": "Al Jazeera",
+    "url": "https://www.aljazeera.com/news/2026/3/3/questions-over-minab-girls-school-strike-as-israel-us-deny-involvement",
+    "title": "Al Jazeera investigation: Iran girls' school targeting likely 'deliberate'",
+    "confidence": "high",
+    "note": "Al Jazeera's own Minab investigation (school point). University-strike point is covered by https://www.aljazeera.com/news/2026/3/30/schools-water-industry-what-civilian-targets-have-us-israel-iran-hit (fetched, confirms IUST Mar 28, Isfahan second hit 4 staff wounded, IRGC threat)."
+  },
+  {
+    "topicId": "us-israel-iran-war-civilian-strikes-war-crimes",
+    "referenceId": "ref_f8ff675932c7",
+    "label": "CFR",
+    "url": "https://www.cfr.org/articles/report-says-u-s-struck-iran-school",
+    "title": "Report Says U.S. Struck Iran School",
+    "confidence": "high",
+    "note": "Fetched: CFR Mar 12, 2026; confirms 90% civilian-harm teams cut, outdated targeting, 1,300 Iran/570 Lebanon/15 Israel deaths. Does not contain the FIDH quote."
+  },
+  {
+    "topicId": "us-israel-iran-war-civilian-strikes-war-crimes",
+    "referenceId": "ref_223fc5fed01a",
+    "label": "CNN",
+    "url": "https://www.cnn.com/2026/09/18/middleeast/us-strike-iran-school-war-crime-un-intl-hnk",
+    "title": "Deadly US strike on Iran school may have been a war crime, UN report finds",
+    "confidence": "high",
+    "note": "CNN Sept 18, 2026 on UN fact-finding mission findings; fetch blocked by robots, headline matches claim."
+  },
+  {
+    "topicId": "us-israel-iran-war-civilian-strikes-war-crimes",
+    "referenceId": "ref_6310078505b5",
+    "label": "HRW",
+    "url": "https://www.hrw.org/news/2026/03/07/us/israel-investigate-iran-school-attack-as-a-war-crime",
+    "title": "US/Israel: Investigate Iran School Attack as a War Crime",
+    "confidence": "high",
+    "note": "HRW March 7 release calling for war-crimes investigation of Minab school strike (search snippet); not fetched."
+  },
+  {
+    "topicId": "us-israel-iran-war-civilian-strikes-war-crimes",
+    "referenceId": "ref_61350030eec7",
+    "label": "NPR/AP",
+    "url": "https://www.npr.org/2026/09/17/nx-s1-5972934/us-iran-war-un-report-alleged-war-crimes",
+    "title": "U.N.-backed experts cite possible U.S. war crimes in Iran, including a school attack",
+    "confidence": "medium",
+    "note": "NPR Sept 17, 2026 on UN mission findings (likely AP copy); fetch blocked, details like 90% cut not confirmed."
+  },
+  {
+    "topicId": "us-israel-iran-war-civilian-strikes-war-crimes",
+    "referenceId": "ref_2590062ac2b2",
+    "label": "Reuters via Malay Mail",
+    "url": "https://www.malaymail.com/news/world/2026/03/06/us-investigators-believe-american-military-likely-responsible-for-deadly-strike-on-iranian-girls-school/211516",
+    "title": "US investigators believe American military likely responsible for deadly strike on Iranian girls' school",
+    "confidence": "high",
+    "note": "Fetched: Reuters via Malay Mail, investigators believe US likely responsible, investigation not complete."
+  },
+  {
+    "topicId": "us-israel-iran-war-civilian-strikes-war-crimes",
+    "referenceId": "ref_72677272133e",
+    "label": "Yahoo/ABC News",
+    "url": "https://www.yahoo.com/news/articles/humanitarian-aid-groups-call-probe-214314702.html",
+    "title": "Iran strikes kill at least 186 students, teachers, officials say",
+    "confidence": "high",
+    "note": "Fetched: ABC News via Yahoo; contains FIDH 'promptly, independently, and transparently investigated' quote. Regional death totals not in it (those are in CFR). ABC original: abcnews.com/International/186-students-teachers-allegedly-killed-iran-organizations-call/story?id=130749425"
+  }
+]

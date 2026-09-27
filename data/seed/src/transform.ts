@@ -69,6 +69,8 @@ export function transform(
   relations: LegacyRelation[],
   /** One-sentence replacements for the original long `disputed` paragraphs, by topic id. */
   condensedNotes: Record<string, string> = {},
+  /** Researched links for sources the export cites by name only, by reference id. */
+  referenceUrls: Record<string, string> = {},
 ): { snapshot: ContentSnapshot; report: TransformReport } {
   // Imported content was already public in the original index, so it arrives published.
   const stamp = {
@@ -87,7 +89,8 @@ export function transform(
       const key = (url ?? label).toLowerCase();
       let ref = refsByKey.get(key);
       if (!ref) {
-        ref = { id: `ref_${shortHash(`${item.id}|${key}`)}`, topicId: item.id, label, url, ...stamp };
+        const id = `ref_${shortHash(`${item.id}|${key}`)}`;
+        ref = { id, topicId: item.id, label, url: url ?? referenceUrls[id], ...stamp };
         refsByKey.set(key, ref);
       }
       return ref.id;

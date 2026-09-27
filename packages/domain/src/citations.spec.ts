@@ -24,6 +24,16 @@ describe('parsePoint', () => {
     expect(parsePoint(input).citations).toEqual([]);
   });
 
+  it('keeps parentheses inside URLs', () => {
+    const p = parsePoint(
+      'He wrote the foreword. (ACLU (https://www.aclu.org/p); Wikipedia (https://en.wikipedia.org/wiki/Kevin_Roberts_(political_strategist)))',
+    );
+    expect(p.citations).toEqual([
+      { label: 'ACLU', url: 'https://www.aclu.org/p' },
+      { label: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Kevin_Roberts_(political_strategist)' },
+    ]);
+  });
+
   it('labels a bare url by host', () => {
     expect(parsePoint('Done. (https://www.example.org/x)').citations).toEqual([
       { label: 'example.org', url: 'https://www.example.org/x' },
