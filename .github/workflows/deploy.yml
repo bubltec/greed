@@ -10,6 +10,8 @@ on:
       - '.cursor/**'
       - '.claude/**'
       - 'LICENSE'
+  # Manual redeploy of main, e.g. after changing a repo variable or an SSM secret.
+  workflow_dispatch:
 
 concurrency:
   group: deploy-main
