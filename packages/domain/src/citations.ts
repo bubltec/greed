@@ -45,7 +45,8 @@ function splitTopLevel(s: string, sep: string): string[] {
 }
 
 function parseCitation(raw: string): ParsedCitation | undefined {
-  const withUrl = raw.match(/^(.*?)\s*\((https?:\/\/[^\s)]+)\)\s*$/);
+  // \S+ is greedy, so URLs that contain parentheses (Wikipedia's "Name_(role)") survive intact.
+  const withUrl = raw.match(/^(.*?)\s*\((https?:\/\/\S+)\)\s*$/);
   if (withUrl) return { label: withUrl[1]!.trim() || hostOf(withUrl[2]!), url: withUrl[2]! };
   const bareUrl = raw.match(/^(https?:\/\/\S+)$/);
   if (bareUrl) return { label: hostOf(bareUrl[1]!), url: bareUrl[1]! };
