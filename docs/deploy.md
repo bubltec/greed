@@ -29,6 +29,9 @@ From an AWS SSO session with account access, in `infra/cdk`:
    your own PRs but nobody pushes straight to `main`); `development` and `production`
    environments with you as production's required reviewer; the Actions variables and secrets.
 5. *(Covered by step 4.)* Variables: `GREED_HOSTED_ZONE_ID`, `GREED_EDITORS`, `GREED_GITHUB_CLIENT_ID`.
+   `GREED_EDITORS` is comma-separated emails or `github:<account id>` entries. Give an account
+   entry the email its edits should be recorded under, `github:<id>=you@example.com`, or the
+   address GitHub lists first is used. The public site never shows editor emails, only "editor".
    Secrets: `AWS_DEPLOY_ROLE_ARN`, `GREED_DEV_BASIC_AUTH_USER`, `GREED_DEV_BASIC_AUTH_PASSWORD`.
 6. **Session secrets** (SSM SecureString, one per environment, never in the repo):
    ```bash

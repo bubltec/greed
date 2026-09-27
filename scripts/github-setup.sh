@@ -60,7 +60,7 @@ JSON
 echo "== Actions variables (not secret)"
 : "${GREED_HOSTED_ZONE_ID:?set GREED_HOSTED_ZONE_ID to the GreedDns HostedZoneId output}"
 gh variable set GREED_HOSTED_ZONE_ID --repo "$REPO" --body "$GREED_HOSTED_ZONE_ID"
-gh variable set GREED_EDITORS --repo "$REPO" --body "${GREED_EDITORS:-john.josef@gmail.com,github:$ME_ID}"
+gh variable set GREED_EDITORS --repo "$REPO" --body "${GREED_EDITORS:-github:$ME_ID=john.josef@gmail.com}"
 [ -n "${GREED_GITHUB_CLIENT_ID:-}" ] && gh variable set GREED_GITHUB_CLIENT_ID --repo "$REPO" --body "$GREED_GITHUB_CLIENT_ID"
 
 echo "== Actions secrets (prompted, never echoed)"

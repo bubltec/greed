@@ -72,3 +72,28 @@ describe('drafts', () => {
     expect(list.find((d) => d.id === 'wip')!.topicPublished).toBe(false);
   });
 });
+
+describe('public authorship', () => {
+  it('never exposes an editor email, but keeps system writers', () => {
+    const pub = publishedOnly({
+      topics: [{ ...topic('live', 'published'), updatedBy: 'me@example.com (mcp)' }],
+      references: [
+        { id: 'r1', topicId: 'live', label: 'NPR', updatedBy: 'me@example.com', ...stamp },
+        { id: 'r2', topicId: 'live', label: 'AP', updatedBy: 'link-fill', ...stamp },
+      ],
+      perspectives: [],
+      relations: [],
+      pages: [
+        {
+          id: 'about',
+          draft: { title: 'A', body: 'b', updatedAt: at, updatedBy: 'me@example.com' },
+          published: { title: 'A', body: 'b', publishedAt: at, publishedBy: 'me@example.com' },
+        },
+      ],
+    });
+    expect(pub.topics[0]!.updatedBy).toBe('editor');
+    expect(pub.references.map((r) => r.updatedBy)).toEqual(['editor', 'link-fill']);
+    expect(pub.pages![0]!.published!.publishedBy).toBe('editor');
+    expect(JSON.stringify(pub)).not.toContain('@');
+  });
+});

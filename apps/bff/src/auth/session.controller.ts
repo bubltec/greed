@@ -8,7 +8,7 @@ import { Body, Controller, Get, Inject, NotFoundException, Post, Req, Res } from
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { IsEmail, IsOptional } from 'class-validator';
 import { LOCAL_EDITOR_EMAIL, isProduction, stage } from '../env.js';
-import { isEditor } from './editor.guard.js';
+import { editorEmail, isEditor } from './editor.guard.js';
 
 export class LocalSignInDto {
   @IsOptional()
@@ -44,7 +44,7 @@ export class SessionController {
         user: {
           id: account.id,
           displayName: account.displayName,
-          email: account.email,
+          email: editorEmail(account) ?? account.email,
           avatarUrl: account.avatarUrl,
           provider: account.provider,
           providerAccountId: account.providerAccountId,

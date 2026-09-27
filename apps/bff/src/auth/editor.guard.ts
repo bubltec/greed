@@ -38,22 +38,29 @@ export class EditorGuard extends JwtAuthGuard {
     if (!account || !isEditor(account)) {
       throw new ForbiddenException('Your account is not on the editors list');
     }
-    request.user.email = account.email;
+    request.user.email = editorEmail(account);
     request.user.displayName = account.displayName;
     return true;
   }
 }
 
-export function isEditor(account: {
-  provider: string;
-  providerAccountId: string;
-  email?: string;
-}): boolean {
+type Account = { provider: string; providerAccountId: string; email?: string; displayName?: string };
+
+export function isEditor(account: Account): boolean {
   const allowed = editors();
   return (
     allowed.has(`${account.provider}:${account.providerAccountId}`.toLowerCase()) ||
     (!!account.email && allowed.has(account.email.toLowerCase()))
   );
+}
+
+/**
+ * The email an editor's changes are recorded under: the one their EDITORS
+ * entry names, else the address the sign-in provider returned.
+ */
+export function editorEmail(account: Account): string | undefined {
+  const signAs = editors().get(`${account.provider}:${account.providerAccountId}`.toLowerCase());
+  return signAs || account.email;
 }
 
 /** Attribution stored on edited rows. */
