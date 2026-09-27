@@ -33,6 +33,8 @@ export function consentPage(p: {
   redirectHost: string;
   user: string;
   hidden: Record<string, string>;
+  /** Offer a fresh GitHub sign-in, which re-reads the account's primary email. */
+  github?: boolean;
 }): string {
   const fields = Object.entries(p.hidden)
     .map(([k, v]) => `<input type="hidden" name="${esc(k)}" value="${esc(v)}">`)
@@ -45,7 +47,8 @@ edit GREED as <strong>${esc(p.user)}</strong>: search and read entries, create a
 sources, perspectives and links. It cannot delete entries.</p>
 <form method="post" action="/api/oauth/authorize">${fields}
 <div class="row"><button name="decision" value="allow">Allow</button>
-<button class="ghost" name="decision" value="deny">Deny</button></div></form></div>`,
+<button class="ghost" name="decision" value="deny">Deny</button></div></form>
+${p.github ? `<p>Wrong account or email? <a href="/api/auth/github">Sign in with GitHub again</a> to refresh it.</p>` : ''}</div>`,
   );
 }
 
