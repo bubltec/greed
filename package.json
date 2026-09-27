@@ -18,7 +18,7 @@
     "seed:local": "pnpm --filter @greed/seed run seed:local",
     "cdk": "pnpm --filter @greed/infra run cdk",
     "infra:dns": "pnpm --filter @greed/infra run deploy:dns",
-    "infra:dev": "pnpm --filter @greed/infra run deploy:dev"
+    "infra:dev": "turbo run build --filter=@greed/web --filter=@greed/bff && pnpm --filter @greed/infra run deploy:dev"
   },
   "devDependencies": {
     "oxlint": "1.85.0",
