@@ -16,7 +16,7 @@ From an AWS SSO session with account access, in `infra/cdk`:
 
 1. **DNS.** `pnpm infra:dns`. Copy the `HostedZoneId` output. No registrar step: the
    delegation record is written into `bubbletech.io` automatically.
-2. **Push.** `git remote add origin https://github.com/bubltec/greed.git && git push -u origin main`.
+2. **Push.** `git remote add origin git@github.com:bubltec/greed.git && git push -u origin main`.
    The deploy role already trusts this repo (`GITHUB_REPO` in `lib/config.ts`).
 3. **Deploy role.** `npx cdk deploy GreedCi`. Keep the `DeployRoleArn` output.
 4. **GitHub settings, mirroring btfp.** From the repo root, with `gh` signed in as a bubltec admin:
