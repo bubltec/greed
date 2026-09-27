@@ -64,3 +64,16 @@ export function editors(): Set<string> {
 export function cacheTtlMs(): number {
   return Number(process.env.CONTENT_CACHE_TTL_MS ?? 15_000);
 }
+
+/** OAuth clients, codes and tokens for the MCP connector (TTL-expired rows). */
+export function authTableName(): string {
+  return process.env.AUTH_TABLE_NAME ?? 'greed-local-auth';
+}
+
+/**
+ * The site's public origin, which is also the OAuth issuer and the base of the
+ * MCP resource URL. Same value as WEB_ORIGIN: the web app and API share an origin.
+ */
+export function publicOrigin(): string {
+  return requireInProduction('WEB_ORIGIN', process.env.WEB_ORIGIN, 'http://localhost:5175');
+}

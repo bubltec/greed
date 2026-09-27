@@ -85,6 +85,7 @@ function Worklist() {
           + New entry
         </Link>
       </div>
+      <ConnectClaude />
       {loading && <Loading />}
       {error && <ErrorBox error={error} />}
       {lists && (
@@ -163,4 +164,33 @@ function buildWorklist(data: ContentSnapshot) {
       .map((t) => ({ id: t.id, title: t.title }))
       .sort(byTitle),
   };
+}
+
+/** How to add this site to Claude as a connector (see docs/mcp.md). */
+function ConnectClaude() {
+  const url = `${window.location.origin}/api/mcp`;
+  const [copied, setCopied] = useState(false);
+  return (
+    <section className="panel mb-8 p-4">
+      <SectionTitle>Connect Claude</SectionTitle>
+      <p className="mb-3 text-sm text-steel">
+        Add GREED as a custom connector and Claude can search, add and link entries for you, as you. In Claude:
+        Settings → Connectors → Add custom connector, paste this URL, then sign in here when asked.
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <code className="border-2 border-deep px-2 py-1.5 text-sm break-all text-bolt">{url}</code>
+        <button
+          className="btn btn-ghost"
+          onClick={() =>
+            navigator.clipboard.writeText(url).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            })
+          }
+        >
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+      </div>
+    </section>
+  );
 }

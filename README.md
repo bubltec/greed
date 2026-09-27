@@ -59,6 +59,11 @@ Editor-only (signed in and on `EDITORS`): `POST/PUT/DELETE /api/topics[/:id]`,
 `/api/topics/:id/references[/:refId]`, `/api/topics/:id/perspectives[/:pid]`,
 `/api/relations[/:rid]`. Every write returns the refreshed topic view.
 
+## Claude connector
+
+`https://greed.bubbletech.io/api/mcp` is a remote MCP server: add it in Claude as a custom
+connector and Claude can search, add, cite and link entries as you. See [docs/mcp.md](docs/mcp.md).
+
 ## Deploy
 
 See [docs/deploy.md](docs/deploy.md) for the one-time setup (DNS delegation from

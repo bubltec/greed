@@ -28,6 +28,7 @@ export interface ApiStackProps extends cdk.StackProps {
   envConfig: EnvConfig;
   contentTable: dynamodb.Table;
   usersTable: dynamodb.Table;
+  authTable: dynamodb.Table;
 }
 
 /**
@@ -71,6 +72,7 @@ export class ApiStack extends cdk.Stack {
         STAGE: envName,
         CONTENT_TABLE_NAME: props.contentTable.tableName,
         USERS_TABLE_NAME: props.usersTable.tableName,
+        AUTH_TABLE_NAME: props.authTable.tableName,
         WEB_ORIGIN: origin,
         EDITORS,
         JWT_SECRET_PARAM: ssmParam(envName, 'jwt-secret'),
@@ -80,6 +82,7 @@ export class ApiStack extends cdk.Stack {
 
     props.contentTable.grantReadWriteData(handler);
     props.usersTable.grantReadWriteData(handler);
+    props.authTable.grantReadWriteData(handler);
     grantSsmConfigRead(handler, { namespace: SSM_NAMESPACE, env: envName, includeShared: false });
 
     this.httpApi = new apigwv2.HttpApi(this, 'HttpApi', {

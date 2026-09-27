@@ -16,7 +16,7 @@ vanilla package, not one-off here.
 | Path | Owns |
 | --- | --- |
 | `packages/domain` | Content model (`Topic`, `Reference`, `Perspective`, `Relation`), `ContentIndex` views, the `ContentStore` port + `InMemoryContentStore` fake, citation parsing. No Nest, no AWS, no Node-only APIs (the web app imports it). |
-| `apps/bff` | NestJS 12 + Fastify 5. `content/` (store adapter, service, DTOs, controllers), `auth/` (editor guard, session), `lambda.ts` / `main.ts` entry points. |
+| `apps/bff` | NestJS 12 + Fastify 5. `content/` (store adapter, service, DTOs, controllers), `auth/` (editor guard, session), `oauth/` (OAuth 2.1 server for the connector), `mcp/` (MCP tools), `lambda.ts` / `main.ts` entry points. |
 | `apps/web` | Reader (`/`, `/t/:id`, `/map`, `/activity`, `/about`) and CMS (`/admin`). Talks only to `/api/*`. |
 | `data/seed` | Converts the original artifact export in `source/` into the content model. Insert-only. |
 | `infra/cdk` | `GreedDns`, `GreedCi`, and `GreedDev`/`GreedProd` stages (`Data`, `Api`, `Web`). |
@@ -30,6 +30,9 @@ vanilla package, not one-off here.
     `forbidNonWhitelisted`, so an undecorated field is rejected.
 *   **Writes go through `EditorGuard`**, which checks the live user row against `EDITORS`
     (emails or `provider:accountId`). Local sign-in (`POST /api/auth/local`) is refused in prod.
+*   **MCP tools are thin.** They validate with the CMS's DTOs and call `ContentService`; never write to
+    the store from `mcp/`. No tool deletes topics or references. See `docs/mcp.md`.
+*   **OAuth stores hashes only**, requires PKCE S256, and every MCP call re-checks `EDITORS`.
 *   **Reads are one cached scan** (`CONTENT_CACHE_TTL_MS`, default 15s). Writes return the fresh
     `TopicView`; the CMS reads with `?fresh=1`. Revisit only if the table outgrows a few thousand rows.
 *   **Secrets are SSM SecureStrings** under `/greed/{env}/…` (mycota-config convention), fetched at

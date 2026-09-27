@@ -15,6 +15,7 @@ export interface DataStackProps extends cdk.StackProps {
 export class DataStack extends cdk.Stack {
   readonly contentTable: dynamodb.Table;
   readonly usersTable: dynamodb.Table;
+  readonly authTable: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props: DataStackProps) {
     super(scope, id, props);
@@ -41,6 +42,17 @@ export class DataStack extends cdk.Stack {
     this.usersTable.addGlobalSecondaryIndex({
       indexName: 'GSI1',
       partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
+    });
+
+    // OAuth clients, codes and tokens for the MCP connector. Only hashes are
+    // stored; codes and tokens expire through the `ttl` attribute. Losing this
+    // table only means reconnecting Claude, so it is never retained.
+    this.authTable = new dynamodb.Table(this, 'AuthTable', {
+      tableName: `greed-${props.envConfig.envName}-auth`,
+      partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      timeToLiveAttribute: 'ttl',
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
   }
 }
