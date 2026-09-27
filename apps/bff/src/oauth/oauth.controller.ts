@@ -85,6 +85,14 @@ export class OAuthController {
     if (!isEditor(user)) {
       return html(reply, 403, errorPage('Not an editor', `${editorEmail(user) ?? user.displayName} isn’t on the GREED editors list.`));
     }
+    // Also come back here if they choose to sign in again from the consent page.
+    reply.setCookie(RETURN_COOKIE, request.url, {
+      path: '/api',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: isProduction(),
+      maxAge: 600,
+    });
     const hidden: Record<string, string> = {};
     for (const key of AUTHORIZE_PARAMS) if (query[key]) hidden[key] = query[key];
     hidden.redirect_uri = req.redirectUri;
@@ -96,6 +104,7 @@ export class OAuthController {
         redirectHost: new URL(req.redirectUri).host,
         user: editorEmail(user) ?? user.displayName,
         hidden,
+        github: !!this.config.github?.clientId,
       }),
     );
   }
@@ -119,6 +128,8 @@ export class OAuthController {
     }
     const user = await this.sessionUser(request);
     if (!user || !isEditor(user)) return html(reply, 403, errorPage('Not signed in', 'Sign in as an editor and try again.'));
+    // The consent page set a return cookie for its "sign in again" link; the decision is made, so drop it.
+    reply.clearCookie(RETURN_COOKIE, { path: '/api' });
     const target = new URL(req.redirectUri);
     if (req.state) target.searchParams.set('state', req.state);
     target.searchParams.set('iss', new URL(this.config.webOrigin).origin);
