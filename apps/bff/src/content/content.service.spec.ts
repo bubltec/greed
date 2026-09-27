@@ -103,4 +103,41 @@ describe('ContentService', () => {
     expect((await svc.view('b', true)).related).toEqual([]);
     await expect(svc.view('a', true)).rejects.toThrow(/No topic/);
   });
+
+  it('starts topics as drafts and lets children inherit their topic’s status', async () => {
+    const svc = service();
+    const created = await svc.createTopic(input(), 'ed');
+    expect(created.topic.status).toBe('draft');
+    // Seeded topic `a` has no status, so it counts as published: a new source on it is live.
+    const onLive = await svc.saveReference('a', undefined, { label: 'NPR' }, 'ed');
+    expect(onLive.references[0]!.status).toBe('published');
+    const onDraft = await svc.saveReference(created.topic.id, undefined, { label: 'AP' }, 'ed');
+    expect(onDraft.references[0]!.status).toBe('draft');
+    // Explicit status wins (the MCP connector always passes draft).
+    const explicit = await svc.savePerspective('a', undefined, { stance: 'critic', holder: 'X', body: 'y', refIds: [], status: 'draft' }, 'ed');
+    expect(explicit.perspectives[0]!.status).toBe('draft');
+  });
+
+  it('publishes a topic with its drafts and stamps publishedAt once', async () => {
+    const svc = service();
+    const { topic } = await svc.createTopic(input(), 'ed');
+    await svc.saveReference(topic.id, undefined, { label: 'AP' }, 'ed');
+    await svc.saveRelation(undefined, { fromId: topic.id, toId: 'a', kind: 'related', note: '' }, 'ed');
+    const view = await svc.publishTopic(topic.id, true, 'ed');
+    expect(view.topic.status).toBe('published');
+    expect(view.topic.publishedAt).toBeDefined();
+    expect(view.references.every((r) => r.status === 'published')).toBe(true);
+    expect(view.related[0]!.relation.status).toBe('published');
+    const first = view.topic.publishedAt;
+    await svc.updateTopic(topic.id, input({ title: 'Renamed' }), 'ed');
+    expect((await svc.view(topic.id, true)).topic.publishedAt).toBe(first);
+  });
+
+  it('refuses a status change that names an unknown item, writing nothing', async () => {
+    const svc = service();
+    await expect(
+      svc.setStatus({ status: 'draft', items: [{ type: 'topic', id: 'a' }, { type: 'topic', id: 'nope' }] }, 'ed'),
+    ).rejects.toThrow(/No topic "nope"/);
+    expect((await svc.view('a', true)).topic.status).toBeUndefined();
+  });
 });

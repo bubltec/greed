@@ -7,6 +7,7 @@ import { RELATION_LABEL } from '../../lib/labels';
 import type { RelationKind, TopicView } from '../../lib/types';
 import { useAsync } from '../../lib/useAsync';
 import { Field } from './fields';
+import { ItemStatus } from './PublishControls';
 
 export function RelationsPanel({ view, onChange }: { view: TopicView; onChange: () => Promise<void> }) {
   const topics = useAsync(() => api.topics(true), []);
@@ -49,6 +50,8 @@ export function RelationsPanel({ view, onChange }: { view: TopicView; onChange: 
             <span className="min-w-0 flex-1">
               {relation.kind === 'cause-effect' && (direction === 'outgoing' ? '→ ' : '← ')}
               <Link to={`/admin/t/${other.id}`}>{other.title}</Link>
+              {' '}
+              <ItemStatus type="relation" id={relation.id} status={relation.status} onChanged={() => void onChange()} />
               {relation.note && <span className="block text-xs text-steel">{relation.note}</span>}
             </span>
             <button

@@ -8,10 +8,14 @@ split into an items-and-relations index, and now lives here as its own site. Eve
 (a **topic**) carries:
 
 - **Sources.** Each point is footnoted to a reference. Sources that still need a URL are flagged.
-- **Disputed or unproven.** Denials, anonymous sourcing and gaps go at the top in red.
+- **A closing note** (one sentence) on the main denial or open question, where there is one.
 - **Perspectives.** Attributed views: critic, defender, official, legal, expert, editorial.
 - **Connections.** Typed links to other topics (same actor, same context, shared mechanism,
   cause → effect, contradicts, related), each marked sourced, inferred, or editor-added.
+
+Everything has a **draft / published** status. The public site shows published content;
+editors see drafts with `?preview=1` and review them on the Editors page. See
+[docs/data-model.md](docs/data-model.md#publishing).
 
 Built on [mycota](../mycota) the same way [badthingsforpets](../badthingsforpets) is: NestJS BFF
 on one Lambda, React on S3 + CloudFront, DynamoDB, `@bubltec/mycota-auth` for sign-in.
@@ -36,7 +40,7 @@ pnpm install
 cp .env.example .env
 pnpm db:up              # DynamoDB Local on :8000
 pnpm --filter @greed/bff dev      # API on :3002 (creates local tables on boot)
-pnpm seed:local                   # in another terminal, once the API is up
+pnpm seed:local                   # in another terminal, once the API is up (builds domain first)
 pnpm --filter @greed/web dev      # http://localhost:5175
 ```
 

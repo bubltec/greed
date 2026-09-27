@@ -1,4 +1,4 @@
-import { RELATION_KINDS, RELATION_PROVENANCES, STANCES, TOPIC_KINDS } from '@greed/domain';
+import { PAGE_IDS, RELATION_KINDS, RELATION_PROVENANCES, STANCES, STATUSES, TOPIC_KINDS } from '@greed/domain';
 
 /** JSON Schemas for the MCP tools. Descriptions are written for the model that calls them. */
 export interface ToolDefinition {
@@ -37,7 +37,9 @@ const topicFields = {
   kind: { type: 'string', enum: TOPIC_KINDS, description: 'case (default), person, organization, synthesis, or thesis.' },
   title: str('Specific, neutral title.'),
   summary: str('Two or three sentences a reader can trust without clicking anything.'),
-  disputed: str('What is contested or unproven: denials, anonymous sourcing, gaps. Empty if nothing.'),
+  disputed: str(
+    'One short sentence noting the main denial or open question, if any (shown small at the end of the entry). Empty if nothing.',
+  ),
   notes: str('Research notes and open leads. Shown publicly.'),
   tags: { type: 'array', items: { type: 'string' }, description: 'Lowercase tags, e.g. ["oil", "pardons"].' },
 };
@@ -62,7 +64,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_topic',
     title: 'Get topic',
-    description: 'Full topic: summary, sections with cited points, disputed notes, references (with ids), perspectives, and linked topics.',
+    description: 'Full topic including drafts: summary, sections with cited points, the closing note, references (with ids), perspectives, linked topics, and each item’s status.',
     inputSchema: { type: 'object', properties: { id: str('Topic id (slug).') }, required: ['id'] },
     annotations: { readOnlyHint: true },
   },
@@ -78,8 +80,8 @@ export const TOOLS: ToolDefinition[] = [
     name: 'create_topic',
     title: 'Create topic',
     description:
-      'Create a new topic. Add its references next with add_reference, then cite them from points with add_points or update_topic. ' +
-      'Every factual point should end up citing at least one reference.',
+      'Create a new topic, as a draft. Add its references next with add_reference, then cite them from points with add_points or update_topic. ' +
+      'Every factual point should end up citing at least one reference. Nothing is public until published with publish_topic.',
     inputSchema: {
       type: 'object',
       properties: { ...topicFields, sections },
@@ -113,7 +115,7 @@ export const TOOLS: ToolDefinition[] = [
     name: 'add_reference',
     title: 'Add reference',
     description:
-      'Attach a source to a topic. Returns the topic with the new reference’s id. Prefer primary sources and give the URL whenever one exists.',
+      'Attach a source to a topic, as a draft. Returns the topic with the new reference’s id. Prefer primary sources and give the URL whenever one exists.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -151,7 +153,7 @@ export const TOOLS: ToolDefinition[] = [
     name: 'add_perspective',
     title: 'Add perspective',
     description:
-      'Add an attributed view on a topic, stated the way its holder would state it. Use `defender` or `official` for the accused side’s best case, not only critics.',
+      'Add an attributed view on a topic (as a draft), stated the way its holder would state it. Use `defender` or `official` for the accused side’s best case, not only critics.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -169,7 +171,7 @@ export const TOOLS: ToolDefinition[] = [
     name: 'link_topics',
     title: 'Link topics',
     description:
-      'Link two topics. Kinds: same-actor, same-context, shared-mechanism, cause-effect (from is the cause), contradicts, related. ' +
+      'Link two topics (as a draft). Kinds: same-actor, same-context, shared-mechanism, cause-effect (from is the cause), contradicts, related. ' +
       'Provenance: "sourced" if a source states the connection, else "inferred".',
     inputSchema: {
       type: 'object',
@@ -183,6 +185,87 @@ export const TOOLS: ToolDefinition[] = [
       required: ['fromId', 'toId', 'kind', 'note'],
     },
     annotations: {},
+  },
+  {
+    name: 'list_drafts',
+    title: 'List drafts',
+    description:
+      'Everything still in draft (topics, references, perspectives, links), newest first, with whether its topic is already live. This is the editor’s review queue.',
+    inputSchema: { type: 'object', properties: {} },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'publish_topic',
+    title: 'Publish topic',
+    description:
+      'Make a topic public, by default together with its draft references, perspectives, and links to already-published topics. ' +
+      'Only call this when the user explicitly asks to publish; otherwise leave work as drafts for them to review.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        topicId: str('Topic id.'),
+        includeChildren: { type: 'boolean', description: 'Also publish its drafts (default true).' },
+      },
+      required: ['topicId'],
+    },
+    annotations: { idempotentHint: true },
+  },
+  {
+    name: 'set_status',
+    title: 'Set status',
+    description:
+      'Publish or unpublish specific items (e.g. one new reference on a live topic), or return something to draft. Only publish when the user asks.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', enum: STATUSES },
+        items: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', enum: ['topic', 'reference', 'perspective', 'relation'] },
+              id: str('Item id (relation ids come from get_topic’s related[].relation.id).'),
+            },
+            required: ['type', 'id'],
+          },
+        },
+      },
+      required: ['status', 'items'],
+    },
+    annotations: { idempotentHint: true },
+  },
+  {
+    name: 'get_page',
+    title: 'Get page',
+    description:
+      'Read an editable site page (home intro or About): its working copy, and whether that differs from what is live. ' +
+      'Bodies use a Markdown subset: paragraphs, "## " headings, "- " lists, **bold**, [text](url) and [[topic-id]] links.',
+    inputSchema: { type: 'object', properties: { id: { type: 'string', enum: PAGE_IDS } }, required: ['id'] },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'update_page',
+    title: 'Update page',
+    description:
+      'Replace a page’s working copy (title and full body). The live page does not change until publish_page, which you should only call when the user asks.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', enum: PAGE_IDS },
+        title: str('Page title (for home, the headline).'),
+        body: str('Full page body in the Markdown subset described in get_page.'),
+      },
+      required: ['id', 'title', 'body'],
+    },
+    annotations: { idempotentHint: true },
+  },
+  {
+    name: 'publish_page',
+    title: 'Publish page',
+    description: 'Make a page’s working copy live. Only when the user explicitly asks.',
+    inputSchema: { type: 'object', properties: { id: { type: 'string', enum: PAGE_IDS } }, required: ['id'] },
+    annotations: { idempotentHint: true },
   },
   {
     name: 'unlink_topics',

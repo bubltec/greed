@@ -16,3 +16,11 @@ function readDir<T>(dir: string): T[] {
 export function loadSource(): { items: LegacyItem[]; relations: LegacyRelation[] } {
   return { items: readDir<LegacyItem>('items'), relations: readDir<LegacyRelation>('relations') };
 }
+
+/**
+ * One-sentence closing notes that replace the original multi-paragraph
+ * "disputed" text, keyed by topic id (source/disputed-condensed.json).
+ */
+export function loadCondensedNotes(): Record<string, string> {
+  return JSON.parse(readFileSync(join(SOURCE, 'disputed-condensed.json'), 'utf8')) as Record<string, string>;
+}

@@ -44,9 +44,8 @@ From an AWS SSO session with account access, in `infra/cdk`:
 8. Merge to `main`. Dev deploys, the prod diff is posted to the run summary, prod waits for approval.
 9. **Seed prod once** (insert-only, safe to re-run):
    ```bash
-   CONTENT_TABLE_NAME=greed-prod-content pnpm --filter @greed/seed exec tsx src/run.ts --remote
-   ```
-   Same for dev with `greed-dev-content`. Dev editors use **Local editor sign-in** behind Basic Auth.
+   pnpm seed:prod    # and pnpm seed:dev for dev
+   ``` Dev editors use **Local editor sign-in** behind Basic Auth.
 10. Confirm the SNS subscription email for the prod 5xx alarm.
 11. **Claude connector.** Add `https://greed.bubbletech.io/api/mcp` as a custom connector in Claude
     (see [mcp.md](mcp.md)). Needs step 7's GitHub sign-in.

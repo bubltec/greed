@@ -9,6 +9,7 @@ import {
 import type {
   ContentSnapshot,
   ContentStore,
+  Page,
   Perspective,
   Reference,
   Relation,
@@ -22,6 +23,7 @@ import type {
  *   TOPIC#<id>  REF#<refId>    a reference on that topic
  *   TOPIC#<id>  PERSP#<pId>    a perspective on that topic
  *   REL#<id>    REL            a relation (fromId/toId are attributes)
+ *   PAGE#<id>   PAGE           an editable site page (home, about)
  *
  * Reads are one paginated Scan cached in ContentService: at a few hundred
  * rows that is cheaper and simpler than per-view queries (btfp does the same).
@@ -31,6 +33,7 @@ export const keys = {
   reference: (topicId: string, id: string) => ({ PK: `TOPIC#${topicId}`, SK: `REF#${id}` }),
   perspective: (topicId: string, id: string) => ({ PK: `TOPIC#${topicId}`, SK: `PERSP#${id}` }),
   relation: (id: string) => ({ PK: `REL#${id}`, SK: 'REL' }),
+  page: (id: string) => ({ PK: `PAGE#${id}`, SK: 'PAGE' }),
 };
 
 type Row = Record<string, unknown> & { PK: string; SK: string; entity?: string };
@@ -42,12 +45,13 @@ function strip<T>(row: Row): T {
 
 /** Sorts raw rows into a snapshot. Unknown rows are ignored, not fatal. */
 export function rowsToSnapshot(rows: Row[]): ContentSnapshot {
-  const snapshot: ContentSnapshot = { topics: [], references: [], perspectives: [], relations: [] };
+  const snapshot: ContentSnapshot = { topics: [], references: [], perspectives: [], relations: [], pages: [] };
   for (const row of rows) {
     if (row.SK === 'TOPIC') snapshot.topics.push(strip<Topic>(row));
     else if (row.SK.startsWith('REF#')) snapshot.references.push(strip<Reference>(row));
     else if (row.SK.startsWith('PERSP#')) snapshot.perspectives.push(strip<Perspective>(row));
     else if (row.SK === 'REL') snapshot.relations.push(strip<Relation>(row));
+    else if (row.SK === 'PAGE') snapshot.pages!.push(strip<Page>(row));
   }
   return snapshot;
 }
@@ -155,5 +159,9 @@ export class DynamoContentStore implements ContentStore {
 
   async deleteRelation(relationId: string) {
     await this.del(keys.relation(relationId));
+  }
+
+  async putPage(page: Page) {
+    await this.put({ ...keys.page(page.id), entity: 'page', ...page });
   }
 }

@@ -5,12 +5,14 @@ import { ErrorBox, Loading } from '../components/bits';
 import { api } from '../lib/api';
 import { KIND_COLOR, KIND_LABEL } from '../lib/labels';
 import { forceLayout } from '../lib/layout';
+import { usePreview } from '../lib/preview';
 import { useAsync } from '../lib/useAsync';
 import { useTitle } from '../lib/useTitle';
 
 export function MapPage() {
   useTitle('Map');
-  const { data, error, loading } = useAsync(() => api.graph(), []);
+  const { preview } = usePreview();
+  const { data, error, loading } = useAsync(() => api.graph(preview), [preview]);
   const [focus, setFocus] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -107,7 +109,16 @@ export function MapPage() {
                   onClick={() => navigate(`/t/${node.id}`)}
                   onKeyDown={(e) => e.key === 'Enter' && navigate(`/t/${node.id}`)}
                 >
-                  <rect x={-r} y={-r} width={r * 2} height={r * 2} fill={KIND_COLOR[node.kind]} />
+                  <rect
+                    x={-r}
+                    y={-r}
+                    width={r * 2}
+                    height={r * 2}
+                    fill={node.status === 'draft' ? '#000' : KIND_COLOR[node.kind]}
+                    stroke={node.status === 'draft' ? '#f8b800' : undefined}
+                    strokeWidth={2}
+                    strokeDasharray={node.status === 'draft' ? '3 2' : undefined}
+                  />
                   {(node.degree >= 8 || node.id === focus) && (
                     <text
                       y={-r - 5}

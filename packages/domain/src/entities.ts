@@ -27,6 +27,15 @@ export type RelationProvenance = (typeof RELATION_PROVENANCES)[number];
 export const STANCES = ['critic', 'defender', 'official', 'legal', 'expert', 'editorial'] as const;
 export type Stance = (typeof STANCES)[number];
 
+import type { Page } from './pages.js';
+
+/**
+ * Publishing state. Drafts are visible to editors (and in `?preview=1`) only.
+ * Rows written before publishing existed have no status and count as published.
+ */
+export const STATUSES = ['draft', 'published'] as const;
+export type Status = (typeof STATUSES)[number];
+
 export interface Point {
   text: string;
   /** Ids of this topic's References that back this point. */
@@ -44,6 +53,9 @@ interface Timestamps {
   updatedAt: string;
   /** Display name or email of the last editor; absent for seeded rows. */
   updatedBy?: string;
+  status?: Status;
+  /** When it was last published. */
+  publishedAt?: string;
 }
 
 export interface Topic extends Timestamps {
@@ -52,7 +64,7 @@ export interface Topic extends Timestamps {
   title: string;
   summary: string;
   sections: Section[];
-  /** What is contested or unproven about this topic. Shown prominently, never buried. */
+  /** A one-sentence note on the main denial or open question, shown small at the end of the entry. */
   disputed: string;
   /** Working notes and open research threads. */
   notes: string;
@@ -95,6 +107,13 @@ export interface ContentSnapshot {
   references: Reference[];
   perspectives: Perspective[];
   relations: Relation[];
+  /** Editable site pages; absent pages use their defaults. */
+  pages?: Page[];
+}
+
+/** A row's publishing state; rows from before publishing existed are published. */
+export function statusOf(item: { status?: Status }): Status {
+  return item.status ?? 'published';
 }
 
 export function isTopicKind(value: unknown): value is TopicKind {

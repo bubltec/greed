@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Param,
   Post,
@@ -11,12 +12,24 @@ import {
 import { CurrentUser } from '@bubltec/mycota-auth';
 import { type Editor, EditorGuard, editorName } from '../auth/editor.guard.js';
 import { ContentService } from './content.service.js';
+import { isPageId, PAGE_IDS } from '@greed/domain';
+import { NotFoundException } from '@nestjs/common';
 import {
+  PageInputDto,
   PerspectiveInputDto,
   ReferenceInputDto,
   RelationInputDto,
+  SetStatusDto,
   TopicInputDto,
 } from './content.dto.js';
+import { IsBoolean, IsOptional } from 'class-validator';
+
+export class PublishTopicDto {
+  /** Also publish the topic's draft sources, perspectives and links (default true). */
+  @IsOptional()
+  @IsBoolean()
+  includeChildren?: boolean;
+}
 
 /** Every write. Returns the refreshed TopicView so the CMS never re-reads a stale cache. */
 @Controller()
@@ -111,4 +124,39 @@ export class EditorController {
   async deleteRelation(@Param('rid') rid: string) {
     await this.content.deleteRelation(rid);
   }
+
+  /** The review queue: every draft, newest first. */
+  @Get('drafts')
+  async drafts() {
+    return (await this.content.index(true)).drafts();
+  }
+
+  @Post('status')
+  setStatus(@Body() body: SetStatusDto, @CurrentUser() user: Editor) {
+    return this.content.setStatus(body, editorName(user));
+  }
+
+  @Post('topics/:id/publish')
+  publishTopic(@Param('id') id: string, @Body() body: PublishTopicDto, @CurrentUser() user: Editor) {
+    return this.content.publishTopic(id, body?.includeChildren ?? true, editorName(user));
+  }
+
+
+  @Get('pages')
+  pages() {
+    return Promise.all(PAGE_IDS.map((id) => this.content.page(id, true)));
+  }
+
+  @Put('pages/:id')
+  savePage(@Param('id') id: string, @Body() body: PageInputDto, @CurrentUser() user: Editor) {
+    if (!isPageId(id)) throw new NotFoundException(`No page "${id}"`);
+    return this.content.savePage(id, body, editorName(user));
+  }
+
+  @Post('pages/:id/publish')
+  publishPage(@Param('id') id: string, @CurrentUser() user: Editor) {
+    if (!isPageId(id)) throw new NotFoundException(`No page "${id}"`);
+    return this.content.publishPage(id, editorName(user));
+  }
+
 }

@@ -32,6 +32,14 @@ vanilla package, not one-off here.
     (emails or `provider:accountId`). Local sign-in (`POST /api/auth/local`) is refused in prod.
 *   **MCP tools are thin.** They validate with the CMS's DTOs and call `ContentService`; never write to
     the store from `mcp/`. No tool deletes topics or references. See `docs/mcp.md`.
+*   **Public reads are published-only** (`ContentIndex.published()`); only `?preview=1` from an
+    editor sees drafts. Anything the MCP connector creates is a draft. Never add a public
+    endpoint that reads the unfiltered index.
+*   **Site pages are data, not code.** Copy for the home intro and About lives in `DEFAULT_PAGES`
+    (the fallback) and in `PAGE#` rows edited in the CMS; never hard-code page copy in components,
+    and never render page bodies as HTML.
+*   **Content never flows dev → prod.** Prod is the source of truth; `pnpm data:refresh-dev`
+    copies prod into dev one way.
 *   **OAuth stores hashes only**, requires PKCE S256, and every MCP call re-checks `EDITORS`.
 *   **Reads are one cached scan** (`CONTENT_CACHE_TTL_MS`, default 15s). Writes return the fresh
     `TopicView`; the CMS reads with `?fresh=1`. Revisit only if the table outgrows a few thousand rows.

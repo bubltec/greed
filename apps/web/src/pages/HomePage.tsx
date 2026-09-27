@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { TOPIC_KINDS } from '@greed/domain';
-import { DisputedFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
+import { DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
 import { api } from '../lib/api';
 import { KIND_LABEL } from '../lib/labels';
+import { usePreview } from '../lib/preview';
+import { usePage } from '../lib/usePage';
+import { Markdown } from '../components/Markdown';
 import type { TopicKind, TopicSummary } from '../lib/types';
 import { useAsync } from '../lib/useAsync';
 import { useTitle } from '../lib/useTitle';
@@ -17,7 +20,9 @@ function matches(t: TopicSummary, words: string[]) {
 
 export function HomePage() {
   useTitle();
-  const { data, error, loading } = useAsync(() => api.topics(), []);
+  const { preview } = usePreview();
+  const intro = usePage('home');
+  const { data, error, loading } = useAsync(() => api.topics(preview), [preview]);
   const [params, setParams] = useSearchParams();
   const [query, setQuery] = useState(params.get('q') ?? '');
   const kind = (params.get('kind') as TopicKind | null) ?? null;
@@ -43,13 +48,10 @@ export function HomePage() {
   return (
     <div>
       <section className="mb-8 max-w-3xl">
-        <h1 className="pixel mb-4 text-sm leading-relaxed text-snow sm:text-base">
-          Who holds power, who pays for it, and who is supposed to be watching.
-        </h1>
-        <p className="prose-body text-steel">
-          A cross-linked record of documented cases. Each entry carries its sources, what is still
-          disputed, the competing perspectives on it, and the other entries it connects to.
-        </p>
+        <h1 className="pixel mb-4 text-sm leading-relaxed text-snow sm:text-base">{intro.title}</h1>
+        <div className="prose-body [&_p]:mb-3 [&_p]:text-base [&_p]:text-steel">
+          <Markdown source={intro.body} lead={false} />
+        </div>
       </section>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -107,7 +109,7 @@ export function HomePage() {
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <KindBadge kind={t.kind} />
-                    {t.disputed && <DisputedFlag />}
+                    {t.status === 'draft' && <DraftFlag />}
                   </div>
                   <h2 className="mb-1 text-lg font-semibold leading-snug text-snow">{t.title}</h2>
                   <p className="line-clamp-2 text-sm leading-relaxed text-steel">{t.summary}</p>

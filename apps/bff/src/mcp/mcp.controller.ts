@@ -18,8 +18,9 @@ const SUPPORTED_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26'];
 const SERVER_INFO = { name: 'greed', title: 'GREED', version: '1.0.0' };
 const INSTRUCTIONS =
   'GREED is a sourced, cross-linked record of power, money and oversight. Search before creating to avoid duplicates. ' +
-  'Every factual point should cite a reference; put denials and unproven claims in `disputed`; add perspectives for ' +
-  'each side, attributed to who holds them; link related topics with the most specific kind that fits.';
+  'Every factual point should cite a reference; note the main denial or open question in one sentence in `disputed`; add perspectives for ' +
+  'each side, attributed to who holds them; link related topics with the most specific kind that fits. ' +
+  'Everything you create is a draft until published. Do not publish unless the user asks; tell them what is waiting in drafts.';
 
 /**
  * MCP over Streamable HTTP, request/response only (no server-initiated

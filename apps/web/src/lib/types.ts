@@ -1,7 +1,9 @@
 export type {
   ActivityEntry,
   ContentSnapshot,
+  DraftEntry,
   GraphView,
+  ItemType,
   Perspective,
   Point,
   RelatedTopic,
@@ -10,6 +12,7 @@ export type {
   RelationKind,
   Section,
   Stance,
+  Status,
   Topic,
   TopicKind,
   TopicSummary,

@@ -1,6 +1,6 @@
 import { ConditionalCheckFailedException, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
-import { loadSource } from './load-source.js';
+import { loadCondensedNotes, loadSource } from './load-source.js';
 import { transform } from './transform.js';
 
 /**
@@ -24,7 +24,7 @@ const db = DynamoDBDocumentClient.from(
 );
 
 const { items, relations } = loadSource();
-const { snapshot, report } = transform(items, relations);
+const { snapshot, report } = transform(items, relations, loadCondensedNotes());
 
 const rows = [
   ...snapshot.topics.map((t) => ({ PK: `TOPIC#${t.id}`, SK: 'TOPIC', entity: 'topic', ...t })),

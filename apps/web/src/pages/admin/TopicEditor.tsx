@@ -9,6 +9,7 @@ import type { Reference, TopicInput, TopicView } from '../../lib/types';
 import { useTitle } from '../../lib/useTitle';
 import { Field, RefPicker } from './fields';
 import { PerspectivesPanel } from './PerspectivesPanel';
+import { TopicPublishBar } from './PublishControls';
 import { ReferencesPanel } from './ReferencesPanel';
 import { RelationsPanel } from './RelationsPanel';
 
@@ -75,6 +76,12 @@ export function TopicEditor() {
           )}
         </div>
       </div>
+
+      {view ? (
+        <TopicPublishBar view={view} onChange={setView} />
+      ) : (
+        <p className="text-sm text-steel">New entries start as drafts. Publish when they’re ready.</p>
+      )}
 
       <TopicForm
         key={view?.topic.id ?? 'new'}
@@ -191,8 +198,11 @@ function TopicForm({
       <Field label="Summary" hint="Two or three sentences a reader can trust without clicking anything.">
         <textarea rows={4} value={form.summary} onChange={(e) => set('summary', e.target.value)} />
       </Field>
-      <Field label="Disputed or unproven" hint="Denials, anonymous sourcing, what isn’t established. Leave empty if nothing.">
-        <textarea rows={3} value={form.disputed} onChange={(e) => set('disputed', e.target.value)} />
+      <Field
+        label="Note (one sentence)"
+        hint="The main denial or open question, if any. Shown small at the end of the entry. Leave empty if nothing."
+      >
+        <textarea rows={2} maxLength={400} value={form.disputed} onChange={(e) => set('disputed', e.target.value)} />
       </Field>
 
       <div>

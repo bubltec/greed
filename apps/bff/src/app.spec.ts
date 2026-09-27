@@ -120,8 +120,49 @@ describe('HTTP API', () => {
       headers: { cookie: editorCookie },
     });
     expect(related.statusCode).toBe(201);
-    const view = await app.inject({ method: 'GET', url: '/api/topics/a-second-case?fresh=1' });
+    const view = await app.inject({
+      method: 'GET',
+      url: '/api/topics/a-second-case?preview=1',
+      headers: { cookie: editorCookie },
+    });
     expect(view.json().related[0]).toMatchObject({ direction: 'incoming', other: { id: 'a-documented-case' } });
+  });
+
+  it('keeps drafts out of public reads until published', async () => {
+    // New topics are drafts; the source added to a draft topic is a draft too.
+    const anon = await app.inject({ method: 'GET', url: '/api/topics/a-documented-case' });
+    expect(anon.statusCode).toBe(404);
+    // ?preview=1 is ignored for anyone but an editor.
+    const sneaky = await app.inject({ method: 'GET', url: '/api/topics/a-documented-case?preview=1', headers: { cookie: strangerCookie } });
+    expect(sneaky.statusCode).toBe(404);
+
+    const drafts = await app.inject({ method: 'GET', url: '/api/drafts', headers: { cookie: editorCookie } });
+    expect(drafts.json().map((d: { type: string }) => d.type).sort()).toEqual(['reference', 'relation', 'topic', 'topic']);
+
+    const published = await app.inject({
+      method: 'POST',
+      url: '/api/topics/a-documented-case/publish',
+      payload: {},
+      headers: { cookie: editorCookie },
+    });
+    expect(published.json().topic).toMatchObject({ status: 'published' });
+    expect(published.json().references[0]).toMatchObject({ status: 'published' });
+    // The link to the still-draft second case stays a draft.
+    expect(published.json().related[0].relation).toMatchObject({ status: 'draft' });
+
+    const live = await app.inject({ method: 'GET', url: '/api/topics/a-documented-case' });
+    expect(live.statusCode).toBe(200);
+    expect(live.json().related).toEqual([]);
+
+    const unpublish = await app.inject({
+      method: 'POST',
+      url: '/api/status',
+      payload: { status: 'draft', items: [{ type: 'topic', id: 'a-documented-case' }] },
+      headers: { cookie: editorCookie },
+    });
+    expect(unpublish.json()).toEqual({ updated: 1 });
+    expect((await app.inject({ method: 'GET', url: '/api/topics/a-documented-case' })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/api/topics' })).json()).toEqual([]);
   });
 
   it('rejects unknown fields and bad values', async () => {
@@ -139,5 +180,30 @@ describe('HTTP API', () => {
     expect(res.json()).toMatchObject({ editor: true, user: { email: 'john@example.com' } });
     const anon = await app.inject({ method: 'GET', url: '/api/session' });
     expect(anon.json()).toMatchObject({ user: null, editor: false });
+  });
+
+  it('serves editable pages: default until published, working copy only in preview', async () => {
+    const pub = await app.inject({ method: 'GET', url: '/api/pages/about' });
+    expect(pub.json()).toMatchObject({ id: 'about', title: 'About', state: 'default' });
+    expect((await app.inject({ method: 'GET', url: '/api/pages/nope' })).statusCode).toBe(404);
+
+    const saved = await app.inject({
+      method: 'PUT',
+      url: '/api/pages/about',
+      payload: { title: 'About GREED', body: 'New lead.\n\n## Section\n\n- one' },
+      headers: { cookie: editorCookie },
+    });
+    expect(saved.json()).toMatchObject({ state: 'unpublished', title: 'About GREED' });
+    // Readers still get the default, and so does a non-editor asking for preview.
+    expect((await app.inject({ method: 'GET', url: '/api/pages/about' })).json().title).toBe('About');
+    expect((await app.inject({ method: 'GET', url: '/api/pages/about?preview=1', headers: { cookie: strangerCookie } })).json().title).toBe('About');
+    expect((await app.inject({ method: 'GET', url: '/api/pages/about?preview=1', headers: { cookie: editorCookie } })).json().title).toBe('About GREED');
+
+    const published = await app.inject({ method: 'POST', url: '/api/pages/about/publish', headers: { cookie: editorCookie } });
+    expect(published.json().state).toBe('published');
+    expect((await app.inject({ method: 'GET', url: '/api/pages/about' })).json()).toMatchObject({ title: 'About GREED', state: 'published' });
+
+    const anon = await app.inject({ method: 'PUT', url: '/api/pages/about', payload: { title: 'x', body: 'y' } });
+    expect(anon.statusCode).toBe(401);
   });
 });

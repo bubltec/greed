@@ -1,5 +1,9 @@
+import type { PageContent, PageId, PageView } from '@greed/domain';
 import type {
   ContentSnapshot,
+  DraftEntry,
+  ItemType,
+  Status,
   ActivityEntry,
   GraphView,
   PerspectiveInput,
@@ -53,14 +57,15 @@ export interface Session {
   signIn: { github: boolean; local: boolean };
 }
 
-const q = (fresh?: boolean) => (fresh ? '?fresh=1' : '');
+/** `?preview=1` includes drafts; the API honours it only for editors, and skips its cache. */
+const q = (preview?: boolean) => (preview ? '?preview=1' : '');
 
 export const api = {
-  topics: (fresh?: boolean) => request<TopicSummary[]>('GET', `/topics${q(fresh)}`),
-  topic: (id: string, fresh?: boolean) =>
-    request<TopicView>('GET', `/topics/${encodeURIComponent(id)}${q(fresh)}`),
-  graph: () => request<GraphView>('GET', '/graph'),
-  activity: () => request<ActivityEntry[]>('GET', '/activity'),
+  topics: (preview?: boolean) => request<TopicSummary[]>('GET', `/topics${q(preview)}`),
+  topic: (id: string, preview?: boolean) =>
+    request<TopicView>('GET', `/topics/${encodeURIComponent(id)}${q(preview)}`),
+  graph: (preview?: boolean) => request<GraphView>('GET', `/graph${q(preview)}`),
+  activity: (preview?: boolean) => request<ActivityEntry[]>('GET', `/activity${q(preview)}`),
   session: () => request<Session>('GET', '/session'),
   localSignIn: (email?: string) => request<unknown>('POST', '/auth/local', email ? { email } : {}),
 
@@ -85,5 +90,16 @@ export const api = {
   addRelation: (input: RelationInput) => request<Relation>('POST', '/relations', input),
   updateRelation: (id: string, input: RelationInput) => request<Relation>('PUT', `/relations/${id}`, input),
   deleteRelation: (id: string) => request<void>('DELETE', `/relations/${id}`),
-  exportAll: () => request<ContentSnapshot>('GET', '/export'),
+  exportAll: () => request<ContentSnapshot>('GET', '/export?preview=1'),
+
+  page: (id: PageId, preview?: boolean) => request<PageView>('GET', `/pages/${id}${q(preview)}`),
+  pages: () => request<PageView[]>('GET', '/pages'),
+  savePage: (id: PageId, content: PageContent) => request<PageView>('PUT', `/pages/${id}`, content),
+  publishPage: (id: PageId) => request<PageView>('POST', `/pages/${id}/publish`),
+
+  drafts: () => request<DraftEntry[]>('GET', '/drafts'),
+  setStatus: (status: Status, items: { type: ItemType; id: string }[]) =>
+    request<{ updated: number }>('POST', '/status', { status, items }),
+  publishTopic: (id: string, includeChildren = true) =>
+    request<TopicView>('POST', `/topics/${id}/publish`, { includeChildren }),
 };

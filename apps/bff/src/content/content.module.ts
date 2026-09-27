@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DYNAMO_DOC_CLIENT } from '@bubltec/mycota-dynamo';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { EditorSession } from '../auth/editor-session.js';
 import { contentTableName } from '../env.js';
 import { ContentService } from './content.service.js';
 import { CONTENT_STORE } from './content.tokens.js';
@@ -17,6 +18,7 @@ import { PublicController } from './public.controller.js';
       useFactory: (db: DynamoDBDocumentClient) => new DynamoContentStore(db, contentTableName()),
     },
     ContentService,
+    EditorSession,
   ],
   exports: [ContentService],
 })

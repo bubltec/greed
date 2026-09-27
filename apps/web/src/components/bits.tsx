@@ -12,9 +12,14 @@ export function KindBadge({ kind }: { kind: TopicKind }) {
   );
 }
 
-export function DisputedFlag() {
+/** Yellow: not public yet. Only editors in preview (or the editor) ever see it. */
+export function DraftFlag({ small }: { small?: boolean }) {
   return (
-    <span className="pixel inline-block border-2 border-hurt px-1.5 py-0.5 text-[0.5rem] text-hurt">Disputed</span>
+    <span
+      className={`pixel inline-block border-2 border-bolt text-bolt ${small ? 'px-1 py-0 text-[0.4375rem]' : 'px-1.5 py-0.5 text-[0.5rem]'}`}
+    >
+      Draft
+    </span>
   );
 }
 

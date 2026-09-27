@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { usePreview } from '../lib/preview';
 import { useSession } from '../lib/session';
 
 const nav = [
@@ -10,7 +11,19 @@ const nav = [
 
 export function Layout() {
   const { session } = useSession();
+  const { preview, setPreview } = usePreview();
   return (
+    <>
+      {preview && session?.editor && (
+        <div className="bg-bolt text-void">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-2 sm:px-6">
+            <span className="pixel text-[0.5625rem]">Preview · drafts are visible</span>
+            <button className="pixel text-[0.5625rem] underline" onClick={() => setPreview(false)}>
+              Exit preview
+            </button>
+          </div>
+        </div>
+      )}
     <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-4 sm:px-6">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-mega py-5">
         <NavLink to="/" className="no-underline" aria-label="GREED home">
@@ -50,12 +63,13 @@ export function Layout() {
         <Outlet />
       </main>
       <footer className="flex flex-wrap justify-between gap-3 border-t-2 border-deep py-5 text-xs text-slate">
-        <span>Every claim is sourced. Contested points are marked, not hidden.</span>
+        <span>Every claim is sourced. Every entry is cross-linked.</span>
         <span className="flex gap-4">
           <a href="/api/export">Download data</a>
           <NavLink to="/admin">Editors</NavLink>
         </span>
       </footer>
     </div>
+    </>
   );
 }
