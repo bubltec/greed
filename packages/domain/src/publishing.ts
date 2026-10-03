@@ -37,6 +37,7 @@ export function publishedOnly(snapshot: ContentSnapshot): ContentSnapshot {
     relations: snapshot.relations
       .filter((r) => published(r) && topicIds.has(r.fromId) && topicIds.has(r.toId))
       .map(anon),
+    outlets: (snapshot.outlets ?? []).filter(published).map(anon),
     // Only the published copy of a page is public; working copies stay with editors.
     pages: (snapshot.pages ?? [])
       .filter((p) => p.published)
@@ -47,7 +48,7 @@ export function publishedOnly(snapshot: ContentSnapshot): ContentSnapshot {
   };
 }
 
-export type ItemType = 'topic' | 'reference' | 'perspective' | 'relation';
+export type ItemType = 'topic' | 'reference' | 'perspective' | 'relation' | 'outlet';
 
 export interface DraftEntry {
   type: ItemType;
@@ -110,6 +111,16 @@ export function drafts(snapshot: ContentSnapshot): DraftEntry[] {
       label: `${r.kind} → ${title(r.toId)}`,
       updatedAt: r.updatedAt,
       updatedBy: r.updatedBy,
+    })),
+    ...(snapshot.outlets ?? []).filter(draft).map((o) => ({
+      type: 'outlet' as const,
+      id: o.id,
+      topicId: `outlet:${o.id}`,
+      topicTitle: o.name,
+      topicPublished: true,
+      label: o.paywall ? `${o.name} (paywalled)` : o.name,
+      updatedAt: o.updatedAt,
+      updatedBy: o.updatedBy,
     })),
   ];
   return entries.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));

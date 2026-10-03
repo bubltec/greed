@@ -46,6 +46,7 @@ describe('publishedOnly', () => {
     expect(pub.references.map((r) => r.id)).toEqual(['r-pub']);
     expect(pub.perspectives.map((p) => p.id)).toEqual(['p1']);
     expect(pub.relations.map((r) => r.id)).toEqual(['rel-ok']);
+    expect(pub.outlets).toEqual([]);
   });
 
   it('drops citations of hidden references', () => {
@@ -70,6 +71,20 @@ describe('drafts', () => {
     );
     expect(list.find((d) => d.id === 'r-draft')!.topicPublished).toBe(true);
     expect(list.find((d) => d.id === 'wip')!.topicPublished).toBe(false);
+  });
+});
+
+describe('outlet drafts', () => {
+  it('lists a draft outlet on its own, and hides it from the public until published', () => {
+    const withOutlet: ContentSnapshot = {
+      ...snapshot,
+      outlets: [
+        { id: 'npr-org', name: 'NPR', domain: 'npr.org', paywall: false, accuracy: 'high', bias: 'low', oneSided: false, factual: 'high', status: 'draft', ...stamp },
+        { id: 'cnn-com', name: 'CNN', domain: 'cnn.com', paywall: true, accuracy: 'mixed', bias: 'mixed', oneSided: false, factual: 'mixed', status: 'published', ...stamp },
+      ],
+    };
+    expect(drafts(withOutlet).find((d) => d.id === 'npr-org')).toMatchObject({ type: 'outlet', topicId: 'outlet:npr-org', label: 'NPR' });
+    expect(publishedOnly(withOutlet).outlets?.map((o) => o.id)).toEqual(['cnn-com']);
   });
 });
 

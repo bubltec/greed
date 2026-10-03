@@ -9,6 +9,7 @@ Defined in `packages/domain/src/entities.ts`.
 | Reference | `id`, `topicId`, `label`, `url?`, `publishedOn?`, `excerpt?`, `note?` | Belongs to exactly one topic |
 | Perspective | `id`, `topicId`, `stance`, `holder`, `body`, `refIds[]` | May cite only its topic's references |
 | Relation | `id`, `fromId`, `toId`, `kind`, `note`, `provenance` | Directional only for `cause-effect` |
+| Outlet | `id`, `name`, `domain`, `paywall`, `accuracy`, `bias`, `oneSided`, `factual`, `note?` | A publication in the trust catalog, not a citation. `paywall` is a hard avoid. Ratings are `high` \| `mixed` \| `low`; for bias, low ranks first |
 
 All rows carry `createdAt`, `updatedAt`, `updatedBy`, and a publishing `status`
 (`draft` | `published`, plus `publishedAt`). Text fields are plain text: URLs and
@@ -55,6 +56,7 @@ pnpm data:refresh-dev --yes    # replace greed-dev-content with a copy of greed-
 | `TOPIC#<id>` | `REF#<refId>` | reference |
 | `TOPIC#<id>` | `PERSP#<pId>` | perspective |
 | `REL#<id>` | `REL` | relation |
+| `OUTLET#<id>` | `OUTLET` | outlet |
 
 The BFF reads the whole table with one paginated Scan and caches the indexed result for 15s
 (`CONTENT_CACHE_TTL_MS`). At hundreds of rows this is cheaper and simpler than per-view queries.

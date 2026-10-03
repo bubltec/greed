@@ -198,4 +198,25 @@ describe('ContentService', () => {
     await expect(svc.remove('page', { id: 'home' }, 'ed')).rejects.toThrow(/can't be deleted/);
     await expect(svc.update('page', { id: 'nope' }, { title: 'x', body: 'y' }, 'ed')).rejects.toThrow(/No page/);
   });
+
+  it('records an outlet under its domain and refuses a duplicate or a non-host', async () => {
+    const svc = service();
+    const input = {
+      name: 'NPR',
+      domain: 'https://www.npr.org/news',
+      paywall: false,
+      accuracy: 'high',
+      bias: 'low',
+      oneSided: false,
+      factual: 'high',
+    };
+    const created = (await svc.create('outlet', input, 'ed')).item as { id: string; domain: string; status?: string };
+    expect(created).toMatchObject({ id: 'npr-org', domain: 'npr.org', status: 'draft' });
+    await expect(svc.create('outlet', { ...input, name: 'National Public Radio' }, 'ed')).rejects.toThrow(/already exists/);
+    await expect(svc.create('outlet', { ...input, domain: 'not a host' }, 'ed')).rejects.toThrow(/Not a domain/);
+    const updated = await svc.update('outlet', { id: 'npr-org' }, { ...input, paywall: true, domain: 'npr.org', note: '  radio  ' }, 'ed');
+    expect(updated.item).toMatchObject({ paywall: true, note: 'radio' });
+    const cleared = await svc.update('outlet', { id: 'npr-org' }, { ...input, domain: 'npr.org', note: '   ' }, 'ed');
+    expect((cleared.item as unknown as { note?: string }).note).toBeUndefined();
+  });
 });

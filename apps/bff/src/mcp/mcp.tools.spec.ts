@@ -47,6 +47,18 @@ describe('search_topics and find_gaps', () => {
   });
 });
 
+describe('list_outlets', () => {
+  it('ranks a paywalled outlet last and marks it a hard avoid', async () => {
+    await run('create_outlet', { name: 'CNN', domain: 'cnn.com', paywall: true, accuracy: 'high', bias: 'low', oneSided: false, factual: 'high' });
+    await run('create_outlet', { name: 'NPR', domain: 'www.npr.org', paywall: false, accuracy: 'high', bias: 'low', oneSided: false, factual: 'high' });
+    const listed = await run('list_outlets');
+    expect(listed.outlets.map((o: { domain: string; hardAvoid: boolean }) => [o.domain, o.hardAvoid])).toEqual([
+      ['npr.org', false],
+      ['cnn.com', true],
+    ]);
+  });
+});
+
 describe('add_points', () => {
   it('appends to an existing section or creates one, keeping the topic’s other fields', async () => {
     const a = await topic('Alpha', { tags: ['x'] });

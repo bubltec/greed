@@ -1,9 +1,11 @@
 /**
- * The content model. Everything the site shows is one of these five shapes.
+ * The content model. Everything the site shows is one of these shapes.
  *
  * A Topic is one documented case, person, organization, or piece of synthesis.
  * References, Perspectives and Relations hang off topics and are edited
  * independently, so adding a source or a viewpoint never rewrites the topic.
+ * An Outlet is a publication we might search or cite, ranked apart from any
+ * one topic's references.
  */
 
 export const TOPIC_KINDS = ['case', 'person', 'organization', 'synthesis', 'thesis'] as const;
@@ -26,6 +28,13 @@ export type RelationProvenance = (typeof RELATION_PROVENANCES)[number];
 /** Whose view a perspective represents. `editorial` is the site's own read. */
 export const STANCES = ['critic', 'defender', 'official', 'legal', 'expert', 'editorial'] as const;
 export type Stance = (typeof STANCES)[number];
+
+/**
+ * How strongly an outlet shows a quality. For accuracy and factual reporting,
+ * high ranks first. For bias, low (less biased) ranks first.
+ */
+export const TRUST_RATINGS = ['high', 'mixed', 'low'] as const;
+export type TrustRating = (typeof TRUST_RATINGS)[number];
 
 import type { Page } from './pages.js';
 
@@ -102,11 +111,36 @@ export interface Relation extends Timestamps {
   provenance: RelationProvenance;
 }
 
+/**
+ * A publication the record may search or cite. Paywalled outlets are stored so
+ * research can skip them; they are never a source we fetch.
+ */
+export interface Outlet extends Timestamps {
+  id: string;
+  /** Display name, e.g. "NPR". */
+  name: string;
+  /** Host we match search results against, e.g. "npr.org". */
+  domain: string;
+  /** Hard avoid: never search or fetch this outlet. */
+  paywall: boolean;
+  /** Do the checkable facts hold up? */
+  accuracy: TrustRating;
+  /** How hard it pushes a side. High is more biased and ranks worse. */
+  bias: TrustRating;
+  /** Does it present only one side of a contested claim? */
+  oneSided: boolean;
+  /** Is this reporting, rather than opinion or rumor presented as news? */
+  factual: TrustRating;
+  note?: string;
+}
+
 export interface ContentSnapshot {
   topics: Topic[];
   references: Reference[];
   perspectives: Perspective[];
   relations: Relation[];
+  /** Publication catalog. Absent on snapshots written before outlets existed. */
+  outlets?: Outlet[];
   /** Editable site pages; absent pages use their defaults. */
   pages?: Page[];
 }

@@ -24,3 +24,12 @@ export {
   type PageView,
 } from './pages.js';
 export { parsePoint, type ParsedCitation, type ParsedPoint } from './citations.js';
+export {
+  OUTLET_FILTER_CAP,
+  compareOutlets,
+  hostMatches,
+  normalizeDomain,
+  outletSearchLists,
+  rankOutlets,
+  type OutletSearchLists,
+} from './outlets.js';

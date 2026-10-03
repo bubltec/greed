@@ -184,9 +184,9 @@ describe('MCP connector', () => {
     const toolList = (await rpc(token, 'tools/list')).json().result.tools as { name: string; inputSchema: any }[];
     expect(toolList.map((t) => t.name).sort()).toEqual(
       [
-        'add_perspective', 'add_points', 'add_reference', 'create_topic', 'delete_draft', 'find_gaps', 'get_page', 'get_topic',
-        'link_topics', 'list_drafts', 'publish_page', 'publish_topic', 'search_topics', 'set_status', 'unlink_topics',
-        'update_page', 'update_perspective', 'update_reference', 'update_topic',
+        'add_perspective', 'add_points', 'add_reference', 'create_outlet', 'create_topic', 'delete_draft', 'find_gaps', 'get_page', 'get_topic',
+        'link_topics', 'list_drafts', 'list_outlets', 'publish_page', 'publish_topic', 'research_topic', 'search_topics', 'set_status', 'unlink_topics',
+        'update_outlet', 'update_page', 'update_perspective', 'update_reference', 'update_topic',
       ].sort(),
     );
     // Schemas come from the DTOs: constraints and required fields included, with the hand-written descriptions.
@@ -201,7 +201,7 @@ describe('MCP connector', () => {
     expect(schema('update_perspective').required).toEqual(['topicId', 'perspectiveId']);
     expect(schema('link_topics').required).toEqual(['fromId', 'toId', 'kind', 'note']);
     expect(schema('update_page').properties.id.enum).toEqual(['home', 'about']);
-    expect(schema('delete_draft').properties.type.enum).toEqual(['topic', 'reference', 'perspective', 'relation']);
+    expect(schema('delete_draft').properties.type.enum).toEqual(['topic', 'reference', 'perspective', 'relation', 'outlet']);
 
     const a = await call(token, 'create_topic', { title: 'Oil money and the EPA', summary: 'Donations preceded rollbacks.' });
     const b = await call(token, 'create_topic', { title: 'Coal plant emergency orders', summary: 'DOE kept plants open.' });
@@ -256,6 +256,38 @@ describe('MCP connector', () => {
     expect(refused.json().result).toMatchObject({ isError: true });
     expect(await call(token, 'delete_draft', { type: 'topic', id: b.id })).toEqual({ deleted: b.id, type: 'topic' });
     expect((await call(token, 'search_topics', { query: 'coal' })).total).toBe(0);
+  });
+
+  it('ranks outlets and will not search until one is published', async () => {
+    const { access_token: token } = await getTokens();
+    const outlet = {
+      paywall: false,
+      accuracy: 'high',
+      bias: 'low',
+      oneSided: false,
+      factual: 'high',
+    };
+    await call(token, 'create_outlet', { ...outlet, name: 'CNN', domain: 'cnn.com', paywall: true, accuracy: 'mixed' });
+    await call(token, 'create_outlet', { ...outlet, name: 'NPR', domain: 'npr.org' });
+    const listed = await call(token, 'list_outlets', {});
+    expect(listed.outlets.map((o: { name: string; hardAvoid: boolean }) => [o.name, o.hardAvoid])).toEqual([
+      ['NPR', false],
+      ['CNN', true],
+    ]);
+    const gateway = process.env.AGENTCORE_GATEWAY_URL;
+    const memory = process.env.AGENTCORE_MEMORY_ID;
+    delete process.env.AGENTCORE_GATEWAY_URL;
+    delete process.env.AGENTCORE_MEMORY_ID;
+    try {
+      const topic = await call(token, 'create_topic', { title: 'A recorded case', summary: 'Something documented.' });
+      const dive = await call(token, 'research_topic', { topicId: topic.id });
+      expect(dive.configured).toBe(false);
+      expect(dive.hits).toEqual([]);
+      expect(dive.skippedPaywalls.map((o: { domain: string }) => o.domain)).toEqual(['cnn.com']);
+    } finally {
+      if (gateway) process.env.AGENTCORE_GATEWAY_URL = gateway;
+      if (memory) process.env.AGENTCORE_MEMORY_ID = memory;
+    }
   });
 
   it('returns validation failures to the model as tool errors', async () => {

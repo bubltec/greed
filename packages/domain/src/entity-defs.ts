@@ -5,7 +5,7 @@ import type { ContentSnapshot } from './entities.js';
  * (DynamoDB, in-memory), the snapshot loader and the BFF's generic CRUD all read
  * this table, so adding a type means adding a row here plus one spec in the BFF.
  */
-export const ENTITY_NAMES = ['topic', 'reference', 'perspective', 'relation', 'page'] as const;
+export const ENTITY_NAMES = ['topic', 'reference', 'perspective', 'relation', 'outlet', 'page'] as const;
 export type EntityName = (typeof ENTITY_NAMES)[number];
 
 /** Which array of the ContentSnapshot holds the entity. */
@@ -74,6 +74,14 @@ export const ENTITY_DEFS: Record<EntityName, EntityDef> = {
     lifecycle: 'status',
     address: ({ id }) => ({ PK: `REL#${id}`, SK: 'REL' }),
     owns: (sk) => sk === 'REL',
+  },
+  outlet: {
+    name: 'outlet',
+    collection: 'outlets',
+    idPrefix: 'outlet',
+    lifecycle: 'status',
+    address: ({ id }) => ({ PK: `OUTLET#${id}`, SK: 'OUTLET' }),
+    owns: (sk) => sk === 'OUTLET',
   },
   page: {
     name: 'page',

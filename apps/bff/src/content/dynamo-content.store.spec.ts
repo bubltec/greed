@@ -33,12 +33,14 @@ describe('DynamoContentStore', () => {
     await store.put('reference', { id: 'r1', topicId: 'a', label: 'NPR' } as never);
     await store.put('perspective', { id: 'p1', topicId: 'a' } as never);
     await store.put('relation', { id: 'x', fromId: 'a', toId: 'b' } as never);
+    await store.put('outlet', { id: 'npr-org', domain: 'npr.org' } as never);
     await store.put('page', { id: 'home', draft: {} } as never);
     expect([...rows.values()].map((r) => [r.PK, r.SK, r.entity])).toEqual([
       ['TOPIC#a', 'TOPIC', 'topic'],
       ['TOPIC#a', 'REF#r1', 'reference'],
       ['TOPIC#a', 'PERSP#p1', 'perspective'],
       ['REL#x', 'REL', 'relation'],
+      ['OUTLET#npr-org', 'OUTLET', 'outlet'],
       ['PAGE#home', 'PAGE', 'page'],
     ]);
     const snapshot = await store.loadAll();
