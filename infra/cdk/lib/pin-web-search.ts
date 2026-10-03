@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
   BedrockAgentCoreControlClient,
   GetGatewayTargetCommand,
@@ -13,7 +14,18 @@ const WAITING_AUTH = new Set(['CREATE_PENDING_AUTH', 'UPDATE_PENDING_AUTH', 'SYN
 
 export interface PinEvent {
   RequestType: 'Create' | 'Update' | 'Delete';
-  ResourceProperties: { GatewayIdentifier: string; TargetId: string; Version: string };
+  /** Present on Update and Delete: the id CloudFormation already holds for this resource. */
+  PhysicalResourceId?: string;
+  ResourceProperties: { GatewayIdentifier: string; TargetId: string; Version: string; ConfigHash?: string };
+}
+
+/**
+ * CloudFormation resets the connector version whenever it updates the target,
+ * and does not know a pin exists. Putting this in the custom resource's
+ * properties makes any change to the target re-run the pin.
+ */
+export function pinFingerprint(targetConfig: unknown): string {
+  return createHash('sha256').update(JSON.stringify(targetConfig)).digest('hex').slice(0, 16);
 }
 
 interface ControlClient {
@@ -62,11 +74,17 @@ export async function pinConnectorVersion(
   await settle(client, gatewayIdentifier, targetId, sleep, now, deadline);
 }
 
+/**
+ * One physical id per target, whatever the version: a version bump is an
+ * in-place Update, not a replacement. CloudFormation's provider framework
+ * rejects a Delete that answers with a different id, so Delete echoes the one
+ * it was given.
+ */
 export async function handlePinEvent(event: PinEvent, client: ControlClient): Promise<{ PhysicalResourceId: string; Data?: { Version: string } } | undefined> {
   const { TargetId, Version } = event.ResourceProperties;
-  if (event.RequestType === 'Delete') return { PhysicalResourceId: TargetId };
+  if (event.RequestType === 'Delete') return { PhysicalResourceId: event.PhysicalResourceId ?? TargetId };
   await pinConnectorVersion(client, event.ResourceProperties.GatewayIdentifier, TargetId, Version);
-  return { PhysicalResourceId: `${TargetId}:${Version}`, Data: { Version } };
+  return { PhysicalResourceId: TargetId, Data: { Version } };
 }
 
 export async function handler(event: PinEvent) {

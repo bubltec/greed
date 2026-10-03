@@ -4,7 +4,7 @@ import {
   type GetGatewayTargetCommandOutput,
 } from '@aws-sdk/client-bedrock-agentcore-control';
 import { describe, expect, it, vi } from 'vitest';
-import { handlePinEvent, pinConnectorVersion, WEB_SEARCH_VERSION } from '../lib/pin-web-search.js';
+import { handlePinEvent, pinConnectorVersion, pinFingerprint, WEB_SEARCH_VERSION } from '../lib/pin-web-search.js';
 
 function target(version: string | undefined, status = 'READY'): GetGatewayTargetCommandOutput {
   return {
@@ -88,22 +88,54 @@ describe('pinConnectorVersion', () => {
 });
 
 describe('handlePinEvent', () => {
-  it('does not call AWS when the custom resource is deleted', async () => {
+  const props = { GatewayIdentifier: 'gw', TargetId: 'tgt1234567', Version: WEB_SEARCH_VERSION, ConfigHash: 'h' };
+
+  it('returns the physical id CloudFormation already holds on Delete, and calls nothing', async () => {
     const send = vi.fn();
     const result = await handlePinEvent(
-      { RequestType: 'Delete', ResourceProperties: { GatewayIdentifier: 'gw', TargetId: 'tgt', Version: WEB_SEARCH_VERSION } },
+      { RequestType: 'Delete', PhysicalResourceId: 'tgt1234567', ResourceProperties: props },
       { send },
     );
     expect(send).not.toHaveBeenCalled();
-    expect(result).toEqual({ PhysicalResourceId: 'tgt' });
+    expect(result).toEqual({ PhysicalResourceId: 'tgt1234567' });
   });
 
-  it('reports the pinned version', async () => {
-    const control = client([target(WEB_SEARCH_VERSION)]);
+  it('answers a Delete for a resource created under an older physical id with that same id', async () => {
     const result = await handlePinEvent(
-      { RequestType: 'Create', ResourceProperties: { GatewayIdentifier: 'gw', TargetId: 'tgt1234567', Version: WEB_SEARCH_VERSION } },
-      control,
+      { RequestType: 'Delete', PhysicalResourceId: 'tgt1234567:1.2.0', ResourceProperties: props },
+      { send: vi.fn() },
     );
-    expect(result).toEqual({ PhysicalResourceId: `tgt1234567:${WEB_SEARCH_VERSION}`, Data: { Version: WEB_SEARCH_VERSION } });
+    expect(result).toEqual({ PhysicalResourceId: 'tgt1234567:1.2.0' });
+  });
+
+  it('keeps one physical id per target, whatever the version, so a version bump is an in-place update', async () => {
+    const created = await handlePinEvent({ RequestType: 'Create', ResourceProperties: props }, client([target(WEB_SEARCH_VERSION)]));
+    const bumped = await handlePinEvent(
+      { RequestType: 'Update', PhysicalResourceId: 'tgt1234567', ResourceProperties: { ...props, Version: '1.3.0' } },
+      client([target(WEB_SEARCH_VERSION), target('1.3.0')]),
+    );
+    expect(created?.PhysicalResourceId).toBe('tgt1234567');
+    expect(bumped?.PhysicalResourceId).toBe('tgt1234567');
+    expect(bumped?.Data).toEqual({ Version: '1.3.0' });
+  });
+
+  it('re-pins on Update when CloudFormation reset the target to the connector default', async () => {
+    const control = client([target(undefined), target(WEB_SEARCH_VERSION)]);
+    await handlePinEvent({ RequestType: 'Update', PhysicalResourceId: 'tgt1234567', ResourceProperties: props }, control);
+    expect(control.sent.map((call) => call.name)).toContain('UpdateGatewayTargetCommand');
+  });
+});
+
+describe('pinFingerprint', () => {
+  const config = { name: 'web-search', description: 'one', connector: { connectorId: 'web-search' } };
+
+  it('is stable for the same target configuration', () => {
+    expect(pinFingerprint(config)).toBe(pinFingerprint({ ...config }));
+    expect(pinFingerprint(config)).toMatch(/^[0-9a-f]{16}$/);
+  });
+
+  it('changes when CloudFormation would change the target, so the pin runs again', () => {
+    expect(pinFingerprint({ ...config, description: 'two' })).not.toBe(pinFingerprint(config));
+    expect(pinFingerprint({ ...config, connector: { connectorId: 'other' } })).not.toBe(pinFingerprint(config));
   });
 });

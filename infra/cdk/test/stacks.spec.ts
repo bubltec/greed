@@ -60,6 +60,7 @@ describe('GreedProd', () => {
       Version: '1.2.0',
       GatewayIdentifier: Match.anyValue(),
       TargetId: Match.anyValue(),
+      ConfigHash: Match.stringLikeRegexp('^[0-9a-f]{16}$'),
     });
     expect(JSON.stringify(api.findResources('AWS::IAM::Policy'))).toContain('bedrock-agentcore:UpdateGatewayTarget');
     api.hasResourceProperties('AWS::BedrockAgentCore::Memory', {
