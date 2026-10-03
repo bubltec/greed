@@ -45,10 +45,23 @@ describe('GreedProd', () => {
       ProtocolType: 'MCP',
     });
     api.hasResourceProperties('AWS::BedrockAgentCore::GatewayTarget', {
+      Name: 'web-search',
       TargetConfiguration: {
-        Mcp: { Connector: { Source: { ConnectorId: 'web-search', Version: '1.2.0' } } },
+        Mcp: { Connector: { Source: { ConnectorId: 'web-search' }, Configurations: [{ Name: 'WebSearch' }] } },
       },
+      CredentialProviderConfigurations: [{ CredentialProviderType: 'GATEWAY_IAM_ROLE' }],
     });
+    for (const resource of Object.values(api.findResources('AWS::BedrockAgentCore::GatewayTarget'))) {
+      const source = (resource as { Properties: { TargetConfiguration: { Mcp: { Connector: { Source: Record<string, string> } } } } }).Properties
+        .TargetConfiguration.Mcp.Connector.Source;
+      expect(source).toEqual({ ConnectorId: 'web-search' });
+    }
+    api.hasResourceProperties('AWS::CloudFormation::CustomResource', {
+      Version: '1.2.0',
+      GatewayIdentifier: Match.anyValue(),
+      TargetId: Match.anyValue(),
+    });
+    expect(JSON.stringify(api.findResources('AWS::IAM::Policy'))).toContain('bedrock-agentcore:UpdateGatewayTarget');
     api.hasResourceProperties('AWS::BedrockAgentCore::Memory', {
       Name: 'greed_prod_research',
       EventExpiryDuration: 7,

@@ -407,20 +407,111 @@ describe('AgentCoreResearchMemory', () => {
 });
 
 describe('signedFetch', () => {
-  it('signs with the AWS credential chain and sends that request', async () => {
-    const seen: Request[] = [];
-    const fetchImpl: typeof fetch = async (input) => {
-      seen.push(input as Request);
+  const credentials = async () => ({
+    accessKeyId: 'AKIDEXAMPLE',
+    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY',
+    sessionToken: 'token',
+  });
+  const now = () => new Date('2015-08-30T12:36:00Z');
+
+  interface Sent {
+    url: URL;
+    init: RequestInit & { headers: Record<string, string> };
+  }
+  function harness(service = 'bedrock-agentcore') {
+    const sent: Sent[] = [];
+    const fetchImpl = (async (url: URL, init: Sent['init']) => {
+      sent.push({ url, init });
       return new Response('ok');
-    };
-    const call = signedFetch('us-east-1', fetchImpl, async () => ({
-      accessKeyId: 'AKIDEXAMPLE',
-      secretAccessKey: 'secret',
-      sessionToken: 'token',
-    }));
-    await call('https://gw.example/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
-    expect(seen[0]!.headers.get('authorization')).toMatch(/^AWS4-HMAC-SHA256 /);
-    expect(seen[0]!.headers.get('authorization')).toContain('bedrock-agentcore');
-    expect(seen[0]!.headers.get('x-amz-security-token')).toBe('token');
+    }) as unknown as typeof fetch;
+    return { sent, call: signedFetch('us-east-1', { fetchImpl, credentials, service, now }) };
+  }
+  const signature = (sent: Sent) => /Signature=([0-9a-f]{64})/.exec(sent.init.headers.authorization!)?.[1];
+
+  it('matches the AWS SigV4 test-suite vector for get-vanilla', async () => {
+    const sent: Sent[] = [];
+    const fetchImpl = (async (url: URL, init: Sent['init']) => {
+      sent.push({ url, init });
+      return new Response('ok');
+    }) as unknown as typeof fetch;
+    const call = signedFetch('us-east-1', {
+      fetchImpl,
+      service: 'service',
+      now,
+      credentials: async () => ({ accessKeyId: 'AKIDEXAMPLE', secretAccessKey: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY' }),
+    });
+    await call('https://example.amazonaws.com/');
+    expect(sent[0]!.init.headers.authorization).toBe(
+      'AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, ' +
+        'SignedHeaders=host;x-amz-date, ' +
+        'Signature=5fa00fa31553b73ebf1942676e86291e8372ff2a2260956d9b8aae1d763fbf31',
+    );
+  });
+
+  it('signs for bedrock-agentcore with the session token and sends the body unchanged', async () => {
+    const { sent, call } = harness();
+    await call('https://gw.example/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"a":1}' });
+    const { init, url } = sent[0]!;
+    expect(url.href).toBe('https://gw.example/mcp');
+    expect(init.method).toBe('POST');
+    expect(init.headers.authorization).toContain('/us-east-1/bedrock-agentcore/aws4_request');
+    expect(init.headers['x-amz-security-token']).toBe('token');
+    expect(init.headers.authorization).toContain('SignedHeaders=content-type;host;x-amz-date;x-amz-security-token');
+    expect(init.headers['content-type']).toBe('application/json');
+    expect(new TextDecoder().decode(init.body as Uint8Array)).toBe('{"a":1}');
+    expect(init.headers.host).toBeUndefined();
+  });
+
+  it('signs the body, so a different body gets a different signature', async () => {
+    const { sent, call } = harness();
+    await call('https://gw.example/mcp', { method: 'POST', body: '{"a":1}' });
+    await call('https://gw.example/mcp', { method: 'POST', body: '{"a":2}' });
+    expect(signature(sent[0]!)).not.toBe(signature(sent[1]!));
+  });
+
+  it('sends no body on a GET', async () => {
+    const { sent, call } = harness();
+    await call(new URL('https://gw.example/mcp'));
+    expect(sent[0]!.init.method).toBe('GET');
+    expect(sent[0]!.init.body).toBeUndefined();
+  });
+
+  it('keeps repeated query parameters instead of collapsing them', async () => {
+    const { sent, call } = harness();
+    await call('https://gw.example/mcp?a=1&a=2');
+    await call('https://gw.example/mcp?a=2&a=1');
+    await call('https://gw.example/mcp?a=2');
+    expect(signature(sent[0]!)).toBe(signature(sent[1]!));
+    expect(signature(sent[0]!)).not.toBe(signature(sent[2]!));
+  });
+
+  it('keeps a non-default port in the signed host and passes the abort signal on', async () => {
+    const { sent, call } = harness();
+    const controller = new AbortController();
+    await call('http://localhost:3000/mcp', { signal: controller.signal });
+    expect(sent[0]!.init.signal).toBeInstanceOf(AbortSignal);
+    controller.abort();
+    expect(sent[0]!.init.signal!.aborted).toBe(true);
+    expect(sent[0]!.init.headers.authorization).toContain('SignedHeaders=host;x-amz-date;x-amz-security-token');
+  });
+
+  it('resolves credentials from the AWS chain by default and refetches each call', async () => {
+    let calls = 0;
+    const fetchImpl = (async () => new Response('ok')) as unknown as typeof fetch;
+    const call = signedFetch('us-east-1', {
+      fetchImpl,
+      now,
+      credentials: async () => {
+        calls += 1;
+        return { accessKeyId: 'AKIDEXAMPLE', secretAccessKey: 'secret' };
+      },
+    });
+    await call('https://gw.example/mcp');
+    await call('https://gw.example/mcp');
+    expect(calls).toBe(2);
+  });
+
+  it('builds a signer on the default chain and global fetch when given no options', () => {
+    expect(typeof signedFetch('us-east-1')).toBe('function');
   });
 });

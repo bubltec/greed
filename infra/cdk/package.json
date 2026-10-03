@@ -12,6 +12,7 @@
     "deploy:dev": "cdk deploy \"GreedDev/*\""
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-agentcore-control": "3.1136.0",
     "@bubltec/mycota-cdk": "1.0.1",
     "aws-cdk-lib": "2.270.0",
     "constructs": "10.8.1",
@@ -23,6 +24,7 @@
     "@greed/web": "workspace:*",
     "@types/node": "26.6.2",
     "aws-cdk": "2.1142.0",
+    "esbuild": "0.28.2",
     "tsx": "4.23.13",
     "typescript": "7.0.2",
     "vitest": "5.0.1"

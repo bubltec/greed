@@ -26,6 +26,9 @@ importers:
 
   apps/bff:
     dependencies:
+      '@aws-crypto/sha256-js':
+        specifier: 5.2.0
+        version: 5.2.0
       '@aws-sdk/client-bedrock-agentcore':
         specifier: 3.1136.0
         version: 3.1136.0
@@ -74,9 +77,12 @@ importers:
       '@nestjs/platform-fastify':
         specifier: 12.0.3
         version: 12.0.3(@nestjs/common@12.0.3(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.0.3(@nestjs/common@12.0.3(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))
-      aws4fetch:
-        specifier: 1.0.20
-        version: 1.0.20
+      '@smithy/protocol-http':
+        specifier: 5.6.2
+        version: 5.6.2
+      '@smithy/signature-v4':
+        specifier: 5.7.4
+        version: 5.7.4
       class-transformer:
         specifier: 0.5.1
         version: 0.5.1
@@ -194,6 +200,9 @@ importers:
 
   infra/cdk:
     dependencies:
+      '@aws-sdk/client-bedrock-agentcore-control':
+        specifier: 3.1136.0
+        version: 3.1136.0
       '@bubltec/mycota-cdk':
         specifier: 1.0.1
         version: 1.0.1(aws-cdk-lib@2.270.0(constructs@10.8.1))(constructs@10.8.1)
@@ -222,6 +231,9 @@ importers:
       aws-cdk:
         specifier: 2.1142.0
         version: 2.1142.0
+      esbuild:
+        specifier: 0.28.2
+        version: 0.28.2
       tsx:
         specifier: 4.23.13
         version: 4.23.13
@@ -263,6 +275,17 @@ packages:
     bundledDependencies:
       - jsonschema
       - semver
+
+  '@aws-crypto/sha256-js@5.2.0':
+    resolution: {integrity: sha512-FFQQyu7edu4ufvIZ+OadFpHHOt+eSTBaYaki44c+akjg7qZg9oOQeLlk77F6tSYqjDAFClrHJk9tMf0HdVyOvA==}
+    engines: {node: '>=16.0.0'}
+
+  '@aws-crypto/util@5.2.0':
+    resolution: {integrity: sha512-4RkU9EsI6ZpBve5fseQlGNUWKMa1RLPQ1dnjnQoe07ldfIzcsGb5hC5W0Dm7u423KWzawlrpbjXBrXCEv9zazQ==}
+
+  '@aws-sdk/client-bedrock-agentcore-control@3.1136.0':
+    resolution: {integrity: sha512-zzDcvjCjvOQCsVbm13JuS1YEdrb1X3+lCIU7k1+cY550223nTDuU3Q87MaNUGoqxaTmAkiLl9vycUXB1MkQwwQ==}
+    engines: {node: '>=20.0.0'}
 
   '@aws-sdk/client-bedrock-agentcore@3.1136.0':
     resolution: {integrity: sha512-fpyMhUO8FMqtsJv4+2b6iE/vkSI2arraWdqo8FOYGnkeLfwtikao3QOwqiNj1ihZ0wk7xr+Sscg5M1wigQEMFw==}
@@ -970,8 +993,16 @@ packages:
     resolution: {integrity: sha512-ycSJu3tFAQ4v04CBB0agqFMVsSQ1iG3yw+SpgxRqKfaURpQD4CZ8Wn0zPMmSnOuTpTh65Vz+EA0rMrw089wvkA==}
     engines: {node: '>=18.0.0'}
 
+  '@smithy/is-array-buffer@2.2.0':
+    resolution: {integrity: sha512-GGP3O9QFD24uGeAXYUjwSTXARoqpZykHadOmA8G5vfJPK0/DC67qa//0qvqrJzL1xc8WQWX7/yc7fwudjPHPhA==}
+    engines: {node: '>=14.0.0'}
+
   '@smithy/node-http-handler@4.12.1':
     resolution: {integrity: sha512-ThMkboGeONWXAelq9FvGsuJC4rOi+qyC4/zhUF58xYpxUg5sQKx2VXZYJmtNjr4dSuBJ1HeJXETQILCz3wOHvw==}
+    engines: {node: '>=18.0.0'}
+
+  '@smithy/protocol-http@5.6.2':
+    resolution: {integrity: sha512-Asd04MaxODN6FNY8EPTeCAM4kPNi3jDUAjZU0Y4F9rHvpLUrrUo7KLcxFgSthywFr6dZfIyDLIJda6jxmVTk5w==}
     engines: {node: '>=18.0.0'}
 
   '@smithy/signature-v4@5.7.4':
@@ -981,6 +1012,14 @@ packages:
   '@smithy/types@4.19.0':
     resolution: {integrity: sha512-r7jh49VJxGerfAcTQA6gXcKc+98zOp/tqRwzYjgOE+iSQsP6cEU1hq2QzbuipmP68QtYdY9wKEhiCQZIzHgZ4Q==}
     engines: {node: '>=18.0.0'}
+
+  '@smithy/util-buffer-from@2.2.0':
+    resolution: {integrity: sha512-IJdWBbTcMQ6DA0gdNhh/BwrLkDR+ADW5Kr1aZmd4k3DIF6ezMV4R2NIAmT08wQJ3yUK82thHWmC/TnK/wpMMIA==}
+    engines: {node: '>=14.0.0'}
+
+  '@smithy/util-utf8@2.3.0':
+    resolution: {integrity: sha512-R8Rdn8Hy72KKcebgLiv8jQcQkXoLMOGGv5uI1/k0l+snqkOzQ1R0ChUBCxWMlBsFMekWjq0wRudIweFs7sKT5A==}
+    engines: {node: '>=14.0.0'}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -1363,9 +1402,6 @@ packages:
     resolution: {integrity: sha512-gNOeii+avTJmOwfR8tVgraZ5A2EBC/529EXg7e+yBp8Zl608dAv5CtFRoJt8QoKiruiCwYr4HF6ClNAse/NkSg==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
-
-  aws4fetch@1.0.20:
-    resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
 
   base64url@3.0.1:
     resolution: {integrity: sha512-ir1UPr3dkwexU7FdV8qBBbNDRUhMmIekYMFZfi+C/sLNnRESKPl23nB9b2pltqfOQNnGzsDdId90AEtG5tCx4A==}
@@ -2185,6 +2221,29 @@ snapshots:
 
   '@aws-cdk/cloud-assembly-schema@54.25.0': {}
 
+  '@aws-crypto/sha256-js@5.2.0':
+    dependencies:
+      '@aws-crypto/util': 5.2.0
+      '@aws-sdk/types': 3.974.6
+      tslib: 2.8.1
+
+  '@aws-crypto/util@5.2.0':
+    dependencies:
+      '@aws-sdk/types': 3.974.6
+      '@smithy/util-utf8': 2.3.0
+      tslib: 2.8.1
+
+  '@aws-sdk/client-bedrock-agentcore-control@3.1136.0':
+    dependencies:
+      '@aws-sdk/core': 3.978.1
+      '@aws-sdk/credential-provider-node': 3.972.83
+      '@aws-sdk/types': 3.974.6
+      '@smithy/core': 3.35.0
+      '@smithy/fetch-http-handler': 5.8.0
+      '@smithy/node-http-handler': 4.12.1
+      '@smithy/types': 4.19.0
+      tslib: 2.8.1
+
   '@aws-sdk/client-bedrock-agentcore@3.1136.0':
     dependencies:
       '@aws-sdk/core': 3.978.1
@@ -2199,7 +2258,7 @@ snapshots:
   '@aws-sdk/client-bedrock-runtime@3.1136.0':
     dependencies:
       '@aws-sdk/core': 3.978.1
-      '@aws-sdk/credential-provider-node': 3.972.84
+      '@aws-sdk/credential-provider-node': 3.972.83
       '@aws-sdk/eventstream-handler-node': 3.972.35
       '@aws-sdk/middleware-eventstream': 3.972.30
       '@aws-sdk/middleware-websocket': 3.972.54
@@ -2227,7 +2286,7 @@ snapshots:
   '@aws-sdk/client-ses@3.1136.0':
     dependencies:
       '@aws-sdk/core': 3.978.1
-      '@aws-sdk/credential-provider-node': 3.972.84
+      '@aws-sdk/credential-provider-node': 3.972.83
       '@aws-sdk/types': 3.974.6
       '@smithy/core': 3.35.0
       '@smithy/fetch-http-handler': 5.8.0
@@ -2864,10 +2923,19 @@ snapshots:
       '@smithy/types': 4.19.0
       tslib: 2.8.1
 
+  '@smithy/is-array-buffer@2.2.0':
+    dependencies:
+      tslib: 2.8.1
+
   '@smithy/node-http-handler@4.12.1':
     dependencies:
       '@smithy/core': 3.35.0
       '@smithy/types': 4.19.0
+      tslib: 2.8.1
+
+  '@smithy/protocol-http@5.6.2':
+    dependencies:
+      '@smithy/core': 3.35.0
       tslib: 2.8.1
 
   '@smithy/signature-v4@5.7.4':
@@ -2878,6 +2946,16 @@ snapshots:
 
   '@smithy/types@4.19.0':
     dependencies:
+      tslib: 2.8.1
+
+  '@smithy/util-buffer-from@2.2.0':
+    dependencies:
+      '@smithy/is-array-buffer': 2.2.0
+      tslib: 2.8.1
+
+  '@smithy/util-utf8@2.3.0':
+    dependencies:
+      '@smithy/util-buffer-from': 2.2.0
       tslib: 2.8.1
 
   '@standard-schema/spec@1.1.0': {}
@@ -3137,8 +3215,6 @@ snapshots:
       constructs: 10.8.1
 
   aws-cdk@2.1142.0: {}
-
-  aws4fetch@1.0.20: {}
 
   base64url@3.0.1: {}
 
