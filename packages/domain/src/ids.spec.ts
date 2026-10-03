@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { slugify, uniqueSlug } from './ids.js';
+import { newId, slugify, uniqueSlug } from './ids.js';
 
 describe('slugify', () => {
   it('makes readable url-safe ids', () => {
@@ -9,5 +9,13 @@ describe('slugify', () => {
 
   it('avoids collisions', () => {
     expect(uniqueSlug('A b', new Set(['a-b', 'a-b-2']))).toBe('a-b-3');
+  });
+});
+
+describe('newId', () => {
+  it('prefixes a short random id', () => {
+    const a = newId('ref');
+    expect(a).toMatch(/^ref_[0-9a-f]{12}$/);
+    expect(newId('ref')).not.toBe(a);
   });
 });

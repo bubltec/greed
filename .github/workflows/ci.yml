@@ -40,4 +40,5 @@ jobs:
       - run: pnpm lint
       # build before test: the infra synth test needs the Lambda bundle and web dist.
       - run: pnpm turbo run typecheck build
+      # Runs vitest with coverage; a package below the 90% threshold (vitest.shared.ts) fails the job.
       - run: pnpm turbo run test

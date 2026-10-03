@@ -24,10 +24,11 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `create_topic` / `update_topic` | Create, or change only the fields passed |
 | `add_points` | Append cited points to a section (created if new) |
 | `add_reference` / `update_reference` | Attach a source / fix one (e.g. add the missing URL) |
-| `add_perspective` | Attributed view: critic, defender, official, legal, expert, editorial |
+| `add_perspective` / `update_perspective` | Attributed view: critic, defender, official, legal, expert, editorial / change one (only the fields you pass) |
 | `link_topics` / `unlink_topics` | Typed links; provenance defaults to `inferred` |
 | `list_drafts` | The review queue: everything not yet published |
 | `publish_topic` | Publish a topic with its drafts (sources, perspectives, links to live topics) |
+| `delete_draft` | Permanently delete a draft topic, source, perspective or link (published items are refused) |
 | `set_status` | Publish or unpublish individual items |
 | `get_page` / `update_page` / `publish_page` | Edit the home intro and About page (working copy; live on publish) |
 
@@ -35,9 +36,19 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 published, either by you in the editor or by Claude when you ask it to (`publish_topic`,
 `set_status`; the server instructions tell Claude not to publish unprompted).
 
-There is deliberately no tool to delete a topic or a reference; do that in the web editor.
+`delete_draft` only works on items still in draft; deleting published topics or references is done in the web editor.
 Writes go through `ContentService` with the same validation as the CMS, and are attributed
 as `<your email> (mcp)` so the log shows which channel made a change.
+
+## Where the tools come from
+
+Most tools are **generated from the entity registry** (`apps/bff/src/content/entities/`): each
+content type opts in with an `mcp` block listing the operations to expose, and the tool names,
+JSON Schemas (from the DTO's validators, so they can't drift from the CMS) and handlers follow.
+Updates are partial: only the fields passed change. A new content type has no tools until it
+opts in. The bespoke tools are `search_topics`, `find_gaps`, `add_points`, `list_drafts` and
+`set_status` (`apps/bff/src/mcp/bespoke-tools.ts`). See "Adding a content type" in
+`.cursor/rules/greed-architecture.mdc`.
 
 ## How auth works
 

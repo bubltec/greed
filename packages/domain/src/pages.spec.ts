@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PAGES, type Page, publicPage, workingPage } from './pages.js';
+import { DEFAULT_PAGES, isPageId, type Page, publicPage, workingPage } from './pages.js';
 
 const at = '2026-09-27T00:00:00.000Z';
 
@@ -20,5 +20,23 @@ describe('pages', () => {
     expect(publicPage('home', page)).toMatchObject({ title: 'Live', state: 'published' });
     expect(workingPage('home', page)).toMatchObject({ title: 'Edited', state: 'changed' });
     expect(workingPage('home', { ...page, draft: { title: 'Live', body: 'b1', updatedAt: at } }).state).toBe('published');
+  });
+});
+
+describe('isPageId', () => {
+  it('accepts only the known page ids', () => {
+    expect(isPageId('home')).toBe(true);
+    expect(isPageId('about')).toBe(true);
+    expect(isPageId('nope')).toBe(false);
+    expect(isPageId(7)).toBe(false);
+  });
+
+  it('shows the default for an unsaved page to editors, and the live copy to readers', () => {
+    expect(workingPage('home', undefined)).toMatchObject({ state: 'default', title: DEFAULT_PAGES.home.title });
+    const published = { title: 'Live', body: 'b', publishedAt: at };
+    expect(publicPage('home', { id: 'home', draft: { title: 'D', body: 'b', updatedAt: at }, published })).toMatchObject({
+      state: 'published',
+      publishedAt: at,
+    });
   });
 });

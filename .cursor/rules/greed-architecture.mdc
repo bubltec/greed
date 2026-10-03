@@ -15,11 +15,26 @@ vanilla package, not one-off here.
 
 | Path | Owns |
 | --- | --- |
-| `packages/domain` | Content model (`Topic`, `Reference`, `Perspective`, `Relation`), `ContentIndex` views, the `ContentStore` port + `InMemoryContentStore` fake, citation parsing. No Nest, no AWS, no Node-only APIs (the web app imports it). |
-| `apps/bff` | NestJS 12 + Fastify 5. `content/` (store adapter, service, DTOs, controllers), `auth/` (editor guard, session), `oauth/` (OAuth 2.1 server for the connector), `mcp/` (MCP tools), `lambda.ts` / `main.ts` entry points. |
+| `packages/domain` | Content model (`Topic`, `Reference`, `Perspective`, `Relation`, `Page`), the entity table (`entity-defs.ts`: storage keys, parent links, lifecycle), `ContentIndex` views, the generic `ContentStore` port + `InMemoryContentStore` fake, citation parsing. No Nest, no AWS, no Node-only APIs (the web app imports it). |
+| `apps/bff` | NestJS 12 + Fastify 5. `content/` (store adapter, generic `ContentService`, DTOs, `entities/` specs, generated controllers), `auth/` (editor guard, session), `oauth/` (OAuth 2.1 server for the connector), `mcp/` (tools generated from the entity specs, plus a few bespoke ones), `lambda.ts` / `main.ts` entry points. |
 | `apps/web` | Reader (`/`, `/t/:id`, `/map`, `/activity`, `/about`) and CMS (`/admin`). Talks only to `/api/*`. |
 | `data/seed` | Converts the original artifact export in `source/` into the content model. Insert-only. |
 | `infra/cdk` | `GreedDns`, `GreedCi`, and `GreedDev`/`GreedProd` stages (`Data`, `Api`, `Web`). |
+
+## Adding a content type
+
+CRUD is generic; a type is declared, not wired. Steps:
+
+1. A row in `packages/domain/src/entity-defs.ts`: collection, id prefix, parent, lifecycle, storage keys.
+2. The interface in `entities.ts` and a field on `ContentSnapshot`.
+3. A request DTO in `content.dto.ts` (every property decorated).
+4. A spec in `apps/bff/src/content/entities/` (`defineEntity`) and a line in `entities/index.ts`: `fields` (validation and
+   integrity), optional `onDelete`, `present`, `publish`, and `mcp`.
+
+That yields the store reads/writes, the REST endpoints (`crud.controller.ts`), cascading deletes, draft/publish handling and
+`ContentService.create/update/remove/removeDraft/setStatus/publish`. **MCP is opt-in**: without an `mcp` block the type has no tools;
+list the operations to expose (`get`, `create`, `update`, `delete`, `publish`, `deleteDraft`) and the tools and their JSON
+Schemas are generated from the DTO. Don't add per-type methods to `ContentService`, `ContentStore` or the controllers.
 
 ## Rules
 
@@ -31,7 +46,8 @@ vanilla package, not one-off here.
 *   **Writes go through `EditorGuard`**, which checks the live user row against `EDITORS`
     (emails or `provider:accountId`). Local sign-in (`POST /api/auth/local`) is refused in prod.
 *   **MCP tools are thin.** They validate with the CMS's DTOs and call `ContentService`; never write to
-    the store from `mcp/`. No tool deletes topics or references. See `docs/mcp.md`.
+    the store from `mcp/`. Deleting through MCP is `delete_draft` (refuses anything published) or an entity's
+    explicit `mcp.delete`. See `docs/mcp.md`.
 *   **Public reads are published-only** (`ContentIndex.published()`); only `?preview=1` from an
     editor sees drafts. Anything the MCP connector creates is a draft. Never add a public
     endpoint that reads the unfiltered index.
@@ -56,5 +72,5 @@ vanilla package, not one-off here.
 pnpm lint && pnpm turbo run typecheck build && pnpm turbo run test
 ```
 
-`infra/cdk`'s test synthesises both stages without credentials; it needs the BFF bundle and
+Tests run with a 90% coverage gate (see `write-tests`). `infra/cdk`'s test synthesises both stages without credentials; it needs the BFF bundle and
 web `dist/`, which `turbo` builds first.

@@ -26,6 +26,7 @@
     "infra:dev": "turbo run build --filter=@greed/web --filter=@greed/bff && pnpm --filter @greed/infra run deploy:dev"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "5.0.1",
     "oxlint": "1.85.0",
     "turbo": "2.11.2",
     "typescript": "7.0.2"

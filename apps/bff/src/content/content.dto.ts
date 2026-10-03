@@ -1,9 +1,11 @@
 import {
+  type EntityName,
   RELATION_KINDS,
   RELATION_PROVENANCES,
   type RelationKind,
   type RelationProvenance,
   STANCES,
+  STATUS_ENTITY_NAMES,
   type Stance,
   STATUSES,
   type Status,
@@ -192,11 +194,12 @@ export class PageInputDto {
   body!: string;
 }
 
-export const ITEM_TYPES = ['topic', 'reference', 'perspective', 'relation'] as const;
+/** Entities that carry a draft/published status (set_status works on these). */
+export const ITEM_TYPES = STATUS_ENTITY_NAMES;
 
 export class ItemRefDto {
   @IsIn(ITEM_TYPES)
-  type!: (typeof ITEM_TYPES)[number];
+  type!: EntityName;
 
   @IsString()
   @Length(1, 200)

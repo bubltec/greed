@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { editorEmail, isEditor } from './editor.guard.js';
+import { editorEmail, editorName, isEditor } from './editor.guard.js';
 
 const saved = { ...process.env };
 afterEach(() => {
@@ -23,5 +23,12 @@ describe('editor identity', () => {
   it('does not let the signs-as email grant access on its own', () => {
     process.env.EDITORS = 'github:7=me@example.com';
     expect(isEditor({ provider: 'email', providerAccountId: 'me@example.com', email: 'me@example.com' })).toBe(false);
+  });
+});
+
+describe('editorName', () => {
+  it('attributes edits to the email, else the display name', () => {
+    expect(editorName({ email: 'a@x.com', displayName: 'A' } as never)).toBe('a@x.com');
+    expect(editorName({ displayName: 'A' } as never)).toBe('A');
   });
 });
