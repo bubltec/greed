@@ -35,9 +35,14 @@ export const STANCE_LABEL: Record<Stance, string> = {
   editorial: 'Editorial read',
 };
 
+/**
+ * Red marks the side excusing the conduct, blue the side calling it out: defending
+ * corruption, misogyny or degradation is not a good thing, so the colours are
+ * deliberately the reverse of "red = critical".
+ */
 export const STANCE_COLOR: Record<Stance, string> = {
-  critic: '#f83800',
-  defender: '#3cbcfc',
+  critic: '#3cbcfc',
+  defender: '#f83800',
   official: '#fcfcfc',
   legal: '#a4e4fc',
   expert: '#f8b800',

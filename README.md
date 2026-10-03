@@ -25,7 +25,7 @@ on one Lambda, React on S3 + CloudFront, DynamoDB, `@bubltec/mycota-auth` for si
 ```
 apps/bff          NestJS 12 + Fastify 5 API (one Lambda in AWS, plain Node locally)
 apps/web          Reader + /admin CMS (Vite 8, React 19, Tailwind 4, NES Mega Man palette)
-packages/domain   Content model, views, ContentStore port + in-memory fake, citation parser
+packages/domain   Content model, entity table, views, generic ContentStore port + in-memory fake, citation parser
 packages/config   Shared tsconfig presets
 data/seed         Import of the original artifact export (59 topics, 345 sources, 99 links)
 infra/cdk         GreedDns, GreedCi, GreedDev / GreedProd (Data, Api, Web)

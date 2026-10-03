@@ -64,12 +64,14 @@ describe('ContentIndex', () => {
 });
 
 describe('InMemoryContentStore', () => {
-  it('cascades a topic delete', async () => {
+  it('puts and removes items by entity, without cascading (that is the service’s job)', async () => {
     const store = new InMemoryContentStore(snapshot);
-    await store.deleteTopic('a');
+    await store.put('topic', { ...snapshot.topics[0]!, title: 'Renamed' });
+    await store.remove([{ entity: 'topic', ref: { id: 'b' } }]);
     const after = await store.loadAll();
-    expect(after.topics.map((t) => t.id)).toEqual(['b', 'c']);
-    expect(after.references).toEqual([]);
-    expect(after.relations).toEqual([]);
+    expect(after.topics.map((t) => [t.id, t.title])).toEqual([['a', 'Renamed'], ['c', snapshot.topics[2]!.title]]);
+    expect(after.references).toHaveLength(snapshot.references.length);
+    await store.remove([{ entity: 'reference', ref: { id: snapshot.references[0]!.id, parentId: 'a' } }]);
+    expect((await store.loadAll()).references).toHaveLength(snapshot.references.length - 1);
   });
 });

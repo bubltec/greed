@@ -206,4 +206,79 @@ describe('HTTP API', () => {
     const anon = await app.inject({ method: 'PUT', url: '/api/pages/about', payload: { title: 'x', body: 'y' } });
     expect(anon.statusCode).toBe(401);
   });
+
+  it('updates and deletes through the generated endpoints, children returning their topic', async () => {
+    const as = { cookie: editorCookie };
+    const created = await app.inject({ method: 'POST', url: '/api/topics', payload: { ...topic, title: 'Delete me' }, headers: as });
+    const id = created.json().topic.id as string;
+    const withPerspective = await app.inject({
+      method: 'POST',
+      url: `/api/topics/${id}/perspectives`,
+      payload: { stance: 'critic', holder: 'ACLU', body: 'Unlawful.', refIds: [] },
+      headers: as,
+    });
+    const pid = withPerspective.json().perspectives[0].id as string;
+    const edited = await app.inject({
+      method: 'PUT',
+      url: `/api/topics/${id}/perspectives/${pid}`,
+      payload: { stance: 'defender', holder: 'ACLU', body: 'Unlawful.', refIds: [] },
+      headers: as,
+    });
+    expect(edited.statusCode).toBe(200);
+    expect(edited.json().perspectives[0]).toMatchObject({ id: pid, stance: 'defender' });
+    const missing = await app.inject({ method: 'PUT', url: `/api/topics/${id}/perspectives/nope`, payload: { stance: 'critic', holder: 'x', body: 'y', refIds: [] }, headers: as });
+    expect(missing.statusCode).toBe(404);
+
+    const removed = await app.inject({ method: 'DELETE', url: `/api/topics/${id}/perspectives/${pid}`, headers: as });
+    expect(removed.statusCode).toBe(200);
+    expect(removed.json().perspectives).toEqual([]);
+
+    const gone = await app.inject({ method: 'DELETE', url: `/api/topics/${id}`, headers: as });
+    expect(gone.statusCode).toBe(204);
+    expect((await app.inject({ method: 'GET', url: `/api/topics/${id}?preview=1`, headers: as })).statusCode).toBe(404);
+  });
+
+  it('lists the fixed-id pages for editors and refuses to create or delete them', async () => {
+    const as = { cookie: editorCookie };
+    const list = await app.inject({ method: 'GET', url: '/api/pages', headers: as });
+    expect(list.json().map((p: { id: string }) => p.id)).toEqual(['home', 'about']);
+    expect((await app.inject({ method: 'POST', url: '/api/pages', payload: { title: 'x', body: 'y' }, headers: as })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'DELETE', url: '/api/pages/home', headers: as })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/api/pages' })).statusCode).toBe(401);
+  });
+
+  it('serves health, the graph, activity and the export', async () => {
+    expect((await app.inject({ method: 'GET', url: '/api/health' })).json()).toEqual({ ok: true });
+    expect((await app.inject({ method: 'GET', url: '/api/graph' })).json()).toMatchObject({ nodes: expect.any(Array), edges: expect.any(Array) });
+    expect((await app.inject({ method: 'GET', url: '/api/activity' })).json()).toEqual(expect.any(Array));
+    const exported = await app.inject({ method: 'GET', url: '/api/export' });
+    expect(exported.headers['content-disposition']).toMatch(/greed-export\.json/);
+    expect(exported.json()).toMatchObject({ topics: [], exportedAt: expect.any(String) });
+    expect((await app.inject({ method: 'GET', url: '/api/topics/nope' })).statusCode).toBe(404);
+  });
+
+  it('treats a bad or unknown session as signed out, and says which sign-in methods exist', async () => {
+    const garbage = await app.inject({ method: 'GET', url: '/api/session', headers: { cookie: 'greed_session=garbage' } });
+    expect(garbage.json()).toMatchObject({ user: null, editor: false, signIn: { local: true, github: false } });
+    const auth = app.get(AuthService);
+    const ghost = auth.issueSessionToken({ ...(await fakeUsers.findOrCreateByEmail('ghost@example.com')), providerAccountId: 'ghost-not-stored' });
+    const unknown = await app.inject({ method: 'GET', url: '/api/session', headers: { cookie: `greed_session=${ghost}` } });
+    expect(unknown.json()).toMatchObject({ user: null, editor: false });
+  });
+
+  it('signs in locally outside prod, defaulting to the local editor, and refuses in prod', async () => {
+    const res = await app.inject({ method: 'POST', url: '/api/auth/local', payload: {} });
+    expect(res.statusCode).toBe(201);
+    expect(res.json()).toMatchObject({ email: 'editor@greed.local' });
+    expect(String(res.headers['set-cookie'])).toMatch(/greed_session=/);
+    const named = await app.inject({ method: 'POST', url: '/api/auth/local', payload: { email: 'john@example.com' } });
+    expect(named.json()).toMatchObject({ email: 'john@example.com' });
+    expect((await app.inject({ method: 'POST', url: '/api/auth/local', payload: { email: 'not-an-email' } })).statusCode).toBe(400);
+    process.env.STAGE = 'prod';
+    try {
+      expect((await app.inject({ method: 'POST', url: '/api/auth/local', payload: {} })).statusCode).toBe(404);
+    } finally {
+      process.env.STAGE = 'test';
+    }
+  });
 });

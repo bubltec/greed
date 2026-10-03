@@ -1,87 +1,47 @@
-import type { ContentSnapshot, Perspective, Reference, Relation, Topic } from './entities.js';
-import type { Page } from './pages.js';
+import type { ContentSnapshot } from './entities.js';
+import { type Collection, ENTITY_LIST, ENTITY_DEFS, type EntityName, type EntityRef } from './entity-defs.js';
+
+/** Something to delete: the entity type plus how to address it. */
+export interface RemoveTarget {
+  entity: EntityName;
+  ref: EntityRef;
+}
 
 /**
  * Persistence port. The BFF depends on this, never on DynamoDB directly, so
- * the in-memory fake below can stand in for tests.
+ * the in-memory fake below can stand in for tests. It is generic over the
+ * entity table in entity-defs.ts: no per-type methods. Cascades (a topic's
+ * references, perspectives and relations) are the service's job; the store
+ * only writes and deletes what it is told to.
  */
 export interface ContentStore {
   loadAll(): Promise<ContentSnapshot>;
-  putTopic(topic: Topic): Promise<void>;
-  /** Deletes the topic and everything that hangs off it (refs, perspectives, relations). */
-  deleteTopic(topicId: string): Promise<void>;
-  putReference(reference: Reference): Promise<void>;
-  deleteReference(topicId: string, referenceId: string): Promise<void>;
-  putPerspective(perspective: Perspective): Promise<void>;
-  deletePerspective(topicId: string, perspectiveId: string): Promise<void>;
-  putRelation(relation: Relation): Promise<void>;
-  deleteRelation(relationId: string): Promise<void>;
-  putPage(page: Page): Promise<void>;
+  put(entity: EntityName, item: { id: string }): Promise<void>;
+  remove(targets: RemoveTarget[]): Promise<void>;
 }
 
 export class InMemoryContentStore implements ContentStore {
-  private topics = new Map<string, Topic>();
-  private references = new Map<string, Reference>();
-  private perspectives = new Map<string, Perspective>();
-  private relations = new Map<string, Relation>();
-  private pages = new Map<string, Page>();
+  private data = new Map<Collection, Map<string, { id: string }>>();
 
   constructor(seed?: Partial<ContentSnapshot>) {
-    for (const t of seed?.topics ?? []) this.topics.set(t.id, t);
-    for (const r of seed?.references ?? []) this.references.set(r.id, r);
-    for (const p of seed?.perspectives ?? []) this.perspectives.set(p.id, p);
-    for (const r of seed?.relations ?? []) this.relations.set(r.id, r);
-    for (const p of seed?.pages ?? []) this.pages.set(p.id, p);
-  }
-
-  async loadAll(): Promise<ContentSnapshot> {
-    return structuredClone({
-      topics: [...this.topics.values()],
-      references: [...this.references.values()],
-      perspectives: [...this.perspectives.values()],
-      relations: [...this.relations.values()],
-      pages: [...this.pages.values()],
-    });
-  }
-
-  async putTopic(topic: Topic) {
-    this.topics.set(topic.id, structuredClone(topic));
-  }
-
-  async deleteTopic(topicId: string) {
-    this.topics.delete(topicId);
-    for (const [id, r] of this.references) if (r.topicId === topicId) this.references.delete(id);
-    for (const [id, p] of this.perspectives) if (p.topicId === topicId) this.perspectives.delete(id);
-    for (const [id, r] of this.relations) {
-      if (r.fromId === topicId || r.toId === topicId) this.relations.delete(id);
+    for (const def of ENTITY_LIST) {
+      const rows = new Map<string, { id: string }>();
+      for (const item of (seed?.[def.collection] ?? []) as { id: string }[]) rows.set(item.id, item);
+      this.data.set(def.collection, rows);
     }
   }
 
-  async putReference(reference: Reference) {
-    this.references.set(reference.id, structuredClone(reference));
+  async loadAll(): Promise<ContentSnapshot> {
+    const snapshot: Record<string, unknown[]> = {};
+    for (const def of ENTITY_LIST) snapshot[def.collection] = [...this.data.get(def.collection)!.values()];
+    return structuredClone(snapshot) as unknown as ContentSnapshot;
   }
 
-  async deleteReference(_topicId: string, referenceId: string) {
-    this.references.delete(referenceId);
+  async put(entity: EntityName, item: { id: string }) {
+    this.data.get(ENTITY_DEFS[entity].collection)!.set(item.id, structuredClone(item));
   }
 
-  async putPerspective(perspective: Perspective) {
-    this.perspectives.set(perspective.id, structuredClone(perspective));
-  }
-
-  async deletePerspective(_topicId: string, perspectiveId: string) {
-    this.perspectives.delete(perspectiveId);
-  }
-
-  async putRelation(relation: Relation) {
-    this.relations.set(relation.id, structuredClone(relation));
-  }
-
-  async deleteRelation(relationId: string) {
-    this.relations.delete(relationId);
-  }
-
-  async putPage(page: Page) {
-    this.pages.set(page.id, structuredClone(page));
+  async remove(targets: RemoveTarget[]) {
+    for (const { entity, ref } of targets) this.data.get(ENTITY_DEFS[entity].collection)!.delete(ref.id);
   }
 }

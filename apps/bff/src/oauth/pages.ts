@@ -44,7 +44,7 @@ export function consentPage(p: {
     `<div class="panel"><h1>Connect ${esc(p.clientName)}?</h1>
 <p><strong>${esc(p.clientName)}</strong> (returning to <code>${esc(p.redirectHost)}</code>) is asking to read and
 edit GREED as <strong>${esc(p.user)}</strong>: search and read entries, create and update entries, and add
-sources, perspectives and links. It cannot delete entries.</p>
+sources, perspectives and links. It can delete drafts, never published entries.</p>
 <form method="post" action="/api/oauth/authorize">${fields}
 <div class="row"><button name="decision" value="allow">Allow</button>
 <button class="ghost" name="decision" value="deny">Deny</button></div></form>

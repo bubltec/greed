@@ -8,7 +8,8 @@ export {
   type GraphView,
   type ActivityEntry,
 } from './views.js';
-export { type ContentStore, InMemoryContentStore } from './ports.js';
+export { type ContentStore, type RemoveTarget, InMemoryContentStore } from './ports.js';
+export * from './entity-defs.js';
 export { publishedOnly, publicAuthor, drafts, type DraftEntry, type ItemType } from './publishing.js';
 export {
   PAGE_IDS,

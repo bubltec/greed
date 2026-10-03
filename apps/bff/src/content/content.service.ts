@@ -2,38 +2,43 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import {
   ContentIndex,
   type ContentStore,
+  ENTITY_DEFS,
+  type EntityName,
+  type EntityRef,
+  itemsOf,
   newId,
-  type Perspective,
-  type Reference,
-  type Relation,
-  type Section,
-  type Page,
   type PageId,
   type PageView,
   publicPage,
+  type RemoveTarget,
+  type Page,
+  refOf,
   type Status,
   statusOf,
   workingPage,
-  type Topic,
-  type TopicView,
-  uniqueSlug,
 } from '@greed/domain';
 import { cacheTtlMs } from '../env.js';
 import { CONTENT_STORE } from './content.tokens.js';
-import type {
-  PageInputDto,
-  PerspectiveInputDto,
-  ReferenceInputDto,
-  RelationInputDto,
-  SetStatusDto,
-  TopicInputDto,
-} from './content.dto.js';
+import type { SetStatusDto } from './content.dto.js';
+import type { EntityCtx, EntitySpec } from './entity.js';
+import { ENTITIES } from './entities/index.js';
+
+type Item = { id: string; status?: Status; [key: string]: any };
+
+/** A write's outcome: the stored item, and what callers should show for it (see `present`). */
+export interface Written {
+  item: Item;
+  result: unknown;
+}
 
 /**
  * All reads go through one cached ContentIndex; every write invalidates it.
- * Integrity rules (refs belong to their topic, no self or duplicate relations,
- * deleting a reference unlinks it everywhere) live here so every client gets
- * them, not just the web CMS.
+ *
+ * Writes are generic: `create`, `update`, `remove`, `removeDraft`, `setStatus`
+ * and `publish` work on any entity registered in entities/index.ts, using its
+ * spec for validation and integrity (references belong to their topic, no self
+ * or duplicate relations, deleting a reference unlinks it everywhere) so every
+ * client gets them, not just the web CMS.
  *
  * Publishing: new topics start as drafts. A new reference, perspective or link
  * takes its topic's status unless one is given (the CMS adds sources to a live
@@ -57,258 +62,95 @@ export class ContentService {
     this.cache = undefined;
   }
 
-  async view(topicId: string, fresh = false): Promise<TopicView> {
-    const view = (await this.index(fresh)).view(topicId);
-    if (!view) throw new NotFoundException(`No topic "${topicId}"`);
-    return view;
-  }
+  // Generic CRUD ------------------------------------------------------------
 
-  // Topics ------------------------------------------------------------------
-
-  async createTopic(input: TopicInputDto, by: string): Promise<TopicView> {
+  /** Reads one item as `present` shows it (a topic reads as its full view), drafts included. */
+  async get(name: EntityName, id: string, by = ''): Promise<unknown> {
+    const spec = ENTITIES[name];
     const index = await this.index(true);
-    const taken = new Set(index.topicsById.keys());
-    const id = input.id ? input.id : uniqueSlug(input.title, taken);
-    if (taken.has(id)) throw new BadRequestException(`Topic id "${id}" already exists`);
-    const now = new Date().toISOString();
-    const status = input.status ?? 'draft';
-    const topic: Topic = {
-      id,
-      ...this.topicFields(input, new Set()),
-      ...stamp(status, undefined),
-      createdAt: now,
-      updatedAt: now,
-      updatedBy: by,
-    };
-    await this.store.putTopic(topic);
-    this.invalidate();
-    return this.view(id, true);
+    const item = this.locate(spec, index, { id });
+    return spec.present ? spec.present(item, this.ctx(index, by, { existing: item })) : item;
   }
 
-  async updateTopic(id: string, input: TopicInputDto, by: string): Promise<TopicView> {
-    const current = await this.view(id, true);
-    const refIds = new Set(current.references.map((r) => r.id));
-    const topic: Topic = {
-      ...current.topic,
-      ...this.topicFields(input, refIds),
-      ...stamp(input.status ?? statusOf(current.topic), current.topic),
-      id,
-      updatedAt: new Date().toISOString(),
-      updatedBy: by,
-    };
-    await this.store.putTopic(topic);
-    this.invalidate();
-    return this.view(id, true);
+  /** The stored item itself (not its presentation), or 404. */
+  async find(name: EntityName, id: string): Promise<Item> {
+    return this.locate(ENTITIES[name], await this.index(true), { id });
   }
 
-  async deleteTopic(id: string): Promise<void> {
-    await this.view(id, true);
-    await this.store.deleteTopic(id);
-    this.invalidate();
+  /** `parentId` is required for children (a reference needs its topic). */
+  async create(name: EntityName, input: Record<string, any>, by: string, parentId?: string): Promise<Written> {
+    const spec = ENTITIES[name];
+    if (spec.fixedIds) throw new BadRequestException(`A ${name} can't be created; update it instead`);
+    const index = await this.index(true);
+    const ctx = this.ctx(index, by, { parent: this.parentOf(spec, index, parentId) });
+    const id = spec.makeId?.(input, ctx) ?? newId(spec.def.idPrefix);
+    return this.save(spec, this.compose(spec, id, input, ctx), by);
   }
 
-  private topicFields(input: TopicInputDto, validRefIds: Set<string>) {
-    const sections: Section[] = input.sections.map((s) => ({
-      id: s.id || newId('sec'),
-      label: s.label.trim(),
-      points: s.points
-        .filter((p) => p.text.trim())
-        .map((p) => ({
-          text: p.text.trim(),
-          // On create there are no refs yet; on update, drop ids that aren't this topic's.
-          refIds: p.refIds.filter((r) => validRefIds.has(r)),
-        })),
-    }));
-    return {
-      kind: input.kind,
-      title: input.title.trim(),
-      summary: input.summary.trim(),
-      sections,
-      disputed: input.disputed.trim(),
-      notes: input.notes.trim(),
-      tags: [...new Set(input.tags.map((t) => t.trim().toLowerCase()).filter(Boolean))],
-    };
+  async update(name: EntityName, ref: EntityRef, input: Record<string, any>, by: string): Promise<Written> {
+    const spec = ENTITIES[name];
+    const index = await this.index(true);
+    const existing = this.locate(spec, index, ref);
+    const parent = spec.def.parentField ? this.parentOf(spec, index, existing[spec.def.parentField]) : undefined;
+    const ctx = this.ctx(index, by, { existing, parent });
+    return this.save(spec, this.compose(spec, existing.id, input, ctx), by);
   }
 
-  // References --------------------------------------------------------------
+  /**
+   * Deletes an item and everything that hangs off it (a topic takes its references,
+   * perspectives and links). Returns the parent's refreshed presentation, if it has one.
+   */
+  async remove(name: EntityName, ref: EntityRef, by: string): Promise<unknown> {
+    const spec = ENTITIES[name];
+    if (spec.fixedIds) throw new BadRequestException(`A ${name} can't be deleted`);
+    const index = await this.index(true);
+    const existing = this.locate(spec, index, ref);
+    const ctx = this.ctx(index, by, { existing, parent: spec.def.parent ? this.parentOf(spec, index, existing[spec.def.parentField!]) : undefined });
 
-  async saveReference(
-    topicId: string,
-    referenceId: string | undefined,
-    input: ReferenceInputDto,
-    by: string,
-  ): Promise<TopicView> {
-    const current = await this.view(topicId, true);
-    const existing = referenceId
-      ? current.references.find((r) => r.id === referenceId)
-      : undefined;
-    if (referenceId && !existing) throw new NotFoundException(`No reference "${referenceId}"`);
-    const now = new Date().toISOString();
-    const reference: Reference = {
-      id: existing?.id ?? newId('ref'),
-      topicId,
-      label: input.label.trim(),
-      url: input.url?.trim() || undefined,
-      publishedOn: input.publishedOn || undefined,
-      excerpt: input.excerpt?.trim() || undefined,
-      note: input.note?.trim() || undefined,
-      ...stamp(input.status ?? (existing ? statusOf(existing) : statusOf(current.topic)), existing),
-      createdAt: existing?.createdAt ?? now,
-      updatedAt: now,
-      updatedBy: by,
-    };
-    await this.store.putReference(reference);
-    this.invalidate();
-    return this.view(topicId, true);
-  }
-
-  async deleteReference(topicId: string, referenceId: string, by: string): Promise<TopicView> {
-    const current = await this.view(topicId, true);
-    if (!current.references.some((r) => r.id === referenceId)) {
-      throw new NotFoundException(`No reference "${referenceId}"`);
-    }
-    await this.store.deleteReference(topicId, referenceId);
-    const now = new Date().toISOString();
-    const drop = (ids: string[]) => ids.filter((id) => id !== referenceId);
-    if (current.topic.sections.some((s) => s.points.some((p) => p.refIds.includes(referenceId)))) {
-      await this.store.putTopic({
-        ...current.topic,
-        sections: current.topic.sections.map((s) => ({
-          ...s,
-          points: s.points.map((p) => ({ ...p, refIds: drop(p.refIds) })),
-        })),
-        updatedAt: now,
-        updatedBy: by,
-      });
-    }
-    for (const p of current.perspectives) {
-      if (p.refIds.includes(referenceId)) {
-        await this.store.putPerspective({ ...p, refIds: drop(p.refIds), updatedAt: now, updatedBy: by });
+    const removals: RemoveTarget[] = [];
+    const cascade = (entity: EntityName, item: Item) => {
+      removals.push({ entity, ref: refOf(ENTITY_DEFS[entity], item) });
+      for (const child of Object.values(ENTITY_DEFS).filter((d) => d.parent === entity)) {
+        for (const c of itemsOf(index.snapshot, child) as Item[]) {
+          if (c[child.parentField!] === item.id) cascade(child.name, c);
+        }
       }
-    }
-    this.invalidate();
-    return this.view(topicId, true);
-  }
-
-  // Perspectives ------------------------------------------------------------
-
-  async savePerspective(
-    topicId: string,
-    perspectiveId: string | undefined,
-    input: PerspectiveInputDto,
-    by: string,
-  ): Promise<TopicView> {
-    const current = await this.view(topicId, true);
-    const existing = perspectiveId
-      ? current.perspectives.find((p) => p.id === perspectiveId)
-      : undefined;
-    if (perspectiveId && !existing) throw new NotFoundException(`No perspective "${perspectiveId}"`);
-    const refIds = new Set(current.references.map((r) => r.id));
-    const unknown = input.refIds.filter((r) => !refIds.has(r));
-    if (unknown.length) {
-      throw new BadRequestException(`References not on this topic: ${unknown.join(', ')}`);
-    }
-    const now = new Date().toISOString();
-    const perspective: Perspective = {
-      id: existing?.id ?? newId('persp'),
-      topicId,
-      stance: input.stance,
-      holder: input.holder.trim(),
-      body: input.body.trim(),
-      refIds: [...new Set(input.refIds)],
-      ...stamp(input.status ?? (existing ? statusOf(existing) : statusOf(current.topic)), existing),
-      createdAt: existing?.createdAt ?? now,
-      updatedAt: now,
-      updatedBy: by,
     };
-    await this.store.putPerspective(perspective);
-    this.invalidate();
-    return this.view(topicId, true);
-  }
+    cascade(name, existing);
 
-  async deletePerspective(topicId: string, perspectiveId: string): Promise<TopicView> {
-    const current = await this.view(topicId, true);
-    if (!current.perspectives.some((p) => p.id === perspectiveId)) {
-      throw new NotFoundException(`No perspective "${perspectiveId}"`);
+    const puts: { entity: EntityName; item: { id: string } }[] = [];
+    for (const effect of spec.onDelete?.(existing, ctx) ?? []) {
+      if ('remove' in effect) removals.push(effect.remove);
+      else puts.push(effect.put);
     }
-    await this.store.deletePerspective(topicId, perspectiveId);
+    await this.store.remove(removals);
+    for (const { entity, item } of puts) await this.store.put(entity, item);
     this.invalidate();
-    return this.view(topicId, true);
+
+    if (!spec.def.parent) return undefined;
+    const fresh = await this.index(true);
+    const parentSpec = ENTITIES[spec.def.parent];
+    const parent = this.locate(parentSpec, fresh, { id: existing[spec.def.parentField!] });
+    return parentSpec.present ? parentSpec.present(parent, this.ctx(fresh, by, { existing: parent })) : parent;
   }
 
-  // Relations ---------------------------------------------------------------
-
-  async saveRelation(
-    relationId: string | undefined,
-    input: RelationInputDto,
-    by: string,
-  ): Promise<Relation> {
-    const index = await this.index(true);
-    for (const id of [input.fromId, input.toId]) {
-      if (!index.topicsById.has(id)) throw new BadRequestException(`No topic "${id}"`);
+  /** Deletes an item only while it is a draft; published items can only be removed in the web editor. */
+  async removeDraft(name: EntityName, id: string, by: string): Promise<{ deleted: string; type: EntityName }> {
+    const spec = ENTITIES[name];
+    if (spec.def.lifecycle !== 'status') throw new BadRequestException(`A ${name} has no drafts to delete`);
+    const existing = this.locate(spec, await this.index(true), { id });
+    if (statusOf(existing) !== 'draft') {
+      throw new BadRequestException(`${name} "${id}" is published; only drafts can be deleted here`);
     }
-    if (input.fromId === input.toId) throw new BadRequestException('A topic cannot relate to itself');
-    const existing = relationId
-      ? index.snapshot.relations.find((r) => r.id === relationId)
-      : undefined;
-    if (relationId && !existing) throw new NotFoundException(`No relation "${relationId}"`);
-    const duplicate = index.snapshot.relations.find(
-      (r) =>
-        r.id !== relationId &&
-        r.kind === input.kind &&
-        ((r.fromId === input.fromId && r.toId === input.toId) ||
-          (r.fromId === input.toId && r.toId === input.fromId)),
-    );
-    if (duplicate) throw new BadRequestException('That relation already exists');
-    const now = new Date().toISOString();
-    const relation: Relation = {
-      id: existing?.id ?? newId('rel'),
-      fromId: input.fromId,
-      toId: input.toId,
-      kind: input.kind,
-      note: input.note.trim(),
-      provenance: input.provenance ?? existing?.provenance ?? 'editor',
-      ...stamp(
-        input.status ??
-          (existing
-            ? statusOf(existing)
-            : statusOf(index.topicsById.get(input.fromId)!) === 'published' &&
-                statusOf(index.topicsById.get(input.toId)!) === 'published'
-              ? 'published'
-              : 'draft'),
-        existing,
-      ),
-      createdAt: existing?.createdAt ?? now,
-      updatedAt: now,
-      updatedBy: by,
-    };
-    await this.store.putRelation(relation);
-    this.invalidate();
-    return relation;
+    await this.remove(name, refOf(spec.def, existing), by);
+    return { deleted: id, type: name };
   }
-
-  async deleteRelation(relationId: string): Promise<void> {
-    const index = await this.index(true);
-    if (!index.snapshot.relations.some((r) => r.id === relationId)) {
-      throw new NotFoundException(`No relation "${relationId}"`);
-    }
-    await this.store.deleteRelation(relationId);
-    this.invalidate();
-  }
-
-  // Publishing --------------------------------------------------------------
 
   /** Sets the status of any mix of items. Unknown ids fail the whole call before anything is written. */
   async setStatus(input: SetStatusDto, by: string): Promise<{ updated: number }> {
     const { snapshot } = await this.index(true);
-    const find = {
-      topic: (id: string) => snapshot.topics.find((t) => t.id === id),
-      reference: (id: string) => snapshot.references.find((r) => r.id === id),
-      perspective: (id: string) => snapshot.perspectives.find((p) => p.id === id),
-      relation: (id: string) => snapshot.relations.find((r) => r.id === id),
-    };
     const targets = input.items.map((item) => {
-      const found = find[item.type](item.id);
+      const found = (itemsOf(snapshot, ENTITY_DEFS[item.type]) as Item[]).find((i) => i.id === item.id);
       if (!found) throw new NotFoundException(`No ${item.type} "${item.id}"`);
       return { type: item.type, found };
     });
@@ -316,11 +158,8 @@ export class ContentService {
     let updated = 0;
     for (const { type, found } of targets) {
       if (statusOf(found) === input.status) continue;
-      const next = { ...found, ...stamp(input.status, found), updatedAt: now, updatedBy: by };
-      if (type === 'topic') await this.store.putTopic(next as Topic);
-      else if (type === 'reference') await this.store.putReference(next as Reference);
-      else if (type === 'perspective') await this.store.putPerspective(next as Perspective);
-      else await this.store.putRelation(next as Relation);
+      const next: Item = { ...found, ...stamp(input.status, found), updatedAt: now, updatedBy: by };
+      await this.store.put(type, next);
       updated++;
     }
     this.invalidate();
@@ -328,29 +167,82 @@ export class ContentService {
   }
 
   /**
-   * Publishes a topic and, by default, every draft that hangs off it: its
-   * references and perspectives, and links whose other end is already published.
+   * Makes an item public: a status entity goes live together with whatever drafts its
+   * spec's `publish.cascade` names (a topic takes its sources, perspectives and links);
+   * a versioned one (a site page) publishes its working copy.
    */
-  async publishTopic(topicId: string, includeChildren: boolean, by: string): Promise<TopicView> {
-    const view = await this.view(topicId, true);
+  async publish(name: EntityName, id: string, by: string, includeChildren = true): Promise<unknown> {
+    const spec = ENTITIES[name];
     const index = await this.index(true);
-    const items: SetStatusDto['items'] = [{ type: 'topic', id: topicId }];
-    if (includeChildren) {
-      for (const r of view.references) if (statusOf(r) === 'draft') items.push({ type: 'reference', id: r.id });
-      for (const p of view.perspectives) if (statusOf(p) === 'draft') items.push({ type: 'perspective', id: p.id });
-      for (const { relation, other } of view.related) {
-        const otherTopic = index.topicsById.get(other.id);
-        if (statusOf(relation) === 'draft' && otherTopic && statusOf(otherTopic) === 'published') {
-          items.push({ type: 'relation', id: relation.id });
-        }
-      }
+    const existing = this.locate(spec, index, { id });
+    const ctx = this.ctx(index, by, { existing });
+    if (spec.def.lifecycle === 'versioned') {
+      if (!spec.publishItem) throw new BadRequestException(`A ${name} can't be published`);
+      return (await this.save(spec, spec.publishItem(existing, ctx), by)).result;
     }
+    if (!spec.publish) throw new BadRequestException(`A ${name} can't be published directly; use set_status`);
+    const items = [{ type: name, id }, ...spec.publish.cascade?.(existing, ctx, includeChildren) ?? []];
     await this.setStatus({ status: 'published', items }, by);
-    return this.view(topicId, true);
+    return this.get(name, id, by);
   }
 
+  // Internals ---------------------------------------------------------------
 
-  // Pages -------------------------------------------------------------------
+  private ctx(index: ContentIndex, by: string, extra: Partial<EntityCtx> = {}): EntityCtx {
+    return { index, by, now: new Date().toISOString(), ...extra };
+  }
+
+  /** The stored item, or 404. Fixed-id entities (pages) that were never saved read as an empty stub. */
+  private locate(spec: EntitySpec, index: ContentIndex, ref: EntityRef): Item {
+    const { def } = spec;
+    if (def.parent && ref.parentId) this.parentOf(spec, index, ref.parentId);
+    const found = (itemsOf(index.snapshot, def) as Item[]).find((i) => i.id === ref.id);
+    if (found) {
+      if (def.parentField && ref.parentId && found[def.parentField] !== ref.parentId) {
+        throw new NotFoundException(`No ${def.name} "${ref.id}"`);
+      }
+      return found;
+    }
+    if (spec.fixedIds?.has(ref.id)) return { id: ref.id };
+    throw new NotFoundException(`No ${def.name} "${ref.id}"`);
+  }
+
+  private parentOf(spec: EntitySpec, index: ContentIndex, parentId: string | undefined): Item | undefined {
+    const { parent } = spec.def;
+    if (!parent) return undefined;
+    if (!parentId) throw new BadRequestException(`A ${spec.def.name} needs its ${parent}`);
+    return this.locate(ENTITIES[parent], index, { id: parentId });
+  }
+
+  /** Builds the item to store: the spec's fields plus id, parent link, timestamps and status. */
+  private compose(spec: EntitySpec, id: string, input: Record<string, any>, ctx: EntityCtx): Item {
+    const { def } = spec;
+    if (def.lifecycle === 'versioned') return spec.build!(input, ctx);
+    const { existing, parent, now, by } = ctx;
+    // Fields first: they validate, and defaultStatus may rely on that.
+    const fields = spec.fields!(input, ctx);
+    const status: Status =
+      input.status ?? (existing ? statusOf(existing) : (spec.defaultStatus?.(input, ctx) ?? (parent ? statusOf(parent) : 'draft')));
+    return {
+      ...existing,
+      ...fields,
+      id,
+      ...(def.parentField ? { [def.parentField]: parent!.id } : {}),
+      ...stamp(status, existing),
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+      updatedBy: by,
+    };
+  }
+
+  private async save(spec: EntitySpec, item: Item, by: string): Promise<Written> {
+    await this.store.put(spec.def.name, item);
+    this.invalidate();
+    const index = await this.index(true);
+    return { item, result: spec.present ? spec.present(item, this.ctx(index, by, { existing: item })) : item };
+  }
+
+  // Pages (reads) -----------------------------------------------------------
 
   private async findPage(id: PageId, fresh = false): Promise<Page | undefined> {
     return (await this.index(fresh)).snapshot.pages?.find((p) => p.id === id);
@@ -360,37 +252,6 @@ export class ContentService {
   async page(id: PageId, preview: boolean): Promise<PageView> {
     return preview ? workingPage(id, await this.findPage(id, true)) : publicPage(id, await this.findPage(id));
   }
-
-  /** Saves the working copy; the live page is unchanged until publishPage. */
-  async savePage(id: PageId, input: PageInputDto, by: string): Promise<PageView> {
-    const current = await this.findPage(id, true);
-    const page: Page = {
-      id,
-      draft: { title: input.title.trim(), body: input.body.trim(), updatedAt: new Date().toISOString(), updatedBy: by },
-      published: current?.published,
-    };
-    await this.store.putPage(page);
-    this.invalidate();
-    return workingPage(id, page);
-  }
-
-  /** Publishes the working copy (the default copy, if the page was never edited). */
-  async publishPage(id: PageId, by: string): Promise<PageView> {
-    const now = new Date().toISOString();
-    const current = (await this.findPage(id, true)) ?? {
-      id,
-      draft: { ...workingPage(id, undefined), updatedAt: now, updatedBy: by },
-    };
-    const page: Page = {
-      id,
-      draft: current.draft,
-      published: { title: current.draft.title, body: current.draft.body, publishedAt: now, publishedBy: by },
-    };
-    await this.store.putPage(page);
-    this.invalidate();
-    return workingPage(id, page);
-  }
-
 }
 
 /** Status fields for a write; `publishedAt` moves only when something becomes published. */

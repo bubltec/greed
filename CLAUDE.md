@@ -5,5 +5,6 @@ Agent instructions live in [`.cursor/rules/`](.cursor/rules/), the single source
 
 @.cursor/rules/sync-before-code-changes.mdc
 @.cursor/rules/recover-from-merged-branch.mdc
+@.cursor/rules/write-tests.mdc
 
 Read `.cursor/rules/greed-architecture.mdc` before changing apps, packages, data or infra.

@@ -1,0 +1,36 @@
+---
+description: Every code change ships with tests; how to choose and run them
+alwaysApply: true
+---
+
+# Write tests for code
+
+Any change to behaviour comes with tests in the same change. This applies to
+features, bug fixes, refactors and generated code alike. "It typechecks" and "I
+tried it" are not tests.
+
+*   **New behaviour:** a test that fails without the change. A bug fix starts with a
+    test that reproduces the bug.
+*   **Refactors:** keep the existing tests green, and add tests for any behaviour they
+    didn't cover that you touched or are now relying on. If you can't show the old
+    behaviour is preserved, the refactor isn't done.
+*   **Cover the unhappy paths** that matter here: validation failures, 404s, refusals
+    (published items, wrong parent, non-editors), and integrity rules (cascades,
+    citations, duplicate links).
+*   **Test at the layer that owns the rule.** Integrity lives in `ContentService`, so test it
+    there (`content.service.spec.ts`); HTTP wiring, guards and validation in `app.spec.ts`;
+    the connector end to end in `mcp.e2e.spec.ts`; pure model logic in `packages/domain`.
+    Add an HTTP or MCP test only for what that layer adds.
+*   **Use the existing tools:** vitest, `@nestjs/testing`, and `InMemoryContentStore`. No
+    network, no AWS, no real secrets; tests must pass offline.
+*   **Coverage is enforced.** `pnpm test` in `apps/bff` and `packages/domain` runs with coverage and
+    fails below 90% on statements, branches, functions and lines (`vitest.shared.ts`); CI runs it, so an
+    untested change fails the PR. Check where you stand with `pnpm --filter @greed/bff test`. Never lower
+    the threshold or widen an exclude to get green: write the test. The only excludes are process entry
+    points (`main.ts`, `lambda.ts`, `local-tables.ts`) and re-export barrels. Name any new one in the config
+    and explain why. `data/seed` and `infra/cdk` are not yet gated, nor is `apps/web` (it has no tests yet).
+*   **Docs, types and config-only changes** don't need new tests, but say so in the summary.
+*   **If you can't test it,** say what is untested and why. Don't leave it out silently.
+
+Before calling work done, run the full check from `greed-architecture` ("Verify") and report the
+result honestly: failures included, skipped steps named.

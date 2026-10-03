@@ -8,7 +8,7 @@
     "build": "node scripts/build-lambda.mjs",
     "typecheck": "tsc -b --noEmit",
     "lint": "oxlint -c ../../.oxlintrc.json src",
-    "test": "vitest run"
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.1136.0",
