@@ -9,8 +9,10 @@ import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import type * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import * as agentcore from 'aws-cdk-lib/aws-bedrockagentcore';
+import * as cr from 'aws-cdk-lib/custom-resources';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
@@ -23,6 +25,7 @@ import {
   SSM_NAMESPACE,
   ssmParam,
 } from './config.js';
+import { WEB_SEARCH_VERSION } from './pin-web-search.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -67,8 +70,9 @@ export class ApiStack extends cdk.Stack {
       }),
     );
 
-    // Version is not on the L1 ConnectorSource type. 1.2.0 is what adds the
-    // per-request domain filter, which is how paywalled outlets are skipped.
+    // ConnectorSource in CloudFormation has ConnectorId only. Early validation
+    // rejects Version. The target is created on the connector default, then
+    // PinWebSearch moves it to 1.2.0, which is the release that filters domains.
     const gateway = new cdk.CfnResource(this, 'ResearchGateway', {
       type: 'AWS::BedrockAgentCore::Gateway',
       properties: {
@@ -79,23 +83,43 @@ export class ApiStack extends cdk.Stack {
         AuthorizerType: 'AWS_IAM',
       },
     });
-    new cdk.CfnResource(this, 'ResearchSearchTarget', {
-      type: 'AWS::BedrockAgentCore::GatewayTarget',
-      properties: {
-        GatewayIdentifier: gateway.getAtt('GatewayIdentifier').toString(),
-        Name: 'web-search',
-        Description: 'AgentCore Web Search, pinned to 1.2.0 for domain filters',
-        TargetConfiguration: {
-          Mcp: {
-            Connector: {
-              Source: { ConnectorId: 'web-search', Version: '1.2.0' },
-              Configurations: [{ Name: 'WebSearch', ParameterValues: {} }],
-            },
+    const searchTarget = new agentcore.CfnGatewayTarget(this, 'ResearchSearchTarget', {
+      gatewayIdentifier: gateway.getAtt('GatewayIdentifier').toString(),
+      name: 'web-search',
+      description: 'AgentCore Web Search. Version is pinned by PinWebSearch, not this resource.',
+      targetConfiguration: {
+        mcp: {
+          connector: {
+            source: { connectorId: 'web-search' },
+            configurations: [{ name: 'WebSearch', parameterValues: {} }],
           },
         },
-        CredentialProviderConfigurations: [{ CredentialProviderType: 'GATEWAY_IAM_ROLE' }],
+      },
+      credentialProviderConfigurations: [{ credentialProviderType: 'GATEWAY_IAM_ROLE' }],
+    });
+    const pinFn = new NodejsFunction(this, 'PinWebSearchFn', {
+      entry: path.join(__dirname, 'pin-web-search.ts'),
+      runtime: lambda.Runtime.NODEJS_22_X,
+      timeout: cdk.Duration.minutes(3),
+      description: `Pin the ${envName} web-search target to connector ${WEB_SEARCH_VERSION}`,
+      // The Lambda runtime does not ship the AgentCore control client.
+      bundling: { externalModules: [], minify: true },
+    });
+    pinFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['bedrock-agentcore:GetGatewayTarget', 'bedrock-agentcore:UpdateGatewayTarget'],
+        resources: [gateway.getAtt('GatewayArn').toString()],
+      }),
+    );
+    const pin = new cdk.CustomResource(this, 'PinWebSearchVersion', {
+      serviceToken: new cr.Provider(this, 'PinWebSearchProvider', { onEventHandler: pinFn }).serviceToken,
+      properties: {
+        GatewayIdentifier: gateway.getAtt('GatewayIdentifier').toString(),
+        TargetId: searchTarget.attrTargetId,
+        Version: WEB_SEARCH_VERSION,
       },
     });
+    pin.node.addDependency(searchTarget);
     // Short-term events only. Seven days, then a dive searches again.
     const memory = new agentcore.CfnMemory(this, 'ResearchMemory', {
       name: `greed_${envName}_research`,
