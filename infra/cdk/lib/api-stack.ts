@@ -25,7 +25,7 @@ import {
   SSM_NAMESPACE,
   ssmParam,
 } from './config.js';
-import { WEB_SEARCH_VERSION } from './pin-web-search.js';
+import { pinFingerprint, WEB_SEARCH_VERSION } from './pin-web-search.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -83,8 +83,9 @@ export class ApiStack extends cdk.Stack {
         AuthorizerType: 'AWS_IAM',
       },
     });
-    const searchTarget = new agentcore.CfnGatewayTarget(this, 'ResearchSearchTarget', {
-      gatewayIdentifier: gateway.getAtt('GatewayIdentifier').toString(),
+    // What CloudFormation owns on the target. Any change here makes it update the
+    // target, which drops the pinned connector version, so it also keys the pin.
+    const searchTargetConfig = {
       name: 'web-search',
       description: 'AgentCore Web Search. Version is pinned by PinWebSearch, not this resource.',
       targetConfiguration: {
@@ -96,6 +97,10 @@ export class ApiStack extends cdk.Stack {
         },
       },
       credentialProviderConfigurations: [{ credentialProviderType: 'GATEWAY_IAM_ROLE' }],
+    };
+    const searchTarget = new agentcore.CfnGatewayTarget(this, 'ResearchSearchTarget', {
+      gatewayIdentifier: gateway.getAtt('GatewayIdentifier').toString(),
+      ...searchTargetConfig,
     });
     const pinFn = new NodejsFunction(this, 'PinWebSearchFn', {
       entry: path.join(__dirname, 'pin-web-search.ts'),
@@ -117,6 +122,7 @@ export class ApiStack extends cdk.Stack {
         GatewayIdentifier: gateway.getAtt('GatewayIdentifier').toString(),
         TargetId: searchTarget.attrTargetId,
         Version: WEB_SEARCH_VERSION,
+        ConfigHash: pinFingerprint(searchTargetConfig),
       },
     });
     pin.node.addDependency(searchTarget);
