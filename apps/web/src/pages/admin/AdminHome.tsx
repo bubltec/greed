@@ -223,6 +223,7 @@ const TYPE_LABEL: Record<DraftEntry['type'], string> = {
   reference: 'Source',
   perspective: 'Perspective',
   relation: 'Link',
+  outlet: 'Outlet',
 };
 
 /** The review queue: drafts grouped by entry, with one publish button per entry. */
@@ -250,25 +251,33 @@ function DraftsPanel() {
       {publishError && <ErrorBox error={publishError} />}
       {data && data.length === 0 && <p className="text-sm text-steel">Nothing waiting. Everything is published.</p>}
       <ul className="flex flex-col gap-4">
-        {groups.map(([topicId, g]) => (
+        {groups.map(([topicId, g]) => {
+          const outlet = g.items.every((d) => d.type === 'outlet');
+          return (
           <li key={topicId} className="border-l-2 border-bolt pl-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Link to={`/admin/t/${topicId}`} className="font-semibold">
-                {g.title}
-              </Link>
-              <a className="text-xs text-ice" href={`/t/${topicId}?preview=1`} target="_blank" rel="noreferrer">
-                preview
-              </a>
+              {outlet ? (
+                <span className="font-semibold">{g.title}</span>
+              ) : (
+                <Link to={`/admin/t/${topicId}`} className="font-semibold">
+                  {g.title}
+                </Link>
+              )}
+              {!outlet && (
+                <a className="text-xs text-ice" href={`/t/${topicId}?preview=1`} target="_blank" rel="noreferrer">
+                  preview
+                </a>
+              )}
               <button
                 className="btn ml-auto"
                 disabled={busy === topicId}
                 onClick={() => {
                   setBusy(topicId);
                   setPublishError(undefined);
-                  api
-                    .publishTopic(topicId, true)
-                    .then(reload, setPublishError)
-                    .finally(() => setBusy(undefined));
+                  const done = outlet
+                    ? api.setStatus('published', g.items.map((d) => ({ type: d.type, id: d.id })))
+                    : api.publishTopic(topicId, true);
+                  done.then(reload, setPublishError).finally(() => setBusy(undefined));
                 }}
               >
                 Publish
@@ -287,7 +296,8 @@ function DraftsPanel() {
               ))}
             </ul>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </section>
   );

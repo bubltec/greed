@@ -38,6 +38,27 @@ describe('GreedProd', () => {
     });
   });
 
+  it('gives the API a web-search gateway and a week of short-term research memory', () => {
+    api.hasResourceProperties('AWS::BedrockAgentCore::Gateway', {
+      Name: 'greed-prod-research',
+      AuthorizerType: 'AWS_IAM',
+      ProtocolType: 'MCP',
+    });
+    api.hasResourceProperties('AWS::BedrockAgentCore::GatewayTarget', {
+      TargetConfiguration: {
+        Mcp: { Connector: { Source: { ConnectorId: 'web-search', Version: '1.2.0' } } },
+      },
+    });
+    api.hasResourceProperties('AWS::BedrockAgentCore::Memory', {
+      Name: 'greed_prod_research',
+      EventExpiryDuration: 7,
+    });
+    api.hasResourceProperties('AWS::Lambda::Function', {
+      Timeout: 29,
+      Environment: { Variables: Match.objectLike({ AGENTCORE_GATEWAY_URL: Match.anyValue(), AGENTCORE_MEMORY_ID: Match.anyValue() }) },
+    });
+  });
+
   it('passes secret names, never secret values, to the Lambda', () => {
     api.hasResourceProperties('AWS::Lambda::Function', {
       Environment: {

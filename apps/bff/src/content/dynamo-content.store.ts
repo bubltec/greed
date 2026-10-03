@@ -22,6 +22,7 @@ import {
  *   TOPIC#<id>  REF#<refId>    a reference on that topic
  *   TOPIC#<id>  PERSP#<pId>    a perspective on that topic
  *   REL#<id>    REL            a relation (fromId/toId are attributes)
+ *   OUTLET#<id> OUTLET         a publication in the trust catalog
  *   PAGE#<id>   PAGE           an editable site page (home, about)
  *
  * Reads are one paginated Scan cached in ContentService: at a few hundred

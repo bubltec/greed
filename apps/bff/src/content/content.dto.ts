@@ -5,6 +5,8 @@ import {
   type RelationKind,
   type RelationProvenance,
   STANCES,
+  TRUST_RATINGS,
+  type TrustRating,
   STATUS_ENTITY_NAMES,
   type Stance,
   STATUSES,
@@ -17,6 +19,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsIn,
   IsOptional,
   IsString,
@@ -178,6 +181,46 @@ export class RelationInputDto {
   provenance?: RelationProvenance;
 
   /** Omit to keep the current status (updates) or use the default (creates; see ContentService). */
+  @IsOptional()
+  @IsIn(STATUSES)
+  status?: Status;
+}
+
+export class OutletInputDto {
+  @IsString()
+  @Length(1, 120)
+  name!: string;
+
+  /** Host, e.g. "npr.org". A scheme or path is stripped. */
+  @IsString()
+  @Length(1, 253)
+  domain!: string;
+
+  /** Hard avoid: research never searches or fetches a paywalled outlet. */
+  @IsBoolean()
+  paywall!: boolean;
+
+  /** high ranks first. */
+  @IsIn(TRUST_RATINGS)
+  accuracy!: TrustRating;
+
+  /** How hard it pushes a side. low (less biased) ranks first. */
+  @IsIn(TRUST_RATINGS)
+  bias!: TrustRating;
+
+  /** True when it only presents one side of a contested claim. */
+  @IsBoolean()
+  oneSided!: boolean;
+
+  /** high ranks first. */
+  @IsIn(TRUST_RATINGS)
+  factual!: TrustRating;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  note?: string;
+
   @IsOptional()
   @IsIn(STATUSES)
   status?: Status;
