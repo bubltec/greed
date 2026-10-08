@@ -30,6 +30,7 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `create_outlet` / `update_outlet` | Add or rerate a publication (draft until published) |
 | `research_topic` | Search published, non-paywalled outlets for one topic. Does not create a reference; a repeat dive reuses the stored search. Optional `query` replaces the three generated searches; `from` / `to` (YYYY-MM-DD) drop hits outside the range, and hits with no date are kept and marked `undated`. Sources the topic already cites are skipped. Keep a hit with `add_reference` |
 | `suggest_reference_urls` | Candidate URLs for a reference saved without one (see `find_gaps`). Writes nothing; save the right one with `update_reference` |
+| `suggest_missing_urls` | The batch version: runs `suggest_reference_urls` over every source in `find_gaps`' missing-URL list and returns a review list (up to 3 candidates each, marked strong or possible). Batches of 8 by default (max 20), `topicId` to narrow. Writes nothing; save the right ones with `update_reference` |
 | `fetch_source` | Details for one page on a published, open outlet, read through AgentCore Web Search (no direct fetch): title, date, a longer passage, the outlet's ratings, topics that already cite it, and related pages to follow up. Writes nothing |
 | `search_documents` | Search primary-source providers by words or case name, optionally by `kind` and `from`/`to` dates. CourtListener: opinions, dockets, filings. Federal Register (no key): rules, notices, executive orders. GovInfo: Congressional Record, bills, hearings, federal court opinions. Returns links for `read_document` |
 | `read_document` | Text of an opinion, docket, filing, rule, notice or executive order by public link, with page numbers. `quote` checks a line appears and on which page; returns a citation draft for `add_reference` and related filings. Writes nothing |
@@ -80,7 +81,7 @@ content type opts in with an `mcp` block listing the operations to expose, and t
 JSON Schemas (from the DTO's validators, so they can't drift from the CMS) and handlers follow.
 Updates are partial: only the fields passed change. A new content type has no tools until it
 opts in. The bespoke tools are `search_topics`, `find_gaps`, `add_points`, `list_drafts` and
-`set_status`, `research_topic`, `suggest_reference_urls`, `fetch_source`, `search_documents`, `read_document` and `list_document_providers` (`apps/bff/src/mcp/bespoke-tools.ts`). See "Adding a content type" in
+`set_status`, `research_topic`, `suggest_reference_urls`, `suggest_missing_urls`, `fetch_source`, `search_documents`, `read_document` and `list_document_providers` (`apps/bff/src/mcp/bespoke-tools.ts`). See "Adding a content type" in
 `.cursor/rules/greed-architecture.mdc`.
 
 ## How auth works
