@@ -1,49 +1,55 @@
-import { useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { TOPIC_KINDS } from '@greed/domain';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { parseBrowseQuery, TOPIC_KINDS, TOPIC_SORTS } from '@greed/domain';
 import { DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
+import { Pagination } from '../components/Pagination';
 import { api } from '../lib/api';
 import { KIND_LABEL } from '../lib/labels';
 import { usePreview } from '../lib/preview';
 import { usePage } from '../lib/usePage';
 import { Markdown } from '../components/Markdown';
-import type { TopicKind, TopicSummary } from '../lib/types';
 import { useAsync } from '../lib/useAsync';
+import { useDebounced } from '../lib/useDebounced';
 import { useTitle } from '../lib/useTitle';
+import { useUrlState } from '../lib/useUrlState';
 
-type Sort = 'title' | 'recent' | 'connected';
-
-function matches(t: TopicSummary, words: string[]) {
-  const hay = `${t.title} ${t.summary} ${t.tags.join(' ')}`.toLowerCase();
-  return words.every((w) => hay.includes(w));
-}
+const SORT_LABEL: Record<(typeof TOPIC_SORTS)[number], string> = {
+  title: 'Title',
+  updated: 'Recently updated',
+  created: 'Date added',
+  links: 'Most connected',
+  sources: 'Most sources',
+  perspectives: 'Most perspectives',
+  kind: 'Kind',
+};
 
 export function HomePage() {
   useTitle();
   const { preview } = usePreview();
   const intro = usePage('home');
-  const { data, error, loading } = useAsync(() => api.topics(preview), [preview]);
-  const [params, setParams] = useSearchParams();
-  const [query, setQuery] = useState(params.get('q') ?? '');
-  const kind = (params.get('kind') as TopicKind | null) ?? null;
-  const sort = (params.get('sort') as Sort | null) ?? 'title';
+  const [params, set] = useUrlState();
+  // What the URL means after defaults (a sort's natural direction, a clamped page size).
+  const view = parseBrowseQuery(Object.fromEntries(params));
+  const [text, setText] = useState(view.q);
+  const typed = useDebounced(text);
+  useEffect(() => {
+    if (typed.trim() !== view.q) set({ q: typed.trim() || null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typed]);
+  useEffect(() => setText(view.q), [view.q]);
 
-  const setParam = (key: string, value: string | null) => {
-    const next = new URLSearchParams(params);
-    if (value) next.set(key, value);
-    else next.delete(key);
-    setParams(next, { replace: true });
-  };
+  const key = params.toString();
+  const { data, error, loading } = useAsync(() => api.browse(params, preview), [key, preview]);
 
-  const topics = useMemo(() => {
-    const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-    const list = (data ?? []).filter((t) => (!kind || t.kind === kind) && matches(t, words));
-    if (sort === 'recent') list.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    if (sort === 'connected') list.sort((a, b) => b.counts.relations - a.counts.relations);
-    return list;
-  }, [data, query, kind, sort]);
+  const top = useRef<HTMLDivElement>(null);
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) first.current = false;
+    else top.current?.scrollIntoView({ block: 'start' });
+  }, [view.page]);
 
-  const kindsPresent = TOPIC_KINDS.filter((k) => data?.some((t) => t.kind === k));
+  const kinds = TOPIC_KINDS.filter((k) => data?.kinds[k] || k === view.kind);
+  const matched = Object.values(data?.kinds ?? {}).reduce((n, c) => n + c, 0);
 
   return (
     <div>
@@ -54,54 +60,56 @@ export function HomePage() {
         </div>
       </section>
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div ref={top} className="mb-4 flex scroll-mt-4 flex-col gap-3 sm:flex-row sm:items-center">
         <input
           type="search"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setParam('q', e.target.value || null);
-          }}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
           placeholder="Search titles, summaries, tags…"
           aria-label="Search topics"
           className="sm:max-w-sm"
         />
-        <select
-          value={sort}
-          onChange={(e) => setParam('sort', e.target.value === 'title' ? null : e.target.value)}
-          aria-label="Sort"
-          className="sm:w-auto"
-        >
-          <option value="title">A–Z</option>
-          <option value="recent">Recently updated</option>
-          <option value="connected">Most connected</option>
-        </select>
+        <div className="flex gap-2">
+          <select
+            value={view.sort}
+            onChange={(e) => set({ sort: e.target.value === 'title' ? null : e.target.value, dir: null })}
+            aria-label="Sort by"
+            className="sm:w-auto"
+          >
+            {TOPIC_SORTS.map((s) => (
+              <option key={s} value={s}>
+                {SORT_LABEL[s]}
+              </option>
+            ))}
+          </select>
+          <button
+            className="btn btn-ghost"
+            onClick={() => set({ dir: view.dir === 'asc' ? 'desc' : 'asc' })}
+            aria-label={view.dir === 'asc' ? 'Ascending. Switch to descending' : 'Descending. Switch to ascending'}
+            title={view.dir === 'asc' ? 'Ascending' : 'Descending'}
+          >
+            {view.dir === 'asc' ? '▲ Asc' : '▼ Desc'}
+          </button>
+        </div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter by kind">
-        <button className={`btn ${kind ? 'btn-ghost' : ''}`} onClick={() => setParam('kind', null)}>
-          All
+        <button className={`btn ${view.kind ? 'btn-ghost' : ''}`} onClick={() => set({ kind: null })}>
+          All{data ? ` (${matched})` : ''}
         </button>
-        {kindsPresent.map((k) => (
-          <button
-            key={k}
-            className={`btn ${kind === k ? '' : 'btn-ghost'}`}
-            onClick={() => setParam('kind', kind === k ? null : k)}
-          >
-            {KIND_LABEL[k]}
+        {kinds.map((k) => (
+          <button key={k} className={`btn ${view.kind === k ? '' : 'btn-ghost'}`} onClick={() => set({ kind: view.kind === k ? null : k })}>
+            {KIND_LABEL[k]} ({data?.kinds[k] ?? 0})
           </button>
         ))}
       </div>
 
-      {loading && <Loading />}
+      {loading && !data && <Loading />}
       {error && <ErrorBox error={error} />}
       {data && (
-        <>
-          <p className="pixel mb-3 text-[0.5rem] text-slate">
-            {topics.length} of {data.length} entries
-          </p>
+        <div aria-busy={loading} className={loading ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
           <ul className="flex flex-col gap-3">
-            {topics.map((t) => (
+            {data.items.map((t) => (
               <li key={t.id}>
                 <Link
                   to={`/t/${t.id}`}
@@ -124,8 +132,17 @@ export function HomePage() {
               </li>
             ))}
           </ul>
-          {topics.length === 0 && <p className="text-steel">Nothing matches that search.</p>}
-        </>
+          {data.total === 0 && <p className="text-steel">Nothing matches that search.</p>}
+          <Pagination
+            page={data.page}
+            pages={data.pages}
+            total={data.total}
+            size={data.size}
+            noun={data.total === data.all ? 'entries' : `entries (of ${data.all})`}
+            onPage={(page) => set({ page: page > 1 ? String(page) : null })}
+            onSize={(size) => set({ size: size === 25 ? null : String(size) })}
+          />
+        </div>
       )}
     </div>
   );

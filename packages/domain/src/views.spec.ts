@@ -58,6 +58,15 @@ describe('ContentIndex', () => {
     expect(index.graph().edges.map((e) => e.id)).toEqual(['x']);
   });
 
+  it('builds the list and the log once per index, and the summaries carry createdAt', () => {
+    expect(index.summaries()).toBe(index.summaries());
+    expect(index.allActivity()).toBe(index.allActivity());
+    expect(index.summaries()[0]!.createdAt).toBe(at);
+    expect(index.activity(2)).toHaveLength(2);
+    expect(index.activity(2)).toEqual(index.allActivity().slice(0, 2));
+    expect(index.allActivity().length).toBeGreaterThan(2);
+  });
+
   it('orders activity newest first', () => {
     expect(index.activity(1)[0]).toMatchObject({ type: 'perspective', topicTitle: 'B' });
   });
