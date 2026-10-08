@@ -5,7 +5,12 @@ export interface HttpResponse {
   json(): Promise<unknown>;
   text(): Promise<string>;
 }
-export type HttpGet = (url: string, init: { headers: Record<string, string> }) => Promise<HttpResponse>;
+export interface HttpInit {
+  headers: Record<string, string>;
+  method?: 'GET' | 'POST';
+  body?: string;
+}
+export type HttpGet = (url: string, init: HttpInit) => Promise<HttpResponse>;
 
 export const liveGet: HttpGet = (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(10_000) });
 

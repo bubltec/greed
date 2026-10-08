@@ -307,7 +307,7 @@ describe('MCP connector', () => {
     expect(url.json().result).toMatchObject({ isError: true });
     expect(url.json().result.content[0].text).toMatch(/No document provider reads/);
     const list = await call(token, 'list_document_providers', {});
-    expect(list.providers.map((p: { id: string }) => p.id)).toEqual(['courtlistener', 'federalregister']);
+    expect(list.providers.map((p: { id: string }) => p.id)).toEqual(['courtlistener', 'federalregister', 'govinfo']);
   });
 
   it('returns validation failures to the model as tool errors', async () => {
