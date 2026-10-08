@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CourtListenerProvider, parseCourtListenerUrl, type HttpGet } from './courtlistener.js';
+import { CourtListenerProvider, parseCourtListenerUrl } from './courtlistener.js';
+import type { HttpGet } from './http.js';
 import { present } from './present.js';
 import { DocumentProviders } from './registry.js';
 import { findQuote, paginate, plain, referenceDraft } from './text.js';
@@ -14,7 +15,7 @@ function http(routes: Record<string, unknown>, status = 200) {
   const get: HttpGet = async (url, init) => {
     calls.push({ url, auth: init.headers.Authorization! });
     const key = Object.keys(routes).find((k) => url === `${API}${k}`);
-    return key ? { status, json: async () => routes[key] } : { status: 404, json: async () => ({}) };
+    return key ? { status, json: async () => routes[key], text: async () => '' } : { status: 404, json: async () => ({}), text: async () => '' };
   };
   return { get, calls };
 }
@@ -146,12 +147,15 @@ describe('CourtListenerProvider', () => {
     const filings = await cl.search('doe', { kind: 'filing', limit: 99 });
     expect(filings[0]).toMatchObject({ kind: 'filing', snippet: 'Indictment' });
     expect(await cl.search('doe', { kind: 'bill' })).toEqual([]);
-    expect(calls).toHaveLength(3);
+    const dated = await cl.search('doe', { kind: 'opinion', from: '2025-04-01' });
+    expect(dated).toEqual([]);
+    expect(await cl.search('doe', { kind: 'opinion', from: '2025-01-01', to: '2025-12-31' })).toHaveLength(1);
+    expect(calls).toHaveLength(5);
   });
 
   it('turns upstream failures into clear errors and never calls without a token', async () => {
     const url = new URL('https://www.courtlistener.com/docket/1/x/');
-    for (const [status, msg] of [[429, /rate limit/], [401, /rejected the API token/], [500, /returned 500/]] as const) {
+    for (const [status, msg] of [[429, /rate limit/], [401, /rejected the request/], [500, /returned 500/]] as const) {
       await expect(provider({ '/dockets/1/': {} }, 'tok', status).cl.read(url)).rejects.toThrow(msg);
     }
     await expect(provider({}).cl.read(url)).rejects.toThrow(/no such record/);
@@ -214,7 +218,7 @@ describe('DocumentProviders', () => {
   it('liveDocuments registers CourtListener, configured only when the key is set', () => {
     const before = process.env.COURT_LISTENER_API_KEY;
     delete process.env.COURT_LISTENER_API_KEY;
-    expect(liveDocuments().list()).toMatchObject([{ id: 'courtlistener', configured: false }]);
+    expect(liveDocuments().list()).toMatchObject([{ id: 'courtlistener', configured: false }, { id: 'federalregister', configured: true }]);
     process.env.COURT_LISTENER_API_KEY = 'x';
     expect(liveDocuments().list()[0]!.configured).toBe(true);
     if (before === undefined) delete process.env.COURT_LISTENER_API_KEY;

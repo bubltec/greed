@@ -299,6 +299,17 @@ describe('MCP connector', () => {
     expect(bad.json().result.content[0].text).toMatch(/query must be a string/);
   });
 
+  it('rejects an unknown document kind and a url no provider owns', async () => {
+    const { access_token: token } = await getTokens();
+    const kind = await rpc(token, 'tools/call', { name: 'search_documents', arguments: { query: 'x', kind: 'poem' } });
+    expect(kind.json().result.content[0].text).toMatch(/kind must be one of/);
+    const url = await rpc(token, 'tools/call', { name: 'read_document', arguments: { url: 'http://169.254.169.254/latest' } });
+    expect(url.json().result).toMatchObject({ isError: true });
+    expect(url.json().result.content[0].text).toMatch(/No document provider reads/);
+    const list = await call(token, 'list_document_providers', {});
+    expect(list.providers.map((p: { id: string }) => p.id)).toEqual(['courtlistener', 'federalregister']);
+  });
+
   it('returns validation failures to the model as tool errors', async () => {
     const { access_token: token } = await getTokens();
     const res = await rpc(token, 'tools/call', { name: 'add_reference', arguments: { topicId: 'oil-money-and-the-epa', label: 'X', url: 'javascript:alert(1)' } });

@@ -1,4 +1,5 @@
 import { BadGatewayException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { ensureOk, type HttpGet, liveGet } from './http.js';
 import { paginate, plain } from './text.js';
 import type { DocumentKind, DocumentProvider, DocumentRef, SearchOptions, SourceDocument } from './types.js';
 
@@ -7,18 +8,10 @@ const API = `${ORIGIN}/api/rest/v4`;
 const MAX_OPINIONS = 5;
 const MAX_ENTRIES = 50;
 
-export interface HttpResponse {
-  status: number;
-  json(): Promise<unknown>;
-}
-export type HttpGet = (url: string, init: { headers: Record<string, string> }) => Promise<HttpResponse>;
-
 type Row = Record<string, unknown>;
 const str = (v: unknown): string | undefined => (typeof v === 'string' && v ? v : undefined);
 const num = (v: unknown): number | undefined => (typeof v === 'number' ? v : undefined);
 const rows = (v: unknown): Row[] => (Array.isArray(v) ? (v.filter((r) => r && typeof r === 'object') as Row[]) : []);
-
-const liveGet: HttpGet = (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(10_000) });
 
 /** What `search` type= each kind maps to on CourtListener. */
 const SEARCH_TYPE: Partial<Record<DocumentKind, string>> = { opinion: 'o', docket: 'r', filing: 'rd' };
@@ -73,7 +66,11 @@ export class CourtListenerProvider implements DocumentProvider {
         return rows(body.results).slice(0, limit).map((r) => toRef(type, r));
       }),
     );
-    return all.flat().filter((r): r is DocumentRef => r !== undefined);
+    const { from, to } = options;
+    return all
+      .flat()
+      .filter((r): r is DocumentRef => r !== undefined)
+      .filter((r) => !r.publishedOn || ((!from || r.publishedOn >= from) && (!to || r.publishedOn <= to)));
   }
 
   async read(url: URL): Promise<SourceDocument> {
@@ -188,11 +185,7 @@ export class CourtListenerProvider implements DocumentProvider {
     const token = this.token();
     if (!token) throw new BadRequestException('courtlistener is not configured for this stage');
     const res = await this.get(`${API}${path}`, { headers: { Authorization: `Token ${token}`, Accept: 'application/json' } });
-    if (res.status === 404) throw new NotFoundException('CourtListener has no such record');
-    if (res.status === 429) throw new BadGatewayException('CourtListener rate limit reached; try again in a minute');
-    if (res.status === 401 || res.status === 403) throw new BadGatewayException('CourtListener rejected the API token');
-    if (res.status < 200 || res.status >= 300) throw new BadGatewayException(`CourtListener returned ${res.status}`);
-    return res.json();
+    return ensureOk(res, 'CourtListener').json();
   }
 }
 
