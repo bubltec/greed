@@ -47,5 +47,5 @@ export const environments: Record<'dev' | 'prod', EnvConfig> = {
 };
 
 /** SSM SecureString names the Lambda reads at cold start. Created by hand, never in CFN. */
-export const ssmParam = (env: string, key: 'jwt-secret' | 'github-client-secret') =>
+export const ssmParam = (env: string, key: 'jwt-secret' | 'github-client-secret' | 'courtlistener-token') =>
   `/${SSM_NAMESPACE}/${env}/${key}`;

@@ -3,7 +3,7 @@ import { InMemoryContentStore, type Outlet, type Topic } from '@greed/domain';
 import { ContentService } from '../content/content.service.js';
 import { GatewaySearchClient, parseSearchHits } from './gateway.js';
 import { AgentCoreResearchMemory } from './memory.js';
-import { liveResearch, researchKey, researchQueries, researchSessionId, researchTopic } from './research.js';
+import { liveResearch, researchKey, researchQueries, researchSessionId, researchTopic, suggestReferenceUrls } from './research.js';
 import { signedFetch } from './signed-fetch.js';
 import type { ResearchMemory, SearchClient, SearchHit } from './types.js';
 
@@ -115,6 +115,40 @@ describe('researchTopic', () => {
     const second = await researchTopic(svc, 'oil', { search, memory: store });
     expect(search.search).not.toHaveBeenCalled();
     expect(second.queries.every((q) => q.fromMemory)).toBe(true);
+  });
+
+  it('runs one custom query and keeps only hits inside the date range, marking undated ones', async () => {
+    const search: SearchClient = {
+      search: vi.fn(async () => [
+        { title: 'old', url: 'https://npr.org/2025', text: 'x', publishedDate: '2025-10-05T10:00:00Z' },
+        { title: 'new', url: 'https://npr.org/2026', text: 'x', publishedDate: '2026-10-05' },
+        { title: 'late', url: 'https://npr.org/later', text: 'x', publishedDate: '2026-11-01' },
+        { title: 'none', url: 'https://npr.org/undated', text: 'x' },
+        { title: 'odd', url: 'https://npr.org/odd', text: 'x', publishedDate: 'last week' },
+      ]),
+    };
+    const report = await researchTopic(service([npr]), 'oil', { search }, { query: ' Grand Island rally ', from: '2026-10-01', to: '2026-10-31' });
+    expect(search.search).toHaveBeenCalledTimes(1);
+    expect((search.search as ReturnType<typeof vi.fn>).mock.calls[0]![0]).toBe('Grand Island rally');
+    expect(report.queries).toHaveLength(1);
+    expect(report.hits.map((h) => [h.url, h.undated])).toEqual([
+      ['https://npr.org/2026', undefined],
+      ['https://npr.org/undated', true],
+      ['https://npr.org/odd', true],
+    ]);
+  });
+
+  it('supports an open-ended range on one side', async () => {
+    const search: SearchClient = {
+      search: vi.fn(async () => [
+        { title: 'a', url: 'https://npr.org/a', text: 'x', publishedDate: '2026-01-01' },
+        { title: 'b', url: 'https://npr.org/b', text: 'x', publishedDate: '2026-12-01' },
+      ]),
+    };
+    const after = await researchTopic(service([npr]), 'oil', { search }, { from: '2026-06-01' });
+    expect(after.hits.map((h) => h.url)).toEqual(['https://npr.org/b']);
+    const before = await researchTopic(service([npr]), 'oil', { search }, { to: '2026-06-01' });
+    expect(before.hits.map((h) => h.url)).toEqual(['https://npr.org/a']);
   });
 
   it('keeps going when one query fails and does not remember that query', async () => {
@@ -513,5 +547,46 @@ describe('signedFetch', () => {
 
   it('builds a signer on the default chain and global fetch when given no options', () => {
     expect(typeof signedFetch('us-east-1')).toBe('function');
+  });
+});
+
+describe('suggestReferenceUrls', () => {
+  const npr = outlet({ name: 'NPR', domain: 'npr.org' });
+  const cnn = outlet({ name: 'CNN', domain: 'cnn.com', paywall: true });
+
+  async function withRef(outlets: Outlet[], url?: string) {
+    const svc = service(outlets);
+    const { item } = await svc.create('reference', { label: 'Courier Newsroom', excerpt: 'Rally in Grand Island', publishedOn: '2026-10', ...(url ? { url } : {}) }, 'ed', 'oil');
+    return { svc, id: item.id };
+  }
+
+  it('searches open outlets with the label, excerpt, topic and date, and drops paywalled or off-list hits', async () => {
+    const { svc, id } = await withRef([npr, cnn]);
+    const search: SearchClient = {
+      search: vi.fn(async () => [
+        { title: 'a', url: 'https://www.npr.org/rally', text: 'x' },
+        { title: 'b', url: 'https://www.cnn.com/rally', text: 'x' },
+        { title: 'c', url: 'https://example.com/rally', text: 'x' },
+        { title: 'd', url: 'https://www.npr.org/rally', text: 'dupe' },
+      ]),
+    };
+    const out = await suggestReferenceUrls(svc, id, { search });
+    expect(out.candidates.map((c) => [c.url, c.outlet])).toEqual([['https://www.npr.org/rally', 'NPR']]);
+    const [query, , filter] = (search.search as ReturnType<typeof vi.fn>).mock.calls[0]!;
+    expect(query).toContain('Courier Newsroom');
+    expect(query).toContain('Oil money and the EPA');
+    expect(query).toContain('2026-10');
+    expect(filter).toEqual({ include: ['npr.org'], exclude: ['cnn.com'] });
+  });
+
+  it('does nothing when the reference has a url, search is off, or no outlet is published', async () => {
+    const search: SearchClient = { search: vi.fn() };
+    const has = await withRef([npr], 'https://npr.org/x');
+    expect((await suggestReferenceUrls(has.svc, has.id, { search })).message).toMatch(/already has a URL/);
+    const off = await withRef([npr]);
+    expect((await suggestReferenceUrls(off.svc, off.id, {})).configured).toBe(false);
+    const none = await withRef([cnn]);
+    expect((await suggestReferenceUrls(none.svc, none.id, { search })).message).toMatch(/No published outlets/);
+    expect(search.search).not.toHaveBeenCalled();
   });
 });

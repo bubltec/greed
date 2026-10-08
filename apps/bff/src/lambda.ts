@@ -15,6 +15,7 @@ async function loadSecrets(): Promise<void> {
   const wanted: [envName: string, paramEnv: string][] = [
     ['GITHUB_CLIENT_SECRET', 'GITHUB_CLIENT_SECRET_PARAM'],
     ['JWT_SECRET', 'JWT_SECRET_PARAM'],
+    ['COURT_LISTENER_API_KEY', 'COURT_LISTENER_API_KEY_PARAM'],
   ];
   const ssm = new SSMClient({ region: process.env.AWS_REGION ?? 'us-east-1' });
   for (const [envName, paramEnv] of wanted) {

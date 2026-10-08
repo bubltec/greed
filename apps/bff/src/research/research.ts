@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { hostMatches, outletSearchLists, type Outlet, type Topic } from '@greed/domain';
+import { hostMatches, outletSearchLists, type Outlet, type Reference, type Topic } from '@greed/domain';
 import type { ContentService } from '../content/content.service.js';
 import { AgentCoreResearchMemory } from './memory.js';
 import { GatewaySearchClient } from './gateway.js';
@@ -13,8 +13,19 @@ export interface ResearchDeps {
   memory?: ResearchMemory;
 }
 
+export interface ResearchOptions {
+  /** Replaces the three generated queries, for a narrow follow-up such as one meeting or one filing. */
+  query?: string;
+  /** Keep hits published on or after this date (YYYY-MM-DD). Undated hits are kept and marked. */
+  from?: string;
+  /** Keep hits published on or before this date (YYYY-MM-DD). */
+  to?: string;
+}
+
 export interface ResearchHit extends SearchHit {
   outlet?: string;
+  /** A date range was asked for but the hit carries no publication date, so it could not be checked. */
+  undated?: boolean;
   /** This query's result was read from short-term memory, not searched again. */
   fromMemory?: boolean;
 }
@@ -69,7 +80,12 @@ export function researchQueries(topic: Pick<Topic, 'title' | 'summary' | 'disput
  * was already queried with the same outlet list. Memory is best-effort: a
  * failed read or write still searches and still returns the hits.
  */
-export async function researchTopic(content: ContentService, topicId: string, deps: ResearchDeps): Promise<ResearchReport> {
+export async function researchTopic(
+  content: ContentService,
+  topicId: string,
+  deps: ResearchDeps,
+  options: ResearchOptions = {},
+): Promise<ResearchReport> {
   const topic = (await content.find('topic', topicId)) as Topic;
   const index = await content.index(true);
   const lists = outletSearchLists(index.snapshot.outlets ?? []);
@@ -126,13 +142,22 @@ export async function researchTopic(content: ContentService, topicId: string, de
     }
   }
 
-  const settled = await Promise.all(researchQueries(topic).map((query) => runQuery(query)));
+  const custom = options.query?.trim();
+  const angles = custom ? [squash(custom)] : researchQueries(topic);
+  const settled = await Promise.all(angles.map((query) => runQuery(query)));
   const queries: ResearchReport['queries'] = [];
   for (const row of settled) {
     queries.push({ query: row.query, fromMemory: row.fromMemory, ...(row.error ? { error: row.error } : {}) });
     for (const result of row.results) {
       for (const hit of keep(result, lists, cited, seen)) {
-        hits.push({ ...hit, outlet: outletName(hit.url, lists.open), fromMemory: row.fromMemory });
+        const inRange = withinDates(hit.publishedDate, options);
+        if (inRange === false) continue;
+        hits.push({
+          ...hit,
+          outlet: outletName(hit.url, lists.open),
+          fromMemory: row.fromMemory,
+          ...(inRange === undefined ? { undated: true } : {}),
+        });
         if (hits.length >= MAX_HITS) {
           return { ...base, configured: true, queries, hits };
         }
@@ -156,6 +181,14 @@ function keep(hit: SearchHit, lists: ReturnType<typeof outletSearchLists>, cited
   return [hit];
 }
 
+/** true/false when the hit's date can be compared with the range, undefined when a range was asked for and the date is missing or unreadable. */
+function withinDates(published: string | undefined, { from, to }: ResearchOptions): boolean | undefined {
+  if (!from && !to) return true;
+  const day = published?.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+  if (!day) return undefined;
+  return (!from || day >= from) && (!to || day <= to);
+}
+
 function outletName(url: string, open: Outlet[]): string | undefined {
   let host = '';
   try {
@@ -172,4 +205,41 @@ function brief(o: Outlet): { name: string; domain: string } {
 
 function squash(text: string): string {
   return text.replace(/\s+/g, ' ').trim().slice(0, 200);
+}
+
+export interface UrlSuggestions {
+  configured: boolean;
+  referenceId: string;
+  label: string;
+  candidates: ResearchHit[];
+  message?: string;
+}
+
+/**
+ * Candidate URLs for a reference saved without one. Searches the same open,
+ * published outlets as a dive, using the reference's label, excerpt and date
+ * alongside the topic title. Writes nothing: the editor picks one and calls
+ * update_reference.
+ */
+export async function suggestReferenceUrls(
+  content: ContentService,
+  referenceId: string,
+  deps: ResearchDeps,
+): Promise<UrlSuggestions> {
+  const ref = (await content.find('reference', referenceId)) as Reference;
+  const topic = (await content.find('topic', ref.topicId)) as Topic;
+  const base = { referenceId, label: ref.label, candidates: [] as ResearchHit[] };
+  if (ref.url) return { ...base, configured: true, message: 'This reference already has a URL.' };
+  if (!deps.search) return { ...base, configured: false, message: 'Web search is not configured for this stage.' };
+  const lists = outletSearchLists((await content.index(true)).snapshot.outlets ?? []);
+  if (lists.include.length === 0) {
+    return { ...base, configured: true, message: 'No published outlets to search. Publish an open outlet first.' };
+  }
+  const query = squash([ref.label, ref.excerpt, topic.title, ref.publishedOn].filter(Boolean).join(' '));
+  const found = await deps.search.search(query, MAX_PER_QUERY, { include: lists.include, exclude: lists.exclude });
+  const seen = new Set<string>();
+  const candidates = found
+    .flatMap((hit) => keep(hit, lists, new Set(), seen))
+    .map((hit) => ({ ...hit, outlet: outletName(hit.url, lists.open) }));
+  return { ...base, configured: true, candidates };
 }
