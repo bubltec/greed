@@ -3,7 +3,7 @@
  * court database, a register, an agency API); the tools and the rest of the
  * BFF only see these types, so a new source is one class and one registry line.
  */
-export const DOCUMENT_KINDS = ['opinion', 'docket', 'filing', 'rule', 'notice', 'order', 'bill', 'record', 'other'] as const;
+export const DOCUMENT_KINDS = ['opinion', 'docket', 'filing', 'rule', 'notice', 'order', 'bill', 'hearing', 'record', 'other'] as const;
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number];
 
 /** A search hit or a document the caller can open with `read`. */

@@ -157,6 +157,7 @@ export class ApiStack extends cdk.Stack {
         EDITORS,
         JWT_SECRET_PARAM: ssmParam(envName, 'jwt-secret'),
         COURT_LISTENER_API_KEY_PARAM: ssmParam(envName, 'courtlistener-token'),
+        DATA_GOV_API_KEY_PARAM: ssmParam(envName, 'data-gov-key'),
         AGENTCORE_GATEWAY_URL: gateway.getAtt('GatewayUrl').toString(),
         AGENTCORE_MEMORY_ID: memory.attrMemoryId,
         ...githubEnv,

@@ -31,7 +31,7 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `research_topic` | Search published, non-paywalled outlets for one topic. Does not create a reference; a repeat dive reuses the stored search. Optional `query` replaces the three generated searches; `from` / `to` (YYYY-MM-DD) drop hits outside the range, and hits with no date are kept and marked `undated`. Sources the topic already cites are skipped. Keep a hit with `add_reference` |
 | `suggest_reference_urls` | Candidate URLs for a reference saved without one (see `find_gaps`). Writes nothing; save the right one with `update_reference` |
 | `fetch_source` | Details for one page on a published, open outlet, read through AgentCore Web Search (no direct fetch): title, date, a longer passage, the outlet's ratings, topics that already cite it, and related pages to follow up. Writes nothing |
-| `search_documents` | Search primary-source providers by words or case name, optionally by `kind` and `from`/`to` dates. CourtListener: opinions, dockets, filings. Federal Register (no key): rules, notices, executive orders. Returns links for `read_document` |
+| `search_documents` | Search primary-source providers by words or case name, optionally by `kind` and `from`/`to` dates. CourtListener: opinions, dockets, filings. Federal Register (no key): rules, notices, executive orders. GovInfo: Congressional Record, bills, hearings, federal court opinions. Returns links for `read_document` |
 | `read_document` | Text of an opinion, docket, filing, rule, notice or executive order by public link, with page numbers. `quote` checks a line appears and on which page; returns a citation draft for `add_reference` and related filings. Writes nothing |
 | `list_document_providers` | Which providers exist and whether each is configured on this stage |
 | `list_drafts` | The review queue: everything not yet published |
@@ -59,7 +59,7 @@ as `<your email> (mcp)` so the log shows which channel made a change.
 (`apps/bff/src/documents/types.ts`): a provider owns a few hosts, searches, and reads a public
 URL into a `SourceDocument` (identifiers, numbered pages, related documents). The registry routes a
 URL by host and refuses any host no provider owns, so these tools cannot be aimed at arbitrary
-addresses. To add a source (GovInfo, Congress.gov, FEC, a PDF extractor), write a
+addresses. To add a source (Congress.gov, FEC, a PDF extractor), write a
 provider and add it to `liveDocuments()` in `documents/index.ts`; the tools, quote check and
 citation draft come with it. Its credential is an SSM SecureString read into an env var by
 `lambda.ts`. CourtListener uses `/greed/{env}/courtlistener-token` → `COURT_LISTENER_API_KEY`:
@@ -67,6 +67,11 @@ citation draft come with it. Its credential is an SSM SecureString read into an 
 ```bash
 aws ssm put-parameter --type SecureString --name /greed/prod/courtlistener-token --value '<token>'
 ```
+
+GovInfo uses a free api.data.gov key (<https://api.data.gov/signup/>) at `/greed/{env}/data-gov-key` → `DATA_GOV_API_KEY`;
+the same key will serve Congress.gov and FEC. It is sent in an `X-Api-Key` header, never in a URL. Without it GovInfo
+shows as not configured. Every provider has the same contract tests (`documents/contract.spec.ts`): it calls only its
+own hosts, refuses links elsewhere, returns numbered pages.
 
 ## Where the tools come from
 

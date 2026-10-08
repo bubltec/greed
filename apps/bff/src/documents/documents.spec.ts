@@ -218,7 +218,7 @@ describe('DocumentProviders', () => {
   it('liveDocuments registers CourtListener, configured only when the key is set', () => {
     const before = process.env.COURT_LISTENER_API_KEY;
     delete process.env.COURT_LISTENER_API_KEY;
-    expect(liveDocuments().list()).toMatchObject([{ id: 'courtlistener', configured: false }, { id: 'federalregister', configured: true }]);
+    expect(liveDocuments().list()).toMatchObject([{ id: 'courtlistener', configured: false }, { id: 'federalregister', configured: true }, { id: 'govinfo', configured: false }]);
     process.env.COURT_LISTENER_API_KEY = 'x';
     expect(liveDocuments().list()[0]!.configured).toBe(true);
     if (before === undefined) delete process.env.COURT_LISTENER_API_KEY;
