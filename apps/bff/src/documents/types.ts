@@ -3,7 +3,8 @@
  * court database, a register, an agency API); the tools and the rest of the
  * BFF only see these types, so a new source is one class and one registry line.
  */
-export type DocumentKind = 'opinion' | 'docket' | 'filing' | 'rule' | 'bill' | 'record' | 'other';
+export const DOCUMENT_KINDS = ['opinion', 'docket', 'filing', 'rule', 'notice', 'order', 'bill', 'record', 'other'] as const;
+export type DocumentKind = (typeof DOCUMENT_KINDS)[number];
 
 /** A search hit or a document the caller can open with `read`. */
 export interface DocumentRef {
@@ -40,6 +41,9 @@ export interface SourceDocument extends DocumentRef {
 export interface SearchOptions {
   kind?: DocumentKind;
   limit?: number;
+  /** Published on or after / on or before (YYYY-MM-DD). */
+  from?: string;
+  to?: string;
 }
 
 export interface DocumentProvider {

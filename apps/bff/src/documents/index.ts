@@ -1,4 +1,5 @@
 import { CourtListenerProvider } from './courtlistener.js';
+import { FederalRegisterProvider } from './federalregister.js';
 import { DocumentProviders } from './registry.js';
 
 /**
@@ -7,7 +8,7 @@ import { DocumentProviders } from './registry.js';
  * from env vars that lambda.ts fills from SSM at cold start.
  */
 export function liveDocuments(): DocumentProviders {
-  return new DocumentProviders([new CourtListenerProvider(() => process.env.COURT_LISTENER_API_KEY)]);
+  return new DocumentProviders([new CourtListenerProvider(() => process.env.COURT_LISTENER_API_KEY), new FederalRegisterProvider()]);
 }
 
 export { DocumentProviders } from './registry.js';
