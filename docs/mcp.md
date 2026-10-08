@@ -28,7 +28,12 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `link_topics` / `unlink_topics` | Typed links; provenance defaults to `inferred` |
 | `list_outlets` | Trust catalog, best first. Paywalled outlets are a hard avoid |
 | `create_outlet` / `update_outlet` | Add or rerate a publication (draft until published) |
-| `research_topic` | Search published, non-paywalled outlets for one topic. Does not create a reference; a repeat dive reuses the stored search. Keep a hit with `add_reference` |
+| `research_topic` | Search published, non-paywalled outlets for one topic. Does not create a reference; a repeat dive reuses the stored search. Optional `query` replaces the three generated searches; `from` / `to` (YYYY-MM-DD) drop hits outside the range, and hits with no date are kept and marked `undated`. Sources the topic already cites are skipped. Keep a hit with `add_reference` |
+| `suggest_reference_urls` | Candidate URLs for a reference saved without one (see `find_gaps`). Writes nothing; save the right one with `update_reference` |
+| `fetch_source` | Details for one page on a published, open outlet, read through AgentCore Web Search (no direct fetch): title, date, a longer passage, the outlet's ratings, topics that already cite it, and related pages to follow up. Writes nothing |
+| `search_documents` | Search primary-source providers (CourtListener: opinions, dockets, filings) by words or case name. Returns links for `read_document` |
+| `read_document` | Text of an opinion, docket or filing by public link, with page numbers. `quote` checks a line appears and on which page; returns a citation draft for `add_reference` and related filings. Writes nothing |
+| `list_document_providers` | Which providers exist and whether each is configured on this stage |
 | `list_drafts` | The review queue: everything not yet published |
 | `publish_topic` | Publish a topic with its drafts (sources, perspectives, links to live topics) |
 | `delete_draft` | Permanently delete a draft topic, source, perspective or link (published items are refused) |
@@ -48,6 +53,21 @@ published, either by you in the editor or by Claude when you ask it to (`publish
 Writes go through `ContentService` with the same validation as the CMS, and are attributed
 as `<your email> (mcp)` so the log shows which channel made a change.
 
+## Document providers
+
+`search_documents` and `read_document` are generic over `DocumentProvider`
+(`apps/bff/src/documents/types.ts`): a provider owns a few hosts, searches, and reads a public
+URL into a `SourceDocument` (identifiers, numbered pages, related documents). The registry routes a
+URL by host and refuses any host no provider owns, so these tools cannot be aimed at arbitrary
+addresses. To add a source (Federal Register, GovInfo, Congress.gov, FEC, a PDF extractor), write a
+provider and add it to `liveDocuments()` in `documents/index.ts`; the tools, quote check and
+citation draft come with it. Its credential is an SSM SecureString read into an env var by
+`lambda.ts`. CourtListener uses `/greed/{env}/courtlistener-token` → `COURT_LISTENER_API_KEY`:
+
+```bash
+aws ssm put-parameter --type SecureString --name /greed/prod/courtlistener-token --value '<token>'
+```
+
 ## Where the tools come from
 
 Most tools are **generated from the entity registry** (`apps/bff/src/content/entities/`): each
@@ -55,7 +75,7 @@ content type opts in with an `mcp` block listing the operations to expose, and t
 JSON Schemas (from the DTO's validators, so they can't drift from the CMS) and handlers follow.
 Updates are partial: only the fields passed change. A new content type has no tools until it
 opts in. The bespoke tools are `search_topics`, `find_gaps`, `add_points`, `list_drafts` and
-`set_status` (`apps/bff/src/mcp/bespoke-tools.ts`). See "Adding a content type" in
+`set_status`, `research_topic`, `suggest_reference_urls`, `fetch_source`, `search_documents`, `read_document` and `list_document_providers` (`apps/bff/src/mcp/bespoke-tools.ts`). See "Adding a content type" in
 `.cursor/rules/greed-architecture.mdc`.
 
 ## How auth works

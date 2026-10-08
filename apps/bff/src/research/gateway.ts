@@ -1,5 +1,5 @@
 import { Client, StreamableHTTPClientTransport, type FetchLike } from '@modelcontextprotocol/client';
-import type { DomainFilter, SearchClient, SearchHit } from './types.js';
+import type { DomainFilter, SearchClient, SearchHit, SearchOptions } from './types.js';
 import { signedFetch } from './signed-fetch.js';
 
 export interface GatewaySearchClientOptions {
@@ -32,7 +32,7 @@ export class GatewaySearchClient implements SearchClient {
     this.toolName = options.toolName ?? '';
   }
 
-  async search(query: string, maxResults: number, filter: DomainFilter): Promise<SearchHit[]> {
+  async search(query: string, maxResults: number, filter: DomainFilter, options: SearchOptions = {}): Promise<SearchHit[]> {
     const client = await this.connect();
     const domainFilter: { include?: string[]; exclude?: string[] } = {
       ...(filter.include.length ? { include: filter.include } : {}),
@@ -50,7 +50,7 @@ export class GatewaySearchClient implements SearchClient {
       const text = result.content.map((block) => (block.type === 'text' ? block.text : '')).join(' ').trim();
       throw new Error(text || 'Web search failed');
     }
-    return parseSearchHits(result);
+    return parseSearchHits(result, options.maxText);
   }
 
   private connect(): Promise<Client> {
@@ -80,7 +80,7 @@ export class GatewaySearchClient implements SearchClient {
   }
 }
 
-export function parseSearchHits(result: unknown): SearchHit[] {
+export function parseSearchHits(result: unknown, maxText = 500): SearchHit[] {
   const content = (result as { content?: Array<{ type?: string; text?: string }> } | undefined)?.content;
   const textBlock = content?.find((block) => block.type === 'text' && block.text)?.text;
   if (!textBlock) return [];
@@ -103,7 +103,7 @@ export function parseSearchHits(result: unknown): SearchHit[] {
     hits.push({
       title,
       url,
-      text: text.slice(0, 500),
+      text: text.slice(0, maxText),
       publishedDate: typeof item.publishedDate === 'string' ? item.publishedDate : undefined,
     });
   }

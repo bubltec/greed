@@ -10,8 +10,13 @@ export interface DomainFilter {
   exclude: string[];
 }
 
+export interface SearchOptions {
+  /** Longest passage kept per hit. Default 500; a source lookup asks for more. */
+  maxText?: number;
+}
+
 export interface SearchClient {
-  search(query: string, maxResults: number, filter: DomainFilter): Promise<SearchHit[]>;
+  search(query: string, maxResults: number, filter: DomainFilter, options?: SearchOptions): Promise<SearchHit[]>;
 }
 
 export interface ResearchMemory {

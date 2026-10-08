@@ -184,8 +184,8 @@ describe('MCP connector', () => {
     const toolList = (await rpc(token, 'tools/list')).json().result.tools as { name: string; inputSchema: any }[];
     expect(toolList.map((t) => t.name).sort()).toEqual(
       [
-        'add_perspective', 'add_points', 'add_reference', 'create_outlet', 'create_topic', 'delete_draft', 'find_gaps', 'get_page', 'get_topic',
-        'link_topics', 'list_drafts', 'list_outlets', 'publish_page', 'publish_topic', 'research_topic', 'search_topics', 'set_status', 'unlink_topics',
+        'add_perspective', 'add_points', 'add_reference', 'create_outlet', 'create_topic', 'delete_draft', 'fetch_source', 'find_gaps', 'get_page', 'get_topic',
+        'link_topics', 'list_document_providers', 'list_drafts', 'list_outlets', 'publish_page', 'publish_topic', 'read_document', 'research_topic', 'search_documents', 'search_topics', 'set_status', 'suggest_reference_urls', 'unlink_topics',
         'update_outlet', 'update_page', 'update_perspective', 'update_reference', 'update_topic',
       ].sort(),
     );
@@ -288,6 +288,15 @@ describe('MCP connector', () => {
       if (gateway) process.env.AGENTCORE_GATEWAY_URL = gateway;
       if (memory) process.env.AGENTCORE_MEMORY_ID = memory;
     }
+  });
+
+  it('rejects a research date that is not YYYY-MM-DD', async () => {
+    const { access_token: token } = await getTokens();
+    const res = await rpc(token, 'tools/call', { name: 'research_topic', arguments: { topicId: 'x', from: 'Oct 5' } });
+    expect(res.json().result).toMatchObject({ isError: true });
+    expect(res.json().result.content[0].text).toMatch(/YYYY-MM-DD/);
+    const bad = await rpc(token, 'tools/call', { name: 'research_topic', arguments: { topicId: 'x', query: 5 } });
+    expect(bad.json().result.content[0].text).toMatch(/query must be a string/);
   });
 
   it('returns validation failures to the model as tool errors', async () => {

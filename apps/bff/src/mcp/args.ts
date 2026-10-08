@@ -14,6 +14,20 @@ export function requireString(args: Args, key: string): string {
   return v;
 }
 
+export function optionalString(args: Args, key: string): string | undefined {
+  const v = args[key];
+  if (v === undefined) return undefined;
+  if (typeof v !== 'string') throw new BadRequestException(`${key} must be a string`);
+  return v;
+}
+
+/** A calendar day, YYYY-MM-DD. */
+export function optionalDate(args: Args, key: string): string | undefined {
+  const v = optionalString(args, key);
+  if (v !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(v)) throw new BadRequestException(`${key} must be YYYY-MM-DD`);
+  return v;
+}
+
 /** Validates tool arguments with the same DTO the CMS uses, so the integrity rules can't be bypassed. */
 export async function dto<T extends object>(cls: new () => T, plain: Args): Promise<T> {
   const clean = Object.fromEntries(Object.entries(plain).filter(([, v]) => v !== undefined));
