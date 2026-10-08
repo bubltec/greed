@@ -1,5 +1,7 @@
 export type {
+  ActivityBrowse,
   ActivityEntry,
+  ActivityType,
   ContentSnapshot,
   DraftEntry,
   GraphView,
@@ -11,10 +13,13 @@ export type {
   Relation,
   RelationKind,
   Section,
+  SortDir,
   Stance,
   Status,
   Topic,
+  TopicBrowse,
   TopicKind,
+  TopicSort,
   TopicSummary,
   TopicView,
 } from '@greed/domain';

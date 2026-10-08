@@ -8,6 +8,25 @@ export {
   type GraphView,
   type ActivityEntry,
 } from './views.js';
+export {
+  ACTIVITY_TYPES,
+  PAGE_SIZES,
+  TOPIC_SORTS,
+  browseActivity,
+  browseTopics,
+  pageWindow,
+  paginate,
+  parseActivityQuery,
+  parseBrowseQuery,
+  type ActivityBrowse,
+  type ActivityQuery,
+  type ActivityType,
+  type BrowseQuery,
+  type ResultPage,
+  type SortDir,
+  type TopicBrowse,
+  type TopicSort,
+} from './browse.js';
 export { type ContentStore, type RemoveTarget, InMemoryContentStore } from './ports.js';
 export * from './entity-defs.js';
 export { publishedOnly, publicAuthor, drafts, type DraftEntry, type ItemType } from './publishing.js';

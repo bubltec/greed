@@ -1,15 +1,16 @@
 import type { PageContent, PageId, PageView } from '@greed/domain';
 import type {
+  ActivityBrowse,
   ContentSnapshot,
   DraftEntry,
   ItemType,
   Status,
-  ActivityEntry,
   GraphView,
   PerspectiveInput,
   ReferenceInput,
   Relation,
   RelationInput,
+  TopicBrowse,
   TopicInput,
   TopicSummary,
   TopicView,
@@ -60,12 +61,23 @@ export interface Session {
 /** `?preview=1` includes drafts; the API honours it only for editors, and skips its cache. */
 const q = (preview?: boolean) => (preview ? '?preview=1' : '');
 
+function withPreview(params: URLSearchParams, preview?: boolean): string {
+  const next = new URLSearchParams(params);
+  if (preview) next.set('preview', '1');
+  const text = next.toString();
+  return text ? `?${text}` : '';
+}
+
 export const api = {
   topics: (preview?: boolean) => request<TopicSummary[]>('GET', `/topics${q(preview)}`),
+  /** One page of the home list. `params` are the URL's q, kind, sort, dir, page and size; the API ignores what it cannot read. */
+  browse: (params: URLSearchParams, preview?: boolean) =>
+    request<TopicBrowse>('GET', `/browse${withPreview(params, preview)}`),
   topic: (id: string, preview?: boolean) =>
     request<TopicView>('GET', `/topics/${encodeURIComponent(id)}${q(preview)}`),
   graph: (preview?: boolean) => request<GraphView>('GET', `/graph${q(preview)}`),
-  activity: (preview?: boolean) => request<ActivityEntry[]>('GET', `/activity${q(preview)}`),
+  activity: (params: URLSearchParams, preview?: boolean) =>
+    request<ActivityBrowse>('GET', `/activity${withPreview(params, preview)}`),
   session: () => request<Session>('GET', '/session'),
   localSignIn: (email?: string) => request<unknown>('POST', '/auth/local', email ? { email } : {}),
 

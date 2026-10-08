@@ -18,6 +18,7 @@ export interface TopicSummary {
   tags: string[];
   disputed: boolean;
   status: Status;
+  createdAt: string;
   updatedAt: string;
   counts: { references: number; perspectives: number; relations: number };
 }
@@ -82,7 +83,15 @@ export class ContentIndex {
     }
   }
 
-  summaries(): TopicSummary[] {
+  private summaryList?: TopicSummary[];
+  private activityList?: ActivityEntry[];
+
+  /** Title order. Built once per index and shared, so callers must not change it. */
+  summaries(): readonly TopicSummary[] {
+    return (this.summaryList ??= this.buildSummaries());
+  }
+
+  private buildSummaries(): TopicSummary[] {
     return this.snapshot.topics
       .map((t) => ({
         id: t.id,
@@ -92,6 +101,7 @@ export class ContentIndex {
         tags: t.tags,
         disputed: t.disputed.trim().length > 0,
         status: statusOf(t),
+        createdAt: t.createdAt,
         updatedAt: t.updatedAt,
         counts: {
           references: this.refsByTopic.get(t.id)?.length ?? 0,
@@ -139,7 +149,17 @@ export class ContentIndex {
     };
   }
 
+  /** The newest `limit` entries of the log. */
   activity(limit = 25): ActivityEntry[] {
+    return this.allActivity().slice(0, limit);
+  }
+
+  /** The whole log, newest first. Built once per index and shared, so callers must not change it. */
+  allActivity(): readonly ActivityEntry[] {
+    return (this.activityList ??= this.buildActivity());
+  }
+
+  private buildActivity(): ActivityEntry[] {
     const title = (id: string) => this.topicsById.get(id)?.title ?? id;
     const entries: ActivityEntry[] = [
       ...this.snapshot.topics.map((t) => ({
@@ -181,7 +201,7 @@ export class ContentIndex {
           updatedBy: r.updatedBy,
         })),
     ];
-    return entries.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, limit);
+    return entries.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || a.id.localeCompare(b.id));
   }
 }
 

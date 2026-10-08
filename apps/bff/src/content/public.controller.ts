@@ -1,6 +1,6 @@
 import { Controller, Get, Header, NotFoundException, Param, Query, Req } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import { type ContentIndex, isPageId } from '@greed/domain';
+import { browseActivity, browseTopics, type ContentIndex, isPageId, parseActivityQuery, parseBrowseQuery } from '@greed/domain';
 import { EditorSession } from '../auth/editor-session.js';
 import { ContentService } from './content.service.js';
 
@@ -30,6 +30,15 @@ export class PublicController {
     return (await this.visible(req, preview)).summaries();
   }
 
+  /**
+   * The home list, searched, filtered, sorted and paged on the server so a reader only downloads one page.
+   * Query: q, kind, sort, dir, page, size. Unreadable values fall back to the defaults.
+   */
+  @Get('browse')
+  async browse(@Req() req: FastifyRequest, @Query() query: Record<string, string>) {
+    return browseTopics((await this.visible(req, query.preview)).summaries(), parseBrowseQuery(query));
+  }
+
   @Get('topics/:id')
   async topic(@Req() req: FastifyRequest, @Param('id') id: string, @Query('preview') preview?: string) {
     const view = (await this.visible(req, preview)).view(id);
@@ -43,8 +52,8 @@ export class PublicController {
   }
 
   @Get('activity')
-  async activity(@Req() req: FastifyRequest, @Query('preview') preview?: string) {
-    return (await this.visible(req, preview)).activity(30);
+  async activity(@Req() req: FastifyRequest, @Query() query: Record<string, string>) {
+    return browseActivity((await this.visible(req, query.preview)).allActivity(), parseActivityQuery(query));
   }
 
   @Get('pages/:id')

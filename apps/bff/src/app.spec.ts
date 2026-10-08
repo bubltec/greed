@@ -250,11 +250,44 @@ describe('HTTP API', () => {
   it('serves health, the graph, activity and the export', async () => {
     expect((await app.inject({ method: 'GET', url: '/api/health' })).json()).toEqual({ ok: true });
     expect((await app.inject({ method: 'GET', url: '/api/graph' })).json()).toMatchObject({ nodes: expect.any(Array), edges: expect.any(Array) });
-    expect((await app.inject({ method: 'GET', url: '/api/activity' })).json()).toEqual(expect.any(Array));
+    expect((await app.inject({ method: 'GET', url: '/api/activity' })).json()).toMatchObject({ items: expect.any(Array), total: expect.any(Number), page: 1, pages: 1 });
     const exported = await app.inject({ method: 'GET', url: '/api/export' });
     expect(exported.headers['content-disposition']).toMatch(/greed-export\.json/);
     expect(exported.json()).toMatchObject({ topics: [], exportedAt: expect.any(String) });
     expect((await app.inject({ method: 'GET', url: '/api/topics/nope' })).statusCode).toBe(404);
+  });
+
+  it('pages, sorts and filters the home list and the log on the server, published-only for readers', async () => {
+    const as = { cookie: editorCookie };
+    const made: string[] = [];
+    for (const [title, kind] of [['Browse alpha', 'case'], ['Browse beta', 'person'], ['Browse gamma', 'case']] as const) {
+      const res = await app.inject({ method: 'POST', url: '/api/topics', payload: { ...topic, title, kind }, headers: as });
+      made.push(res.json().topic.id);
+    }
+    await app.inject({ method: 'POST', url: '/api/status', payload: { status: 'published', items: [{ type: 'topic', id: made[0] }] }, headers: as });
+    const get = async (url: string, headers?: Record<string, string>) => (await app.inject({ method: 'GET', url, headers })).json();
+
+    // readers see only the published one, however they ask
+    const anon = await get('/api/browse?size=1&preview=1');
+    expect(anon.items.map((t: { id: string }) => t.id)).toEqual([made[0]]);
+    expect(anon).toMatchObject({ total: 1, all: 1, pages: 1 });
+    expect((await get('/api/browse?preview=1', { cookie: strangerCookie })).total).toBe(1);
+
+    // an editor in preview sees all three, paged and sorted
+    const first = await get('/api/browse?preview=1&q=browse&sort=title&dir=desc&size=2', as);
+    expect(first.items.map((t: { title: string }) => t.title)).toEqual(['Browse gamma', 'Browse beta']);
+    expect(first).toMatchObject({ total: 3, pages: 2, page: 1, size: 2, kinds: { case: 2, person: 1 } });
+    const second = await get('/api/browse?preview=1&q=browse&sort=title&dir=desc&size=2&page=2', as);
+    expect(second.items.map((t: { title: string }) => t.title)).toEqual(['Browse alpha']);
+    expect((await get('/api/browse?preview=1&q=browse&kind=person', as)).items).toHaveLength(1);
+    expect((await get('/api/browse?preview=1&page=999&size=2&sort=nonsense&dir=sideways', as)).page).toBeGreaterThanOrEqual(1);
+
+    const log = await get('/api/activity?preview=1&size=2&type=topic', as);
+    expect(log.items).toHaveLength(2);
+    expect(log.items.every((e: { type: string }) => e.type === 'topic')).toBe(true);
+    expect(log.pages).toBeGreaterThan(1);
+    expect(log.types.topic).toBeGreaterThanOrEqual(3);
+    expect((await get('/api/activity?size=2')).total).toBeLessThanOrEqual(log.total);
   });
 
   it('treats a bad or unknown session as signed out, and says which sign-in methods exist', async () => {
