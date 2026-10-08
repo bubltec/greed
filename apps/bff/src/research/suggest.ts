@@ -50,7 +50,7 @@ export async function suggestMissingUrls(content: ContentService, deps: Research
 
   const limit = Math.min(Math.max(Math.trunc(options.limit ?? DEFAULT_LIMIT) || DEFAULT_LIMIT, 1), MAX_LIMIT);
   const batch = missing.slice(0, limit);
-  const rows: UrlSuggestionRow[] = new Array(batch.length);
+  const rows: UrlSuggestionRow[] = Array.from({ length: batch.length });
   let next = 0;
   async function worker(): Promise<void> {
     while (next < batch.length) {
