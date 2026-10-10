@@ -19,6 +19,7 @@ import {
   ROOT_DOMAIN,
   WAF_ARN_PARAMETER,
 } from './config.js';
+import { PUBLIC_API_PATHS, SESSION_COOKIE } from './public-api.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -137,6 +138,33 @@ export class WebStack extends cdk.Stack {
         : undefined,
     };
 
+    // Public reads (see PUBLIC_API_PATHS): cached 60s at the edge so a flood of identical reads
+    // is absorbed by CloudFront, and an origin 5xx falls back to the last good copy via the
+    // `stale-if-error` the BFF sends. The key is the query string plus the editor session
+    // cookie: readers have none (one shared entry), an editor's `?preview=1` carries it to the
+    // origin and is never marked cacheable. Nothing else is forwarded.
+    const publicApiCachePolicy = new cloudfront.CachePolicy(this, 'PublicApiCachePolicy', {
+      minTtl: cdk.Duration.seconds(0),
+      defaultTtl: cdk.Duration.seconds(0), // only cache what the BFF marks cacheable
+      maxTtl: cdk.Duration.minutes(5),
+      queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
+      headerBehavior: cloudfront.CacheHeaderBehavior.none(),
+      cookieBehavior: cloudfront.CacheCookieBehavior.allowList(SESSION_COOKIE),
+      enableAcceptEncodingGzip: true,
+      enableAcceptEncodingBrotli: true,
+    });
+    const publicApiBehavior: cloudfront.BehaviorOptions = {
+      ...apiBehavior,
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+      cachePolicy: publicApiCachePolicy,
+      originRequestPolicy: undefined,
+    };
+    const publicApiBehaviors: Record<string, cloudfront.BehaviorOptions> = {};
+    for (const name of PUBLIC_API_PATHS) {
+      publicApiBehaviors[`/api/${name}`] = publicApiBehavior;
+      publicApiBehaviors[`/api/${name}/*`] = publicApiBehavior;
+    }
+
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       domainNames: [domainName],
       certificate,
@@ -150,6 +178,7 @@ export class WebStack extends cdk.Stack {
         functionAssociations: [{ function: siteFunction, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
       },
       additionalBehaviors: {
+        ...publicApiBehaviors,
         '/api/*': apiBehavior,
         // OAuth discovery for the MCP connector (RFC 8414 / RFC 9728) lives at the root.
         '/.well-known/*': apiBehavior,
