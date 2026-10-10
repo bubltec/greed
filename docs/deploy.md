@@ -67,5 +67,6 @@ From an AWS SSO session with account access, in `infra/cdk`:
 ## Cost
 
 At low traffic this is close to free: Lambda, HTTP API and on-demand DynamoDB scale to zero.
-Fixed costs are the Route53 zone (~$0.50/mo) and the prod WAF web ACL with one rule
-(~$6/mo). Dev uses a CloudFront Function for Basic Auth instead of a second WAF.
+Fixed cost is the Route53 zone (~$0.50/mo). Prod attaches the shared web ACL owned by the
+dotio repo (`DotioWaf`, ARN read from SSM `/bubbletech/waf/web-acl-arn`), so deploy that
+first. Dev uses a CloudFront Function for Basic Auth instead of a second WAF.
