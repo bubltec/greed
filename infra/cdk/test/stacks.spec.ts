@@ -31,6 +31,27 @@ describe('GreedProd', () => {
     });
   });
 
+  it('caches public reads at the edge, keyed on the editor session cookie only', () => {
+    web.hasResourceProperties('AWS::CloudFront::CachePolicy', {
+      CachePolicyConfig: Match.objectLike({
+        DefaultTTL: 0,
+        MaxTTL: 300,
+        ParametersInCacheKeyAndForwardedToOrigin: Match.objectLike({
+          CookiesConfig: { CookieBehavior: 'whitelist', Cookies: ['greed_session'] },
+          QueryStringsConfig: { QueryStringBehavior: 'all' },
+        }),
+      }),
+    });
+    web.hasResourceProperties('AWS::CloudFront::Distribution', {
+      DistributionConfig: Match.objectLike({
+        CacheBehaviors: Match.arrayWith([
+          Match.objectLike({ PathPattern: '/api/topics/*', AllowedMethods: ['GET', 'HEAD'] }),
+          Match.objectLike({ PathPattern: '/api/browse' }),
+        ]),
+      }),
+    });
+  });
+
   it('caps the whole API at 20 req/s (burst 40) so a flood from many IPs is answered with 429', () => {
     api.hasResourceProperties('AWS::ApiGatewayV2::Stage', {
       DefaultRouteSettings: { ThrottlingRateLimit: 20, ThrottlingBurstLimit: 40 },
@@ -97,10 +118,10 @@ describe('GreedProd', () => {
     web.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: Match.objectLike({
         Aliases: ['greed.bubbletech.io'],
-        CacheBehaviors: [
+        CacheBehaviors: Match.arrayWith([
           Match.objectLike({ PathPattern: '/api/*' }),
           Match.objectLike({ PathPattern: '/.well-known/*' }),
-        ],
+        ]),
       }),
     });
     web.resourceCountIs('AWS::WAFv2::WebACL', 0);
