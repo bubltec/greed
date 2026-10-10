@@ -52,6 +52,12 @@ describe('GreedProd', () => {
     });
   });
 
+  it('caps the whole API at 20 req/s (burst 40) so a flood from many IPs is answered with 429', () => {
+    api.hasResourceProperties('AWS::ApiGatewayV2::Stage', {
+      DefaultRouteSettings: { ThrottlingRateLimit: 20, ThrottlingBurstLimit: 40 },
+    });
+  });
+
   it('keeps MCP OAuth state in its own expiring table', () => {
     data.hasResourceProperties('AWS::DynamoDB::Table', {
       TableName: 'greed-prod-auth',
