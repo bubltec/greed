@@ -10,13 +10,14 @@ import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
-import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import {
   DEV_BASIC_AUTH_PASSWORD,
   DEV_BASIC_AUTH_USER,
   type EnvConfig,
   HOSTED_ZONE_ID,
   ROOT_DOMAIN,
+  WAF_ARN_PARAMETER,
 } from './config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -119,29 +120,8 @@ export class WebStack extends cdk.Stack {
 
     let webAclId: string | undefined;
     if (isProd) {
-      const acl = new wafv2.CfnWebACL(this, 'WebAcl', {
-        scope: 'CLOUDFRONT',
-        defaultAction: { allow: {} },
-        visibilityConfig: {
-          cloudWatchMetricsEnabled: true,
-          metricName: 'greed-prod-waf',
-          sampledRequestsEnabled: true,
-        },
-        rules: [
-          {
-            name: 'RateLimit',
-            priority: 0,
-            action: { block: {} },
-            statement: { rateBasedStatement: { limit: 1000, aggregateKeyType: 'IP' } },
-            visibilityConfig: {
-              cloudWatchMetricsEnabled: true,
-              metricName: 'greed-prod-ratelimit',
-              sampledRequestsEnabled: true,
-            },
-          },
-        ],
-      });
-      webAclId = acl.attrArn;
+      // Owned by the dotio repo (DotioWaf): one ACL shared by every bubbletech site.
+      webAclId = ssm.StringParameter.valueForStringParameter(this, WAF_ARN_PARAMETER);
     }
 
     const apiBehavior: cloudfront.BehaviorOptions = {

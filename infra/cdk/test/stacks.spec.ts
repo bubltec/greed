@@ -87,7 +87,7 @@ describe('GreedProd', () => {
     expect(vars).not.toMatch(/"JWT_SECRET"/);
   });
 
-  it('serves greed.bubbletech.io with /api on the same origin behind a rate limit', () => {
+  it('serves greed.bubbletech.io with /api on the same origin behind the shared web ACL', () => {
     web.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: Match.objectLike({
         Aliases: ['greed.bubbletech.io'],
@@ -97,7 +97,10 @@ describe('GreedProd', () => {
         ],
       }),
     });
-    web.resourceCountIs('AWS::WAFv2::WebACL', 1);
+    web.resourceCountIs('AWS::WAFv2::WebACL', 0);
+    web.hasResourceProperties('AWS::CloudFront::Distribution', {
+      DistributionConfig: Match.objectLike({ WebACLId: Match.anyValue() }),
+    });
   });
 });
 

@@ -49,3 +49,6 @@ export const environments: Record<'dev' | 'prod', EnvConfig> = {
 /** SSM SecureString names the Lambda reads at cold start. Created by hand, never in CFN. */
 export const ssmParam = (env: string, key: 'jwt-secret' | 'github-client-secret' | 'courtlistener-token' | 'data-gov-key') =>
   `/${SSM_NAMESPACE}/${env}/${key}`;
+
+/** SSM parameter the dotio repo's DotioWaf stack publishes the shared web ACL ARN to. */
+export const WAF_ARN_PARAMETER = '/bubbletech/waf/web-acl-arn';
