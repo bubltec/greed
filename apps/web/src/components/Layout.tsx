@@ -28,7 +28,7 @@ export function Layout() {
       <header className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-mega py-5">
         <NavLink to="/" className="no-underline" aria-label="GREED home">
           <span className="pixel text-lg text-snow sm:text-xl">
-            GR<span className="text-sky">EE</span>D
+            GR<span className="text-bolt">EE</span>D
           </span>
           <span className="pixel ml-3 hidden text-[0.5rem] text-slate sm:inline">
             POWER · MONEY · OVERSIGHT
