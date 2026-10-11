@@ -143,13 +143,28 @@ function entityTools(content: ContentService, spec: EntitySpec): Tool[] {
           type: 'object',
           properties: {
             ...idSchema(idArg, cap(name)),
-            ...(spec.publish?.cascade ? { includeChildren: { type: 'boolean', description: 'Also publish its drafts (default true).' } } : {}),
+            ...(spec.publish?.cascade
+              ? {
+                  includeChildren: { type: 'boolean', description: 'Also publish its drafts (default true). Links to topics that are still drafts stay drafts.' },
+                  includeLinked: {
+                    type: 'boolean',
+                    description:
+                      'Also publish draft topics this one links to, with their sources and perspectives, so those connections go live. Does not follow links past them. Default false. Only when the user asks to publish the connected entries too.',
+                  },
+                }
+              : {}),
           },
           required: [idArg],
         },
         annotations: { idempotentHint: true },
       },
-      run: async (args, by) => finish(await content.publish(name, requireString(args, idArg), by, args.includeChildren !== false)),
+      run: async (args, by) =>
+        finish(
+          await content.publish(name, requireString(args, idArg), by, {
+            includeChildren: args.includeChildren !== false,
+            includeLinked: args.includeLinked === true,
+          }),
+        ),
     });
   }
   return tools;

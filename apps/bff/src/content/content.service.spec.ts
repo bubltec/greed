@@ -174,6 +174,29 @@ describe('ContentService', () => {
     expect((await topicView(svc, topic.id)).topic.publishedAt).toBe(first);
   });
 
+  it('can publish the draft topics a link points at, and does not follow their links', async () => {
+    const svc = service();
+    const here = (await createTopic(svc, { title: 'Here' })).topic.id;
+    const next = (await createTopic(svc, { title: 'Next' })).topic.id;
+    const far = (await createTopic(svc, { title: 'Far' })).topic.id;
+    await addRef(svc, next, { label: 'AP' });
+    await link(svc, { fromId: here, toId: next, kind: 'related', note: '' });
+    await link(svc, { fromId: next, toId: far, kind: 'related', note: '' });
+
+    const held = (await svc.publish('topic', here, 'ed')) as TopicView;
+    expect(held.topic.status).toBe('published');
+    expect(held.related[0]!.relation.status).toBe('draft');
+    expect((await topicView(svc, next)).topic.status).toBe('draft');
+
+    const view = (await svc.publish('topic', here, 'ed', { includeLinked: true })) as TopicView;
+    expect(view.related[0]!.relation.status).toBe('published');
+    const nextView = await topicView(svc, next);
+    expect(nextView.topic.status).toBe('published');
+    expect(nextView.references[0]!.status).toBe('published');
+    expect(nextView.related.find((r) => r.other.id === far)!.relation.status).toBe('draft');
+    expect((await topicView(svc, far)).topic.status).toBe('draft');
+  });
+
   it('refuses a status change that names an unknown item, writing nothing', async () => {
     const svc = service();
     await expect(

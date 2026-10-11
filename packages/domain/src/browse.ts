@@ -16,6 +16,9 @@ const MAX_SIZE = 100;
 /** Sorts where a bigger number is the interesting end, so the first click shows it. */
 const DESC_FIRST: ReadonlySet<TopicSort> = new Set(['updated', 'created', 'links', 'sources', 'perspectives']);
 
+/** What the home list uses when the URL names no sort. Newest edits first. */
+export const DEFAULT_TOPIC_SORT: TopicSort = 'updated';
+
 export interface ResultPage<T> {
   items: T[];
   total: number;
@@ -66,7 +69,7 @@ const pageOf = (v: unknown) => Math.max(whole(v) ?? 1, 1);
 
 /** Reads URL or query-string values. Anything unreadable falls back to the default, so a stale link still opens. */
 export function parseBrowseQuery(raw: Raw): BrowseQuery {
-  const sort = oneOf(TOPIC_SORTS, raw.sort) ?? 'title';
+  const sort = oneOf(TOPIC_SORTS, raw.sort) ?? DEFAULT_TOPIC_SORT;
   return {
     q: (text(raw.q) ?? '').trim().slice(0, 200),
     kind: oneOf(TOPIC_KINDS, raw.kind),

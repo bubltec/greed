@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { parseBrowseQuery, TOPIC_KINDS, TOPIC_SORTS } from '@greed/domain';
+import { DEFAULT_TOPIC_SORT, parseBrowseQuery, TOPIC_KINDS, TOPIC_SORTS } from '@greed/domain';
 import { DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
 import { Pagination } from '../components/Pagination';
 import { api } from '../lib/api';
@@ -72,7 +72,7 @@ export function HomePage() {
         <div className="flex gap-2">
           <select
             value={view.sort}
-            onChange={(e) => set({ sort: e.target.value === 'title' ? null : e.target.value, dir: null })}
+            onChange={(e) => set({ sort: e.target.value === DEFAULT_TOPIC_SORT ? null : e.target.value, dir: null })}
             aria-label="Sort by"
             className="sm:w-auto"
           >

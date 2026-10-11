@@ -96,10 +96,18 @@ export interface EntitySpec<Item extends { id: string } = any, Input extends obj
 
   /** Enables publish for status entities: which drafts go live with the item. */
   publish?: {
-    cascade?(item: Item, ctx: EntityCtx<Item>, includeChildren: boolean): { type: EntityName; id: string }[];
+    cascade?(item: Item, ctx: EntityCtx<Item>, options: PublishCascadeOptions): { type: EntityName; id: string }[];
   };
 
   mcp?: McpConfig;
+}
+
+/** What a publish call takes with the item. `includeLinked` is only meaningful for topics. */
+export interface PublishCascadeOptions {
+  /** Draft sources, perspectives, and links to topics that are already published. */
+  includeChildren: boolean;
+  /** Also publish draft topics this one links to, with their sources and perspectives, and those links. */
+  includeLinked: boolean;
 }
 
 export const defineEntity = <Item extends { id: string }, Input extends object>(

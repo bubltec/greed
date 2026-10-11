@@ -48,19 +48,39 @@ export const topicSpec = defineEntity<Topic, TopicInputDto>({
 
   /**
    * Publishing a topic can take its drafts with it: references and perspectives,
-   * and links whose other end is already published.
+   * and links whose other end is already published. `includeLinked` also publishes
+   * draft topics on the other end of a link (and their sources and perspectives)
+   * so the connection can go live. It does not follow those topics' own links.
    */
   publish: {
-    cascade: (topic, { index }, includeChildren) => {
-      if (!includeChildren) return [];
-      const view = index.view(topic.id)!;
-      const items: { type: 'reference' | 'perspective' | 'relation'; id: string }[] = [];
-      for (const r of view.references) if (statusOf(r) === 'draft') items.push({ type: 'reference', id: r.id });
-      for (const p of view.perspectives) if (statusOf(p) === 'draft') items.push({ type: 'perspective', id: p.id });
-      for (const { relation, other } of view.related) {
+    cascade: (topic, { index }, { includeChildren, includeLinked }) => {
+      if (!includeChildren && !includeLinked) return [];
+      const items: { type: 'topic' | 'reference' | 'perspective' | 'relation'; id: string }[] = [];
+      const seen = new Set<string>();
+      const add = (type: (typeof items)[number]['type'], id: string) => {
+        const key = `${type}:${id}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        items.push({ type, id });
+      };
+      const draftsOn = (topicId: string) => {
+        const view = index.view(topicId);
+        if (!view) return;
+        for (const r of view.references) if (statusOf(r) === 'draft') add('reference', r.id);
+        for (const p of view.perspectives) if (statusOf(p) === 'draft') add('perspective', p.id);
+      };
+
+      draftsOn(topic.id);
+      for (const { relation, other } of index.view(topic.id)!.related) {
+        if (statusOf(relation) !== 'draft') continue;
         const otherTopic = index.topicsById.get(other.id);
-        if (statusOf(relation) === 'draft' && otherTopic && statusOf(otherTopic) === 'published') {
-          items.push({ type: 'relation', id: relation.id });
+        if (!otherTopic || other.id === topic.id) continue;
+        const otherDraft = statusOf(otherTopic) === 'draft';
+        if (!otherDraft) add('relation', relation.id);
+        else if (includeLinked) {
+          add('relation', relation.id);
+          add('topic', other.id);
+          draftsOn(other.id);
         }
       }
       return items;
@@ -87,6 +107,7 @@ export const topicSpec = defineEntity<Topic, TopicInputDto>({
       idArg: 'topicId',
       description:
         'Make a topic public, by default together with its draft references, perspectives, and links to already-published topics. ' +
+        'Pass includeLinked to also publish draft topics this one links to, with their sources and perspectives, so those connections go live. That does not follow links past them. ' +
         'Only call this when the user explicitly asks to publish; otherwise leave work as drafts for them to review.',
     },
     deleteDraft: true,

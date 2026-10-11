@@ -20,10 +20,15 @@ import type { EntitySpec } from './entity.js';
 import { ENTITIES } from './entities/index.js';
 
 export class PublishDto {
-  /** Also publish the item's draft children (a topic's sources, perspectives and links); default true. */
+  /** Also publish the item's draft children (a topic's sources, perspectives and links to live topics); default true. */
   @IsOptional()
   @IsBoolean()
   includeChildren?: boolean;
+
+  /** Also publish draft topics this one links to, with their sources and perspectives. Default false. */
+  @IsOptional()
+  @IsBoolean()
+  includeLinked?: boolean;
 }
 
 type Param_ = { kind: 'param'; name: string } | { kind: 'body'; type: Function } | { kind: 'user' };
@@ -134,7 +139,10 @@ export function crudController(spec: EntitySpec): Type<unknown> {
       `${base}/:id/publish`,
       [...scope, id, { kind: 'body', type: PublishDto }, user],
       scoped(async function (this: { content: ContentService }, _parentId: string | undefined, itemId: string, dto: PublishDto | undefined, u: Editor) {
-        return this.content.publish(def.name, itemId, editorName(u), dto?.includeChildren ?? true);
+        return this.content.publish(def.name, itemId, editorName(u), {
+          includeChildren: dto?.includeChildren,
+          includeLinked: dto?.includeLinked,
+        });
       }),
     );
   }
