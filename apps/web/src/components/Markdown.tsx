@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { parsePageBody, type AlertTone } from '@greed/domain';
+import { pageLink, parsePageBody, type AlertTone } from '@greed/domain';
 import { SectionTitle } from './bits';
 
 /**
@@ -67,16 +67,14 @@ function inline(text: string): ReactNode[] {
     const link = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
     if (link) {
       const [, label, href] = link;
-      if (href!.startsWith('/') && !href!.startsWith('/api/')) return <Link key={i} to={href!}>{label}</Link>;
-      if (/^(https?:\/\/|\/api\/)/.test(href!)) {
-        const external = href!.startsWith('http');
-        return (
-          <a key={i} href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
-            {label}
-          </a>
-        );
-      }
-      return label; // anything else (javascript:, data:) renders as plain text
+      const dest = pageLink(href!);
+      if (!dest) return label; // javascript:, data:, and anything else stay plain text
+      if (dest.kind === 'route') return <Link key={i} to={dest.to}>{label}</Link>;
+      return (
+        <a key={i} href={dest.href} {...(dest.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+          {label}
+        </a>
+      );
     }
     return part;
   });

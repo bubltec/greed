@@ -7,7 +7,7 @@
  *
  * Bodies are a small Markdown subset rendered as text, never as HTML:
  * blank-line paragraphs, `## ` headings, `- ` lists, **bold**, [links](url),
- * [[topic-id]] links, and `>` blockquotes. A blockquote is a note box. The first
+ * [[topic-id]] links, `mailto:` links, and `>` blockquotes. A blockquote is a note box. The first
  * line may set a tone: `> [!info]`, `> [!success]`, `> [!warn]`, `> [!error]`
  * (`warning` and `danger` are accepted too). The first paragraph is the lead.
  */
@@ -115,6 +115,26 @@ function parseAlert(lines: string[]): PageBlock {
     body[0] = marker[2]!;
   }
   return { type: 'alert', tone, text: body.join(' ').replace(/[ \t]{2,}/g, ' ').trim() };
+}
+
+/** Where a page markdown link is allowed to go. Anything else is shown as plain text. */
+export type PageLink = { kind: 'route'; to: string } | { kind: 'anchor'; href: string; newTab: boolean };
+
+export function pageLink(href: string): PageLink | undefined {
+  const mail = mailtoHref(href);
+  if (mail) return { kind: 'anchor', href: mail, newTab: false };
+  if (href.startsWith('/') && !href.startsWith('/api/')) return { kind: 'route', to: href };
+  if (/^(https?:\/\/|\/api\/)/.test(href)) return { kind: 'anchor', href, newTab: href.startsWith('http') };
+  return undefined;
+}
+
+/** `mailto:user@host` or the `mailto://user@host` form, rewritten without the extra slashes. */
+function mailtoHref(href: string): string | undefined {
+  const match = /^mailto:(\/\/)?([^?\s]+)(\?[^\s]*)?$/i.exec(href);
+  if (!match) return undefined;
+  const address = match[2]!;
+  if (!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(address)) return undefined;
+  return `mailto:${address}${match[3] ?? ''}`;
 }
 
 export type PageState = 'default' | 'published' | 'changed' | 'unpublished';

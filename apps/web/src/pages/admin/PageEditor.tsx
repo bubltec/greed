@@ -111,7 +111,7 @@ export function PageEditor() {
           </Field>
           <Field
             label="Body"
-            hint="Blank line between paragraphs · ## Heading · - list item · **bold** · [text](https://…) · [[topic-id]] · > note · > [!info] · > [!success] · > [!warn] · > [!error]"
+            hint="Blank line between paragraphs · ## Heading · - list item · **bold** · [text](https://…) · [text](mailto:a@b.co) · [[topic-id]] · > note · > [!info] · > [!success] · > [!warn] · > [!error]"
           >
             <textarea rows={28} value={body} onChange={(e) => setBody(e.target.value)} className="font-mono text-sm" />
           </Field>

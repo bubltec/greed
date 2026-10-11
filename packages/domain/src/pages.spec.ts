@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PAGES, isPageId, parsePageBody, type Page, publicPage, workingPage } from './pages.js';
+import { DEFAULT_PAGES, isPageId, pageLink, parsePageBody, type Page, publicPage, workingPage } from './pages.js';
 
 const at = '2026-09-27T00:00:00.000Z';
 
@@ -50,6 +50,22 @@ describe('parsePageBody', () => {
     expect(parsePageBody('> quoted\nplain')).toEqual([{ type: 'paragraph', text: '> quoted plain' }]);
     expect(parsePageBody('')).toEqual([]);
     expect(parsePageBody('> [!note]\r\n> Only the label')).toEqual([{ type: 'alert', tone: 'note', text: 'Only the label' }]);
+  });
+});
+
+describe('pageLink', () => {
+  it('accepts http, site paths, and mailto, and drops other schemes', () => {
+    expect(pageLink('https://example.com')).toEqual({ kind: 'anchor', href: 'https://example.com', newTab: true });
+    expect(pageLink('/map')).toEqual({ kind: 'route', to: '/map' });
+    expect(pageLink('/api/export')).toEqual({ kind: 'anchor', href: '/api/export', newTab: false });
+    expect(pageLink('mailto://info@bubbletech.io')).toEqual({ kind: 'anchor', href: 'mailto:info@bubbletech.io', newTab: false });
+    expect(pageLink('mailto:info@bubbletech.io?subject=Hi')).toEqual({
+      kind: 'anchor',
+      href: 'mailto:info@bubbletech.io?subject=Hi',
+      newTab: false,
+    });
+    expect(pageLink('javascript:alert(1)')).toBeUndefined();
+    expect(pageLink('mailto:not-an-email')).toBeUndefined();
   });
 });
 
