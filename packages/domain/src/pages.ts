@@ -6,8 +6,10 @@
  * half-finished edit. A page that has never been saved uses DEFAULT_PAGES.
  *
  * Bodies are a small Markdown subset rendered as text, never as HTML:
- * blank-line paragraphs, `## ` headings, `- ` lists, **bold**, [links](url)
- * and [[topic-id]] links. The first paragraph is the lead.
+ * blank-line paragraphs, `## ` headings, `- ` lists, **bold**, [links](url),
+ * [[topic-id]] links, `mailto:` links, and `>` blockquotes. A blockquote is a note box. The first
+ * line may set a tone: `> [!info]`, `> [!success]`, `> [!warn]`, `> [!error]`
+ * (`warning` and `danger` are accepted too). The first paragraph is the lead.
  */
 
 export const PAGE_IDS = ['home', 'about'] as const;
@@ -65,6 +67,75 @@ None of this happens in isolation. The same people, the same money and the same 
 The whole record is free to download as JSON from [/api/export](/api/export).`,
   },
 };
+
+/** Callout tones a page blockquote can ask for. A plain `>` is a note. */
+export const ALERT_TONES = ['note', 'info', 'success', 'warn', 'error'] as const;
+export type AlertTone = (typeof ALERT_TONES)[number];
+
+export type PageBlock =
+  | { type: 'heading'; text: string }
+  | { type: 'list'; items: string[] }
+  | { type: 'alert'; tone: AlertTone; text: string }
+  | { type: 'paragraph'; text: string };
+
+const ALERT_TONE: Record<string, AlertTone> = {
+  note: 'note',
+  info: 'info',
+  success: 'success',
+  ok: 'success',
+  warn: 'warn',
+  warning: 'warn',
+  error: 'error',
+  danger: 'error',
+};
+
+/** Splits a page body into the blocks the site renders. Markup stays text; nothing here is HTML. */
+export function parsePageBody(source: string): PageBlock[] {
+  const blocks = source
+    .replace(/\r\n/g, '\n')
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  return blocks.map((block) => {
+    if (block.startsWith('## ')) return { type: 'heading', text: block.slice(3) };
+    const lines = block.split('\n');
+    if (lines.every((line) => /^[-*] /.test(line))) return { type: 'list', items: lines.map((line) => line.slice(2)) };
+    if (lines.every((line) => line.startsWith('>'))) return parseAlert(lines);
+    return { type: 'paragraph', text: lines.join(' ') };
+  });
+}
+
+function parseAlert(lines: string[]): PageBlock {
+  const body = lines.map((line) => line.replace(/^>\s?/, ''));
+  let tone: AlertTone = 'note';
+  const marker = body[0]?.match(/^\[!([a-z]+)\]\s*([\s\S]*)$/i);
+  const named = marker && ALERT_TONE[marker[1]!.toLowerCase()];
+  if (marker && named) {
+    tone = named;
+    body[0] = marker[2]!;
+  }
+  return { type: 'alert', tone, text: body.join(' ').replace(/[ \t]{2,}/g, ' ').trim() };
+}
+
+/** Where a page markdown link is allowed to go. Anything else is shown as plain text. */
+export type PageLink = { kind: 'route'; to: string } | { kind: 'anchor'; href: string; newTab: boolean };
+
+export function pageLink(href: string): PageLink | undefined {
+  const mail = mailtoHref(href);
+  if (mail) return { kind: 'anchor', href: mail, newTab: false };
+  if (href.startsWith('/') && !href.startsWith('/api/')) return { kind: 'route', to: href };
+  if (/^(https?:\/\/|\/api\/)/.test(href)) return { kind: 'anchor', href, newTab: href.startsWith('http') };
+  return undefined;
+}
+
+/** `mailto:user@host` or the `mailto://user@host` form, rewritten without the extra slashes. */
+function mailtoHref(href: string): string | undefined {
+  const match = /^mailto:(\/\/)?([^?\s]+)(\?[^\s]*)?$/i.exec(href);
+  if (!match) return undefined;
+  const address = match[2]!;
+  if (!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(address)) return undefined;
+  return `mailto:${address}${match[3] ?? ''}`;
+}
 
 export type PageState = 'default' | 'published' | 'changed' | 'unpublished';
 

@@ -43,7 +43,8 @@ export const pageSpec = defineEntity<Page, PageInputDto>({
       idArg: 'id',
       description:
         'Read an editable site page (home intro or About): its working copy, and whether that differs from what is live. ' +
-        'Bodies use a Markdown subset: paragraphs, "## " headings, "- " lists, **bold**, [text](url) and [[topic-id]] links.',
+        'Bodies use a Markdown subset: paragraphs, "## " headings, "- " lists, **bold**, [text](url), [[topic-id]] links, and ">" blockquotes. ' +
+        'A blockquote is a note box; start it with [!info], [!success], [!warn] or [!error] to set the tone.',
     },
     update: {
       idArg: 'id',
