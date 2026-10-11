@@ -34,7 +34,7 @@ The home intro and the About page are editable too (Editors → Pages, or the co
 `update_page`). Each page keeps a working copy and a published copy: saving changes the working
 copy, publishing copies it live, so readers never see a half-finished edit. A page that has never
 been saved shows its built-in default (`DEFAULT_PAGES` in `packages/domain/src/pages.ts`).
-Bodies are a small Markdown subset rendered as React text, never HTML. Stored as
+Bodies are a small Markdown subset rendered as React text, never HTML: paragraphs, headings, lists, bold, links, and blockquotes. A `>` blockquote is a note box; `> [!info]`, `> [!success]`, `> [!warn]` and `> [!error]` set its tone. Stored as
 `PAGE#<id> / PAGE` rows in the content table.
 
 ## Environments

@@ -31,12 +31,16 @@ export { type ContentStore, type RemoveTarget, InMemoryContentStore } from './po
 export * from './entity-defs.js';
 export { publishedOnly, publicAuthor, drafts, type DraftEntry, type ItemType } from './publishing.js';
 export {
+  ALERT_TONES,
   PAGE_IDS,
   DEFAULT_PAGES,
   isPageId,
+  parsePageBody,
   publicPage,
   workingPage,
+  type AlertTone,
   type Page,
+  type PageBlock,
   type PageId,
   type PageContent,
   type PageState,

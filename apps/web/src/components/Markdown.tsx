@@ -1,32 +1,49 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { parsePageBody, type AlertTone } from '@greed/domain';
 import { SectionTitle } from './bits';
 
 /**
  * Renders the page Markdown subset (see packages/domain/src/pages.ts) as React
  * elements. Never uses innerHTML, so page text can't inject markup.
  */
+const ALERT: Record<AlertTone, { border: string; label: string; title: string }> = {
+  note: { border: 'border-steel', label: 'text-steel', title: 'Note' },
+  info: { border: 'border-sky', label: 'text-sky', title: 'Info' },
+  success: { border: 'border-ice', label: 'text-ice', title: 'Success' },
+  warn: { border: 'border-bolt', label: 'text-bolt', title: 'Warning' },
+  error: { border: 'border-hurt', label: 'text-hurt', title: 'Error' },
+};
+
 export function Markdown({ source, lead = true }: { source: string; lead?: boolean }) {
-  const blocks = source.replace(/\r\n/g, '\n').split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+  const blocks = parsePageBody(source);
   let paragraphs = 0;
   return (
     <>
       {blocks.map((block, i) => {
-        if (block.startsWith('## ')) return <SectionTitle key={i}>{block.slice(3)}</SectionTitle>;
-        const lines = block.split('\n');
-        if (lines.every((l) => /^[-*] /.test(l))) {
+        if (block.type === 'heading') return <SectionTitle key={i}>{block.text}</SectionTitle>;
+        if (block.type === 'list') {
           return (
             <ul key={i} className="mb-8 flex list-disc flex-col gap-2 pl-5 text-steel">
-              {lines.map((l, j) => (
-                <li key={j}>{inline(l.slice(2))}</li>
+              {block.items.map((item, j) => (
+                <li key={j}>{inline(item)}</li>
               ))}
             </ul>
+          );
+        }
+        if (block.type === 'alert') {
+          const style = ALERT[block.tone];
+          return (
+            <aside key={i} className={`mb-6 border-2 ${style.border} bg-night px-4 py-3`}>
+              <p className={`pixel mb-2 text-[0.5rem] ${style.label}`}>{style.title}</p>
+              {block.text && <p className="text-snow">{inline(block.text)}</p>}
+            </aside>
           );
         }
         const isLead = lead && paragraphs++ === 0;
         return (
           <p key={i} className={isLead ? 'mb-4 text-lg text-snow' : 'mb-6 text-steel'}>
-            {inline(lines.join(' '))}
+            {inline(block.text)}
           </p>
         );
       })}
