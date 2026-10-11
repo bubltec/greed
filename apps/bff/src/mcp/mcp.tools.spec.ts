@@ -133,6 +133,18 @@ describe('generated tools', () => {
     expect((await run('publish_topic', { topicId: a.id })).references[0].status).toBe('published');
     await expect(run('publish_topic', {})).rejects.toThrow(/topicId is required/);
 
+    const left = await topic('Left end');
+    const right = await topic('Right end');
+    const beyond = await topic('Beyond');
+    await run('add_reference', { topicId: right.id, label: 'AP' });
+    await run('link_topics', { fromId: left.id, toId: right.id, kind: 'related', note: 'n' });
+    await run('link_topics', { fromId: right.id, toId: beyond.id, kind: 'related', note: 'n' });
+    const linked = await run('publish_topic', { topicId: left.id, includeLinked: true });
+    expect(linked.related[0].status).toBe('published');
+    expect((await run('get_topic', { id: right.id })).topic.status).toBe('published');
+    expect((await run('get_topic', { id: right.id })).references[0].status).toBe('published');
+    expect((await run('get_topic', { id: beyond.id })).topic.status).toBe('draft');
+
     expect(await run('get_page', { id: 'about' })).toMatchObject({ state: 'default' });
     const edited = await run('update_page', { id: 'about', title: 'About us' });
     expect(edited).toMatchObject({ title: 'About us', state: 'unpublished' });

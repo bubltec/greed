@@ -112,6 +112,9 @@ export const api = {
   drafts: () => request<DraftEntry[]>('GET', '/drafts'),
   setStatus: (status: Status, items: { type: ItemType; id: string }[]) =>
     request<{ updated: number }>('POST', '/status', { status, items }),
-  publishTopic: (id: string, includeChildren = true) =>
-    request<TopicView>('POST', `/topics/${id}/publish`, { includeChildren }),
+  publishTopic: (id: string, options: { includeChildren?: boolean; includeLinked?: boolean } = {}) =>
+    request<TopicView>('POST', `/topics/${id}/publish`, {
+      includeChildren: options.includeChildren !== false,
+      includeLinked: options.includeLinked === true,
+    }),
 };

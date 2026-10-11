@@ -24,7 +24,8 @@ adding `?preview=1` gets drafts too; for anyone else the flag is ignored.
 
 Defaults: new topics are drafts. A new reference, perspective or link takes its topic's status
 unless one is given, so a source added in the editor to a live topic goes live, while the Claude
-connector always writes drafts. `POST /api/topics/:id/publish` publishes a topic with its drafts;
+connector always writes drafts. `POST /api/topics/:id/publish` publishes a topic with its drafts
+(`includeLinked: true` also publishes draft topics it links to, and their sources and perspectives);
 `POST /api/status` sets any mix of items; `GET /api/drafts` is the review queue. Rows imported
 before publishing existed have no `status` and count as published.
 

@@ -154,13 +154,29 @@ describe('HTTP API', () => {
     expect(live.statusCode).toBe(200);
     expect(live.json().related).toEqual([]);
 
+    const withLinks = await app.inject({
+      method: 'POST',
+      url: '/api/topics/a-documented-case/publish',
+      payload: { includeLinked: true },
+      headers: { cookie: editorCookie },
+    });
+    expect(withLinks.json().related[0].relation).toMatchObject({ status: 'published' });
+    expect((await app.inject({ method: 'GET', url: '/api/topics/a-second-case' })).statusCode).toBe(200);
+    expect((await app.inject({ method: 'GET', url: '/api/topics/a-documented-case' })).json().related).toHaveLength(1);
+
     const unpublish = await app.inject({
       method: 'POST',
       url: '/api/status',
-      payload: { status: 'draft', items: [{ type: 'topic', id: 'a-documented-case' }] },
+      payload: {
+        status: 'draft',
+        items: [
+          { type: 'topic', id: 'a-documented-case' },
+          { type: 'topic', id: 'a-second-case' },
+        ],
+      },
       headers: { cookie: editorCookie },
     });
-    expect(unpublish.json()).toEqual({ updated: 1 });
+    expect(unpublish.json()).toEqual({ updated: 2 });
     expect((await app.inject({ method: 'GET', url: '/api/topics/a-documented-case' })).statusCode).toBe(404);
     expect((await app.inject({ method: 'GET', url: '/api/topics' })).json()).toEqual([]);
   });

@@ -10,6 +10,8 @@ cdk.out/
 .env.*
 !.env.example
 .DS_Store
+# Written from assets/logo.svg by the web dev and build scripts.
+apps/web/public/favicon.svg
 coverage/
 *.log
 test-results/

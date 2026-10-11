@@ -11,6 +11,7 @@ export {
 export {
   ACTIVITY_TYPES,
   PAGE_SIZES,
+  DEFAULT_TOPIC_SORT,
   TOPIC_SORTS,
   browseActivity,
   browseTopics,

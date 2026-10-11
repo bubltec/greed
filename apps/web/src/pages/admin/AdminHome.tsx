@@ -268,20 +268,36 @@ function DraftsPanel() {
                   preview
                 </a>
               )}
-              <button
-                className="btn ml-auto"
-                disabled={busy === topicId}
-                onClick={() => {
-                  setBusy(topicId);
-                  setPublishError(undefined);
-                  const done = outlet
-                    ? api.setStatus('published', g.items.map((d) => ({ type: d.type, id: d.id })))
-                    : api.publishTopic(topicId, true);
-                  done.then(reload, setPublishError).finally(() => setBusy(undefined));
-                }}
-              >
-                Publish
-              </button>
+              <div className="ml-auto flex flex-wrap gap-2">
+                <button
+                  className="btn"
+                  disabled={busy === topicId}
+                  onClick={() => {
+                    setBusy(topicId);
+                    setPublishError(undefined);
+                    const done = outlet
+                      ? api.setStatus('published', g.items.map((d) => ({ type: d.type, id: d.id })))
+                      : api.publishTopic(topicId);
+                    done.then(reload, setPublishError).finally(() => setBusy(undefined));
+                  }}
+                >
+                  Publish
+                </button>
+                {!outlet && (
+                  <button
+                    className="btn btn-ghost"
+                    disabled={busy === topicId}
+                    title="Also publish linked entries that are still drafts, and their sources, so these connections can go live"
+                    onClick={() => {
+                      setBusy(topicId);
+                      setPublishError(undefined);
+                      api.publishTopic(topicId, { includeLinked: true }).then(reload, setPublishError).finally(() => setBusy(undefined));
+                    }}
+                  >
+                    Publish with connections
+                  </button>
+                )}
+              </div>
             </div>
             <ul className="mt-1 text-sm text-steel">
               {g.items.map((d) => (

@@ -36,7 +36,7 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `read_document` | Text of an opinion, docket, filing, rule, notice or executive order by public link, with page numbers. `quote` checks a line appears and on which page; returns a citation draft for `add_reference` and related filings. Writes nothing |
 | `list_document_providers` | Which providers exist and whether each is configured on this stage |
 | `list_drafts` | The review queue: everything not yet published |
-| `publish_topic` | Publish a topic with its drafts (sources, perspectives, links to live topics) |
+| `publish_topic` | Publish a topic with its drafts (sources, perspectives, links to live topics). `includeLinked: true` also publishes draft topics it links to, with their sources and perspectives; it does not follow links past those |
 | `delete_draft` | Permanently delete a draft topic, source, perspective or link (published items are refused) |
 | `set_status` | Publish or unpublish individual items |
 | `get_page` / `update_page` / `publish_page` | Edit the home intro and About page (working copy; live on publish) |

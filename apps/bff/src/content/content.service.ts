@@ -25,6 +25,13 @@ import { ENTITIES } from './entities/index.js';
 
 type Item = { id: string; status?: Status; [key: string]: any };
 
+export interface PublishOptions {
+  /** Draft sources, perspectives, and links to topics that are already published. Default true. */
+  includeChildren?: boolean;
+  /** Also publish draft topics this one links to, with their sources and perspectives. Default false. */
+  includeLinked?: boolean;
+}
+
 /** A write's outcome: the stored item, and what callers should show for it (see `present`). */
 export interface Written {
   item: Item;
@@ -171,7 +178,7 @@ export class ContentService {
    * spec's `publish.cascade` names (a topic takes its sources, perspectives and links);
    * a versioned one (a site page) publishes its working copy.
    */
-  async publish(name: EntityName, id: string, by: string, includeChildren = true): Promise<unknown> {
+  async publish(name: EntityName, id: string, by: string, options: PublishOptions = {}): Promise<unknown> {
     const spec = ENTITIES[name];
     const index = await this.index(true);
     const existing = this.locate(spec, index, { id });
@@ -181,7 +188,10 @@ export class ContentService {
       return (await this.save(spec, spec.publishItem(existing, ctx), by)).result;
     }
     if (!spec.publish) throw new BadRequestException(`A ${name} can't be published directly; use set_status`);
-    const items = [{ type: name, id }, ...spec.publish.cascade?.(existing, ctx, includeChildren) ?? []];
+    // Publishing the linked topics only makes sense together with this topic's own drafts.
+    const includeLinked = options.includeLinked === true;
+    const includeChildren = includeLinked || options.includeChildren !== false;
+    const items = [{ type: name, id }, ...spec.publish.cascade?.(existing, ctx, { includeChildren, includeLinked }) ?? []];
     await this.setStatus({ status: 'published', items }, by);
     return this.get(name, id, by);
   }

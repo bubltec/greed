@@ -43,9 +43,19 @@ export function TopicPublishBar({ view, onChange }: { view: TopicView; onChange:
             Preview
           </a>
           {(isDraft || draftChildren > 0) && (
-            <button className="btn" disabled={busy} onClick={() => run(() => api.publishTopic(view.topic.id, true))}>
-              {isDraft ? 'Publish entry' : 'Publish drafts'}
-            </button>
+            <>
+              <button className="btn" disabled={busy} onClick={() => run(() => api.publishTopic(view.topic.id))}>
+                {isDraft ? 'Publish entry' : 'Publish drafts'}
+              </button>
+              <button
+                className="btn btn-ghost"
+                disabled={busy}
+                title="Also publish linked entries that are still drafts, and their sources, so these connections can go live"
+                onClick={() => run(() => api.publishTopic(view.topic.id, { includeLinked: true }))}
+              >
+                Publish with connections
+              </button>
+            </>
           )}
           {!isDraft && (
             <button

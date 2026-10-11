@@ -11,8 +11,8 @@ const base = parseBrowseQuery({});
 const ids = (r: { items: { id: string }[] }) => r.items.map((i) => i.id);
 
 describe('parseBrowseQuery', () => {
-  it('defaults: A–Z, page 1, 25 per page', () => {
-    expect(base).toEqual({ q: '', kind: undefined, sort: 'title', dir: 'asc', page: 1, size: 25 });
+  it('defaults: recently updated, newest first, page 1, 25 per page', () => {
+    expect(base).toEqual({ q: '', kind: undefined, sort: 'updated', dir: 'desc', page: 1, size: 25 });
   });
 
   it('starts "bigger is more interesting" sorts descending, and honours an explicit direction', () => {
@@ -23,7 +23,7 @@ describe('parseBrowseQuery', () => {
   });
 
   it('ignores anything it cannot read instead of failing, so an old link still opens', () => {
-    expect(parseBrowseQuery({ sort: 'DROP TABLE', dir: 'sideways', kind: 'person ', page: 'x', size: 'huge', q: ['a', 'b'] })).toEqual({ q: 'a', kind: undefined, sort: 'title', dir: 'asc', page: 1, size: 25 });
+    expect(parseBrowseQuery({ sort: 'DROP TABLE', dir: 'sideways', kind: 'person ', page: 'x', size: 'huge', q: ['a', 'b'] })).toEqual({ q: 'a', kind: undefined, sort: 'updated', dir: 'desc', page: 1, size: 25 });
     expect(parseBrowseQuery({ page: '-4', size: '0' })).toMatchObject({ page: 1, size: 1 });
     expect(parseBrowseQuery({ page: '2.9', size: '9999' })).toMatchObject({ page: 2, size: 100 });
     expect(parseBrowseQuery({ kind: 'person', q: `  ${'x'.repeat(300)} ` }).q).toHaveLength(200);
@@ -67,7 +67,7 @@ describe('browseTopics', () => {
     expect(ids(r)).toEqual(['b']);
     expect(r.kinds).toEqual({ person: 1 });
     const filtered = browseTopics(list, { ...base, kind: 'case' });
-    expect(ids(filtered)).toEqual(['a', 'd']);
+    expect(ids(filtered)).toEqual(['d', 'a']);
     expect(filtered.kinds).toEqual({ person: 1, case: 2, thesis: 1 } satisfies Partial<Record<TopicKind, number>>);
     expect(filtered.all).toBe(4);
     expect(browseTopics(list, { ...base, q: 'nothing like this' })).toMatchObject({ items: [], total: 0, pages: 1, page: 1, all: 4 });
