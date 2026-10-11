@@ -45,7 +45,15 @@ describe('GreedProd', () => {
     web.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: Match.objectLike({
         CacheBehaviors: Match.arrayWith([
-          Match.objectLike({ PathPattern: '/api/topics/*', AllowedMethods: ['GET', 'HEAD'] }),
+          // Publish and the other topic writes share this path, so the cached behavior
+          // has to accept them. Only GET and HEAD are cached.
+          Match.objectLike({
+            PathPattern: '/api/topics/*',
+            AllowedMethods: ['GET', 'HEAD', 'OPTIONS', 'PUT', 'PATCH', 'POST', 'DELETE'],
+            // Omitted means GET and HEAD only, so a publish POST is not cached.
+            CachedMethods: Match.absent(),
+            OriginRequestPolicyId: Match.anyValue(),
+          }),
           Match.objectLike({ PathPattern: '/api/browse' }),
         ]),
       }),

@@ -140,9 +140,13 @@ export class WebStack extends cdk.Stack {
 
     // Public reads (see PUBLIC_API_PATHS): cached 60s at the edge so a flood of identical reads
     // is absorbed by CloudFront, and an origin 5xx falls back to the last good copy via the
-    // `stale-if-error` the BFF sends. The key is the query string plus the editor session
+    // `stale-if-error` the BFF sends. The cache key is the query string plus the editor session
     // cookie: readers have none (one shared entry), an editor's `?preview=1` carries it to the
-    // origin and is never marked cacheable. Nothing else is forwarded.
+    // origin and is never marked cacheable.
+    //
+    // Editors publish and edit on these same paths (`POST /api/topics/:id/publish`, page
+    // publish, reference edits). CloudFront picks one behavior per path, so this one has to
+    // allow those methods and forward the body. Only GET and HEAD are cached.
     const publicApiCachePolicy = new cloudfront.CachePolicy(this, 'PublicApiCachePolicy', {
       minTtl: cdk.Duration.seconds(0),
       defaultTtl: cdk.Duration.seconds(0), // only cache what the BFF marks cacheable
@@ -155,9 +159,7 @@ export class WebStack extends cdk.Stack {
     });
     const publicApiBehavior: cloudfront.BehaviorOptions = {
       ...apiBehavior,
-      allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
       cachePolicy: publicApiCachePolicy,
-      originRequestPolicy: undefined,
     };
     const publicApiBehaviors: Record<string, cloudfront.BehaviorOptions> = {};
     for (const name of PUBLIC_API_PATHS) {
