@@ -33,7 +33,8 @@ Before **any** file edit, commit, or new branch work:
      plan to edit) against the files in every open PR.
    - **Overlap, or the change builds on open work**: add it to that branch, or branch from
      it and say in the PR that it is stacked. Never branch from `main` for it.
-   - **No overlap**: branch from `origin/main`, and tell the user which open PRs you checked.
+   - **Stay on this branch** until it has been pushed and `main` has changed (its PR merged, or `origin/main` moved and this branch is already in main). Do not cut a new branch before both are true, even when the files do not overlap.
+   - **When both are true and nothing overlaps**: branch from `origin/main`, and tell the user which open PRs you checked.
    - Several changes that touch the same file (for example adding a test next to the same
      neighbour): land them on one branch, or stack them in order.
    - If a PR you opened later reports `CONFLICTING`, merge `origin/main` into that branch
