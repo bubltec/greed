@@ -49,6 +49,28 @@ export {
   type PageState,
   type PageView,
 } from './pages.js';
+export {
+  EDITORS_LEAD,
+  LOG_LEAD,
+  MAP_LEAD,
+  NOT_FOUND_LEAD,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  aboutDocument,
+  documentTitle,
+  homeDocument,
+  llmsTxt,
+  logDocument,
+  mapDocument,
+  metaDescription,
+  pageDocument,
+  pageLead,
+  plain,
+  sitemapXml,
+  topicDocument,
+  editorsDocument,
+  type PageDocument,
+} from './seo.js';
 export { parsePoint, type ParsedCitation, type ParsedPoint } from './citations.js';
 export {
   OUTLET_FILTER_CAP,

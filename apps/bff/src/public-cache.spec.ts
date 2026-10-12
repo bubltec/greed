@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { isPublicCacheable, PUBLIC_CACHE_CONTROL } from './public-cache.js';
+import { isPublicCacheable, PUBLIC_CACHE_CONTROL, EXPORT_CACHE_CONTROL, publicCacheControl } from './public-cache.js';
 
 describe('isPublicCacheable', () => {
   it('marks successful GETs of the public reads', () => {
-    for (const url of ['/api/topics', '/api/topics/abc', '/api/browse?q=x&page=2', '/api/graph', '/api/activity', '/api/pages/about', '/api/export']) {
+    for (const url of ['/api/topics', '/api/topics/abc', '/api/browse?q=x&page=2', '/api/graph', '/api/activity', '/api/pages/about', '/api/export', '/api/html', '/api/html/t/abc', '/api/llms.txt', '/api/sitemap.xml', '/api/robots.txt']) {
       expect(isPublicCacheable('GET', url, 200), url).toBe(true);
     }
   });
@@ -22,5 +22,14 @@ describe('isPublicCacheable', () => {
   it('allows serving stale on origin errors', () => {
     expect(PUBLIC_CACHE_CONTROL).toMatch(/max-age=60/);
     expect(PUBLIC_CACHE_CONTROL).toMatch(/stale-if-error=\d+/);
+  });
+
+  it('keeps the full export for 30 minutes and everything else for a minute', () => {
+    expect(publicCacheControl('/api/export')).toBe(EXPORT_CACHE_CONTROL);
+    expect(EXPORT_CACHE_CONTROL).toMatch(/max-age=1800/);
+    expect(publicCacheControl('/api/export?preview=1')).toMatch(/max-age=1800/);
+    expect(isPublicCacheable('GET', '/api/export?preview=1', 200)).toBe(false);
+    expect(publicCacheControl('/api/topics')).toMatch(/max-age=60/);
+    expect(publicCacheControl('/api/browse?q=x')).toMatch(/max-age=60/);
   });
 });

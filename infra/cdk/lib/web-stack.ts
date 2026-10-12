@@ -28,8 +28,12 @@ export interface WebStackProps extends cdk.StackProps {
   httpApi: apigwv2.HttpApi;
 }
 
-/** Viewer-request function body shared by both behaviors. */
-export function viewerRequestCode(opts: { basicAuth?: string; spaFallback: boolean }): string {
+/**
+ * Viewer-request function. `documents` rewrites extensionless pages (and the
+ * model/sitemap files) onto the API, which returns that page’s HTML. Asset
+ * behaviors leave it off so `/assets/*` stays a bucket key.
+ */
+export function viewerRequestCode(opts: { basicAuth?: string; documents?: boolean }): string {
   const auth = opts.basicAuth
     ? `
   var h = request.headers.authorization;
@@ -41,21 +45,28 @@ export function viewerRequestCode(opts: { basicAuth?: string; spaFallback: boole
     };
   }`
     : '';
-  // Client-side routes (/t/some-topic) have no S3 object: serve the SPA shell.
-  const spa = opts.spaFallback
+  const documents = opts.documents
     ? `
-  var last = request.uri.split('/').pop();
-  if (last.indexOf('.') === -1) request.uri = '/index.html';`
+  var uri = request.uri;
+  if (uri.length > 1 && uri.charAt(uri.length - 1) === '/') uri = uri.substring(0, uri.length - 1);
+  if (uri === '/llms.txt') request.uri = '/api/llms.txt';
+  else if (uri === '/sitemap.xml') request.uri = '/api/sitemap.xml';
+  else if (uri === '/robots.txt') request.uri = '/api/robots.txt';
+  else {
+    var last = uri.split('/').pop();
+    if (uri === '/' || last.indexOf('.') === -1) request.uri = '/api/html' + (uri === '/' ? '' : uri);
+  }`
     : '';
   return `function handler(event) {
-  var request = event.request;${auth}${spa}
+  var request = event.request;${auth}${documents}
   return request;
 }`;
 }
 
 /**
- * Private S3 + CloudFront (OAC) for the React app, /api/* routed to the BFF's
- * HTTP API on the same origin (no CORS in any deployed stage), a DNS-validated
+ * Private S3 + CloudFront (OAC) for the React assets. Extensionless pages are
+ * HTML from the BFF (unique title, description, and the page text) on the same
+ * origin (no CORS in any deployed stage), a DNS-validated
  * certificate, and the alias record. Dev is Basic-Auth-walled by a CloudFront
  * Function (cheaper than btfp's WAF rule for the same effect) and noindex.
  * Prod gets a WAF rate limit in front of everything.
@@ -87,12 +98,12 @@ export class WebStack extends cdk.Stack {
       ? undefined
       : `Basic ${Buffer.from(`${DEV_BASIC_AUTH_USER}:${DEV_BASIC_AUTH_PASSWORD}`).toString('base64')}`;
     const siteFunction = new cloudfront.Function(this, 'SiteRequest', {
-      code: cloudfront.FunctionCode.fromInline(viewerRequestCode({ basicAuth, spaFallback: true })),
+      code: cloudfront.FunctionCode.fromInline(viewerRequestCode({ basicAuth, documents: true })),
       runtime: cloudfront.FunctionRuntime.JS_2_0,
     });
     const apiFunction = basicAuth
       ? new cloudfront.Function(this, 'ApiRequest', {
-          code: cloudfront.FunctionCode.fromInline(viewerRequestCode({ basicAuth, spaFallback: false })),
+          code: cloudfront.FunctionCode.fromInline(viewerRequestCode({ basicAuth })),
           runtime: cloudfront.FunctionRuntime.JS_2_0,
         })
       : undefined;
@@ -161,25 +172,53 @@ export class WebStack extends cdk.Stack {
       ...apiBehavior,
       cachePolicy: publicApiCachePolicy,
     };
+    // The dataset download is large. Honor a 30-minute origin max-age; the shared
+    // policy above caps everything else at 5 minutes. Preview stays uncached
+    // because the origin sends no cache header for `?preview=1` and default TTL is 0.
+    const exportCachePolicy = new cloudfront.CachePolicy(this, 'ExportCachePolicy', {
+      minTtl: cdk.Duration.seconds(0),
+      defaultTtl: cdk.Duration.seconds(0),
+      maxTtl: cdk.Duration.minutes(30),
+      queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
+      headerBehavior: cloudfront.CacheHeaderBehavior.none(),
+      cookieBehavior: cloudfront.CacheCookieBehavior.allowList(SESSION_COOKIE),
+      enableAcceptEncodingGzip: true,
+      enableAcceptEncodingBrotli: true,
+    });
     const publicApiBehaviors: Record<string, cloudfront.BehaviorOptions> = {};
     for (const name of PUBLIC_API_PATHS) {
       publicApiBehaviors[`/api/${name}`] = publicApiBehavior;
       publicApiBehaviors[`/api/${name}/*`] = publicApiBehavior;
     }
+    publicApiBehaviors['/api/export'] = { ...publicApiBehavior, cachePolicy: exportCachePolicy };
 
+    // Pages are HTML from the API (unique title, description, and the page text).
+    // Hashed assets and the icon stay on S3; a longer path pattern wins over the default.
+    const assetBehavior: cloudfront.BehaviorOptions = {
+      origin: origins.S3BucketOrigin.withOriginAccessControl(bucket),
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+      responseHeadersPolicy: securityHeaders,
+      functionAssociations: apiFunction
+        ? [{ function: apiFunction, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }]
+        : undefined,
+    };
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       domainNames: [domainName],
       certificate,
       webAclId,
-      defaultRootObject: 'index.html',
       defaultBehavior: {
-        origin: origins.S3BucketOrigin.withOriginAccessControl(bucket),
+        origin: new origins.HttpOrigin(apiHost, { protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        cachePolicy: publicApiCachePolicy,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
         responseHeadersPolicy: securityHeaders,
         functionAssociations: [{ function: siteFunction, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
       },
       additionalBehaviors: {
+        '/assets/*': assetBehavior,
+        '/favicon.svg': assetBehavior,
         ...publicApiBehaviors,
         '/api/*': apiBehavior,
         // OAuth discovery for the MCP connector (RFC 8414 / RFC 9728) lives at the root.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DEFAULT_TOPIC_SORT, parseBrowseQuery, TOPIC_KINDS, TOPIC_SORTS } from '@greed/domain';
+import { DEFAULT_TOPIC_SORT, documentTitle, metaDescription, pageLead, parseBrowseQuery, TOPIC_KINDS, TOPIC_SORTS } from '@greed/domain';
 import { DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
 import { Pagination } from '../components/Pagination';
 import { api } from '../lib/api';
@@ -10,7 +10,7 @@ import { usePage } from '../lib/usePage';
 import { Markdown } from '../components/Markdown';
 import { useAsync } from '../lib/useAsync';
 import { useDebounced } from '../lib/useDebounced';
-import { useTitle } from '../lib/useTitle';
+import { usePageMeta } from '../lib/usePageMeta';
 import { useUrlState } from '../lib/useUrlState';
 
 const SORT_LABEL: Record<(typeof TOPIC_SORTS)[number], string> = {
@@ -24,9 +24,15 @@ const SORT_LABEL: Record<(typeof TOPIC_SORTS)[number], string> = {
 };
 
 export function HomePage() {
-  useTitle();
   const { preview } = usePreview();
   const intro = usePage('home');
+  usePageMeta({
+    title: documentTitle(intro.title),
+    description: metaDescription(pageLead(intro.body) || intro.title),
+    path: '/',
+    robots: preview ? 'noindex, nofollow' : 'index, follow',
+    type: 'website',
+  });
   const [params, set] = useUrlState();
   // What the URL means after defaults (a sort's natural direction, a clamped page size).
   const view = parseBrowseQuery(Object.fromEntries(params));

@@ -9,10 +9,11 @@ import { DynamoContentStore } from './dynamo-content.store.js';
 import { crudController } from './crud.controller.js';
 import { ENTITY_SPECS } from './entities/index.js';
 import { EditorController } from './editor.controller.js';
+import { HtmlController } from './html.controller.js';
 import { PublicController } from './public.controller.js';
 
 @Module({
-  controllers: [PublicController, EditorController, ...ENTITY_SPECS.map(crudController)],
+  controllers: [PublicController, HtmlController, EditorController, ...ENTITY_SPECS.map(crudController)],
   providers: [
     {
       provide: CONTENT_STORE,

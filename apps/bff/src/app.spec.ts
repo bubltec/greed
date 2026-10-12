@@ -330,4 +330,52 @@ describe('HTTP API', () => {
       process.env.STAGE = 'test';
     }
   });
+
+  it('returns each public page as HTML, with that page’s words and escaped markup', async () => {
+    const home = await app.inject({ method: 'GET', url: '/api/html' });
+    expect(home.statusCode).toBe(200);
+    expect(home.body).toContain('<title>Who holds power, who pays for it, and who is supposed to be watching. · GREED</title>');
+
+    const about = await app.inject({ method: 'GET', url: '/api/html/about' });
+    expect(about.statusCode).toBe(200);
+    expect(about.headers['content-type']).toContain('text/html');
+    expect(about.body).toContain('<title>About GREED · GREED</title>');
+    expect(about.body).toContain('New lead.');
+    expect(about.body).toContain('name="robots" content="index, follow"');
+    expect((await app.inject({ method: 'GET', url: '/api/robots.txt' })).body).toContain('Sitemap: http://localhost:5175/sitemap.xml');
+    const admin = await app.inject({ method: 'GET', url: '/api/html/admin' });
+    expect(admin.statusCode).toBe(200);
+    expect(admin.body).toContain('noindex, nofollow');
+
+    const missing = await app.inject({ method: 'GET', url: '/api/html/t/no-such-entry' });
+    expect(missing.statusCode).toBe(404);
+    expect(missing.body).toContain('noindex, nofollow');
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/topics',
+      payload: { ...topic, title: 'Escaped entry', summary: 'Before <script>alert(1)</script> after.' },
+      headers: { cookie: editorCookie },
+    });
+    const id = created.json().topic.id as string;
+    await app.inject({ method: 'POST', url: `/api/topics/${id}/publish`, payload: {}, headers: { cookie: editorCookie } });
+    const page = await app.inject({ method: 'GET', url: `/api/html/t/${id}` });
+    expect(page.statusCode).toBe(200);
+    expect(page.body).toContain('Before &lt;script&gt;alert(1)&lt;/script&gt; after.');
+    expect(page.body).not.toContain('<script>alert');
+    expect((await app.inject({ method: 'GET', url: '/api/llms.txt' })).body).toContain(`/t/${id}`);
+    expect((await app.inject({ method: 'GET', url: '/api/sitemap.xml' })).body).toContain(`/t/${id}`);
+
+    const preview = await app.inject({ method: 'GET', url: `/api/html/t/${id}?preview=1` });
+    expect(preview.body).toContain('noindex, nofollow');
+
+    await app.inject({
+      method: 'POST',
+      url: '/api/status',
+      payload: { status: 'draft', items: [{ type: 'topic', id }] },
+      headers: { cookie: editorCookie },
+    });
+    expect((await app.inject({ method: 'GET', url: `/api/html/t/${id}` })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/api/sitemap.xml' })).body).not.toContain(`/t/${id}`);
+  });
 });

@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as cdk from 'aws-cdk-lib';
@@ -28,6 +29,17 @@ import {
 import { pinFingerprint, WEB_SEARCH_VERSION } from './pin-web-search.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** Script and stylesheet the built SPA shell loads. Synth fails closed if the web build is missing. */
+function webAssetEnv(): { WEB_SCRIPT: string; WEB_STYLE: string } {
+  const html = fs.readFileSync(path.join(__dirname, '../../../apps/web/dist/index.html'), 'utf8');
+  const script = /src="(\/assets\/[^"]+\.js)"/.exec(html)?.[1];
+  const style = /href="(\/assets\/[^"]+\.css)"/.exec(html)?.[1];
+  if (!script || !style) {
+    throw new Error('apps/web/dist/index.html has no built script and stylesheet; build @greed/web before synth');
+  }
+  return { WEB_SCRIPT: script, WEB_STYLE: style };
+}
 
 export interface ApiStackProps extends cdk.StackProps {
   envConfig: EnvConfig;
@@ -154,6 +166,7 @@ export class ApiStack extends cdk.Stack {
         USERS_TABLE_NAME: props.usersTable.tableName,
         AUTH_TABLE_NAME: props.authTable.tableName,
         WEB_ORIGIN: origin,
+        ...webAssetEnv(),
         EDITORS,
         JWT_SECRET_PARAM: ssmParam(envName, 'jwt-secret'),
         COURT_LISTENER_API_KEY_PARAM: ssmParam(envName, 'courtlistener-token'),

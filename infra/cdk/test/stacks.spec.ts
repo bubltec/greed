@@ -58,6 +58,16 @@ describe('GreedProd', () => {
         ]),
       }),
     });
+    web.hasResourceProperties('AWS::CloudFront::CachePolicy', {
+      CachePolicyConfig: Match.objectLike({ DefaultTTL: 0, MaxTTL: 1800 }),
+    });
+    const policies = web.findResources('AWS::CloudFront::CachePolicy');
+    const exportPolicy = Object.keys(policies).find((id) => policies[id]?.Properties?.CachePolicyConfig?.MaxTTL === 1800);
+    const behaviors = Object.values(web.findResources('AWS::CloudFront::Distribution'))[0] as {
+      Properties: { DistributionConfig: { CacheBehaviors: { PathPattern: string; CachePolicyId: { Ref: string } }[] } };
+    };
+    const exportBehavior = behaviors.Properties.DistributionConfig.CacheBehaviors.find((b) => b.PathPattern === '/api/export');
+    expect(exportBehavior?.CachePolicyId).toEqual({ Ref: exportPolicy });
   });
 
   it('caps the whole API at 20 req/s (burst 40) so a flood from many IPs is answered with 429', () => {
@@ -122,6 +132,26 @@ describe('GreedProd', () => {
     expect(vars).not.toMatch(/"JWT_SECRET"/);
   });
 
+  it('serves pages from the API, and assets from the bucket, with the built script names', () => {
+    web.hasResourceProperties('AWS::CloudFront::Distribution', {
+      DistributionConfig: Match.objectLike({
+        DefaultRootObject: Match.absent(),
+        CacheBehaviors: Match.arrayWith([
+          Match.objectLike({ PathPattern: '/assets/*' }),
+          Match.objectLike({ PathPattern: '/favicon.svg' }),
+        ]),
+      }),
+    });
+    api.hasResourceProperties('AWS::Lambda::Function', {
+      Environment: {
+        Variables: Match.objectLike({
+          WEB_SCRIPT: Match.stringLikeRegexp('^/assets/.+\\.js$'),
+          WEB_STYLE: Match.stringLikeRegexp('^/assets/.+\\.css$'),
+        }),
+      },
+    });
+  });
+
   it('serves greed.bubbletech.io with /api on the same origin behind the shared web ACL', () => {
     web.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: Match.objectLike({
@@ -152,14 +182,20 @@ describe('GreedDev', () => {
 });
 
 describe('viewerRequestCode', () => {
-  it('produces a handler that rejects missing credentials and rewrites SPA routes', () => {
-    const code = viewerRequestCode({ basicAuth: 'Basic abc', spaFallback: true });
+  it('produces a handler that rejects missing credentials and rewrites pages onto the API', () => {
+    const code = viewerRequestCode({ basicAuth: 'Basic abc', documents: true });
     const handler = new Function(`${code}; return handler;`)() as (e: unknown) => {
       statusCode?: number;
       uri?: string;
     };
+    const authed = (uri: string) => handler({ request: { uri, headers: { authorization: { value: 'Basic abc' } } } }).uri;
     expect(handler({ request: { uri: '/t/x', headers: {} } }).statusCode).toBe(401);
-    expect(handler({ request: { uri: '/t/x', headers: { authorization: { value: 'Basic abc' } } } }).uri).toBe('/index.html');
-    expect(handler({ request: { uri: '/assets/a.js', headers: { authorization: { value: 'Basic abc' } } } }).uri).toBe('/assets/a.js');
+    expect(authed('/')).toBe('/api/html');
+    expect(authed('/t/x')).toBe('/api/html/t/x');
+    expect(authed('/about/')).toBe('/api/html/about');
+    expect(authed('/llms.txt')).toBe('/api/llms.txt');
+    expect(authed('/sitemap.xml')).toBe('/api/sitemap.xml');
+    expect(authed('/robots.txt')).toBe('/api/robots.txt');
+    expect(authed('/assets/a.js')).toBe('/assets/a.js');
   });
 });

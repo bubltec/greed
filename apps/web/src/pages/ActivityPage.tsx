@@ -1,20 +1,26 @@
 import { Link } from 'react-router-dom';
-import { ACTIVITY_TYPES, parseActivityQuery } from '@greed/domain';
+import { ACTIVITY_TYPES, documentTitle, LOG_LEAD, metaDescription, parseActivityQuery } from '@greed/domain';
 import { ErrorBox, Loading } from '../components/bits';
 import { Pagination } from '../components/Pagination';
 import { api } from '../lib/api';
 import { formatDate } from '../lib/labels';
 import { usePreview } from '../lib/preview';
 import { useAsync } from '../lib/useAsync';
-import { useTitle } from '../lib/useTitle';
+import { usePageMeta } from '../lib/usePageMeta';
 import { useUrlState } from '../lib/useUrlState';
 
 const TYPE_LABEL = { topic: 'Entry', reference: 'Source', perspective: 'Perspective', relation: 'Link' };
 const FILTER_LABEL = { topic: 'Entries', reference: 'Sources', perspective: 'Perspectives', relation: 'Links' };
 
 export function ActivityPage() {
-  useTitle('Log');
   const { preview } = usePreview();
+  usePageMeta({
+    title: documentTitle('Log'),
+    description: metaDescription(LOG_LEAD),
+    path: '/activity',
+    robots: preview ? 'noindex, nofollow' : 'index, follow',
+    type: 'website',
+  });
   const [params, set] = useUrlState();
   const view = parseActivityQuery(Object.fromEntries(params));
   const { data, error, loading } = useAsync(() => api.activity(params, preview), [params.toString(), preview]);

@@ -1,13 +1,14 @@
 import { Fragment, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { documentTitle, metaDescription, NOT_FOUND_LEAD } from '@greed/domain';
 import { DraftFlag, ErrorBox, KindBadge, Loading, RichText, SectionTitle } from '../components/bits';
-import { api } from '../lib/api';
+import { ApiError, api } from '../lib/api';
 import { formatDate, RELATION_LABEL, STANCE_COLOR, STANCE_LABEL } from '../lib/labels';
 import { usePreview } from '../lib/preview';
 import { useSession } from '../lib/session';
 import type { RelatedTopic, TopicView } from '../lib/types';
 import { useAsync } from '../lib/useAsync';
-import { useTitle } from '../lib/useTitle';
+import { usePageMeta } from '../lib/usePageMeta';
 
 export function TopicPage() {
   const { id = '' } = useParams();
@@ -15,7 +16,26 @@ export function TopicPage() {
   const { data, error, loading } = useAsync(() => api.topic(id, preview), [id, preview]);
   const list = useAsync(() => api.topics(preview), [preview]);
   const titles = useMemo(() => new Map((list.data ?? []).map((t) => [t.id, t.title])), [list.data]);
-  useTitle(data?.topic.title);
+  const missing = error instanceof ApiError && error.status === 404;
+  usePageMeta(
+    data
+      ? {
+          title: documentTitle(data.topic.title),
+          description: metaDescription(data.topic.summary || data.topic.title),
+          path: `/t/${data.topic.id}`,
+          robots: preview ? 'noindex, nofollow' : 'index, follow',
+          type: 'article',
+        }
+      : error
+        ? {
+            title: documentTitle(missing ? 'Not found' : 'Error'),
+            description: missing ? NOT_FOUND_LEAD : error.message,
+            path: `/t/${id}`,
+            robots: 'noindex, nofollow',
+            type: 'website',
+          }
+        : undefined,
+  );
   if (loading && !data) return <Loading />;
   if (error) return <ErrorBox error={error} />;
   if (!data) return null;

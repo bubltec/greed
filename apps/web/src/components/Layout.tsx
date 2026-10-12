@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { usePreview } from '../lib/preview';
 import { useSession } from '../lib/session';
 
@@ -12,6 +13,17 @@ const nav = [
 export function Layout() {
   const { session } = useSession();
   const { preview, setPreview } = usePreview();
+  const admin = useLocation().pathname.startsWith('/admin');
+  useEffect(() => {
+    if (!admin) return;
+    let el = document.head.querySelector('meta[name="robots"]');
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute('name', 'robots');
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', 'noindex, nofollow');
+  }, [admin]);
   return (
     <>
       {preview && session?.editor && (
