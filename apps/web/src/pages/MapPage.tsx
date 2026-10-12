@@ -1,18 +1,24 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TOPIC_KINDS } from '@greed/domain';
+import { documentTitle, MAP_LEAD, metaDescription, TOPIC_KINDS } from '@greed/domain';
 import { ErrorBox, Loading } from '../components/bits';
 import { api } from '../lib/api';
 import { KIND_COLOR, KIND_LABEL } from '../lib/labels';
 import { forceLayout } from '../lib/layout';
 import { usePreview } from '../lib/preview';
 import { useAsync } from '../lib/useAsync';
-import { useTitle } from '../lib/useTitle';
+import { usePageMeta } from '../lib/usePageMeta';
 
 export function MapPage() {
-  useTitle('Map');
   const { preview } = usePreview();
   const { data, error, loading } = useAsync(() => api.graph(preview), [preview]);
+  usePageMeta({
+    title: documentTitle('Map'),
+    description: metaDescription(data ? `${MAP_LEAD} ${data.nodes.length} entries, ${data.edges.length} links.` : MAP_LEAD),
+    path: '/map',
+    robots: preview ? 'noindex, nofollow' : 'index, follow',
+    type: 'website',
+  });
   const [focus, setFocus] = useState<string | null>(null);
   const navigate = useNavigate();
 
