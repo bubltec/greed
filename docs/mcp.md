@@ -21,6 +21,8 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `search_topics` | Search titles, summaries and tags |
 | `get_topic` | Full topic: sections, references (with ids), perspectives, links |
 | `find_gaps` | The editors' worklist: missing URLs, no perspectives, no links, no sources |
+| `audit_content` | Bulk audit of named topics (or everything): text damage (HTML entities, percent-encoding, literal `\n`/`\"` escapes, mojibake, raw HTML, doubled spaces), structure (uncited points, orphaned references, near-duplicate perspectives, published topics with draft children) and stale "as of"/pending language. One line per issue with a before → after repair where one is safe; pages with `offset`. Writes nothing |
+| `apply_audit_fixes` | Applies `audit_content`'s high-confidence text repairs, recomputed server-side, preserving every item's status. Structure and staleness findings are never auto-fixed. One line per repaired field |
 | `create_topic` / `update_topic` | Create, or change only the fields passed |
 | `add_points` | Append cited points to a section (created if new) |
 | `add_reference` / `update_reference` | Attach a source / fix one (e.g. add the missing URL) |
@@ -81,7 +83,7 @@ content type opts in with an `mcp` block listing the operations to expose, and t
 JSON Schemas (from the DTO's validators, so they can't drift from the CMS) and handlers follow.
 Updates are partial: only the fields passed change. A new content type has no tools until it
 opts in. The bespoke tools are `search_topics`, `find_gaps`, `add_points`, `list_drafts` and
-`set_status`, `research_topic`, `suggest_reference_urls`, `suggest_missing_urls`, `fetch_source`, `search_documents`, `read_document` and `list_document_providers` (`apps/bff/src/mcp/bespoke-tools.ts`). See "Adding a content type" in
+`set_status`, `research_topic`, `suggest_reference_urls`, `suggest_missing_urls`, `fetch_source`, `search_documents`, `read_document` and `list_document_providers` (`apps/bff/src/mcp/bespoke-tools.ts`), plus `audit_content` and `apply_audit_fixes` (`apps/bff/src/mcp/audit-tools.ts`), whose checks live in `packages/domain/src/audit.ts`. A project skill for running bulk audits lives at `.claude/skills/greed-audit/SKILL.md`. See "Adding a content type" in
 `.cursor/rules/greed-architecture.mdc`.
 
 ## How auth works

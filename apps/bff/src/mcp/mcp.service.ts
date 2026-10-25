@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ContentService } from '../content/content.service.js';
+import { auditTools } from './audit-tools.js';
 import { bespokeTools } from './bespoke-tools.js';
 import { crudTools } from './crud-tools.js';
 import type { Tool, ToolDefinition } from './tool.js';
@@ -16,7 +17,7 @@ export class McpService {
   private readonly tools: Map<string, Tool>;
 
   constructor(content: ContentService) {
-    this.tools = new Map([...bespokeTools(content), ...crudTools(content)].map((t) => [t.definition.name, t]));
+    this.tools = new Map([...bespokeTools(content), ...auditTools(content), ...crudTools(content)].map((t) => [t.definition.name, t]));
   }
 
   listTools(): ToolDefinition[] {
