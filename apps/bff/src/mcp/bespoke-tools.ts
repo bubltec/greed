@@ -356,8 +356,8 @@ async function gaps(content: ContentService) {
     draftsAwaitingReview: index.drafts().length,
     sourcesMissingUrl: snapshot.references.filter((r) => !r.url).map((r) => ({ topicId: r.topicId, referenceId: r.id, label: r.label })),
     attachmentsNeedingText: (snapshot.attachments ?? [])
-      .filter((a) => a.extractionStatus === 'pending')
-      .map((a) => ({ topicId: a.topicId, attachmentId: a.id, caption: a.caption })),
+      .filter((a) => a.extractionStatus !== 'done')
+      .map((a) => ({ topicId: a.topicId, attachmentId: a.id, caption: a.caption, extraction: a.extractionStatus })),
     topicsWithoutPerspectives: snapshot.topics.filter((t) => !withPerspective.has(t.id)).map((t) => topic(t.id)),
     topicsWithoutLinks: snapshot.topics.filter((t) => !linked.has(t.id)).map((t) => topic(t.id)),
     topicsWithoutSources: snapshot.topics.filter((t) => !withRefs.has(t.id) && t.kind !== 'thesis').map((t) => topic(t.id)),

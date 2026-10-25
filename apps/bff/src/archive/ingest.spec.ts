@@ -3,7 +3,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { InMemoryContentStore } from '@greed/domain';
 import { ContentService } from '../content/content.service.js';
 import { InMemoryArchive, UnconfiguredArchive, archiveKey } from './archive.js';
+import { type ExtractionOutcome, NoExtractor } from './extract.js';
 import {
+  ATTACHMENT_MIME_TYPES,
+  BINARY_ATTACHMENT_MIME_TYPES,
   type BinaryGet,
   type BinaryResponse,
   MAX_ATTACHMENT_BYTES,
@@ -83,8 +86,8 @@ describe('archiveFromUrl', () => {
     await expect(setup([ok(new Uint8Array(0))]).run('https://justice.gov/a')).rejects.toThrow(/empty/);
     await expect(setup([ok(pdf, 'text/html')]).run('https://justice.gov/a')).rejects.toThrow(/text\/html cannot be archived/);
     await expect(setup([{ status: 200, headers: {}, bytes: pdf }]).run('https://justice.gov/a')).rejects.toThrow(/An unknown type cannot be archived/);
-    await expect(setup([{ status: 200, headers: { 'content-type': 'application/pdf' }, bytes: new Uint8Array(0), tooLarge: true }]).run('https://justice.gov/a')).rejects.toThrow(/larger than 5 MB/);
-    await expect(setup([ok(new Uint8Array(MAX_ATTACHMENT_BYTES + 1))]).run('https://justice.gov/a')).rejects.toThrow(/larger than 5 MB/);
+    await expect(setup([{ status: 200, headers: { 'content-type': 'application/pdf' }, bytes: new Uint8Array(0), tooLarge: true }]).run('https://justice.gov/a')).rejects.toThrow(/larger than 4 MB/);
+    await expect(setup([ok(new Uint8Array(MAX_ATTACHMENT_BYTES + 1))]).run('https://justice.gov/a')).rejects.toThrow(/larger than 4 MB/);
   });
 
   it('says so when this stage has no archive, without fetching', async () => {
@@ -127,6 +130,51 @@ describe('archivableHosts', () => {
     expect(hosts).toEqual(expect.arrayContaining(['courtlistener.com', 'federalregister.gov', 'govinfo.gov', 'justice.gov']));
     expect(hosts).not.toContain('draft.org');
     expect(hosts).not.toContain('cnn.com');
+  });
+});
+
+describe('archiveFromUrl with an extractor', () => {
+  const reader = (outcome: ExtractionOutcome | Error) => ({
+    configured: () => true,
+    read: vi.fn(async () => {
+      if (outcome instanceof Error) throw outcome;
+      return outcome;
+    }),
+  });
+  const run = (extractor: ReturnType<typeof reader> | NoExtractor, response: BinaryResponse = ok()) =>
+    archiveFromUrl('https://justice.gov/a', { archive: new InMemoryArchive(), get: async () => response, hosts: HOSTS, extractor });
+
+  it('reads a scan through the extractor and carries the text and the caution back', async () => {
+    const extractor = reader({ extractionStatus: 'done', extractedText: 'Continue.', note: 'check it' });
+    expect(await run(extractor)).toMatchObject({ extractionStatus: 'done', extractedText: 'Continue.', extractionNote: 'check it' });
+    expect(extractor.read).toHaveBeenCalledWith({ bytes: pdf, mimeType: 'application/pdf' });
+  });
+
+  it('still archives the file when extraction fails, and says it can be retried', async () => {
+    const archive = new InMemoryArchive();
+    const archived = await archiveFromUrl('https://justice.gov/a', { archive, get: async () => ok(), hosts: HOSTS, extractor: reader(new Error('throttled')) });
+    expect(archived).toMatchObject({ extractionStatus: 'failed', extractionNote: 'Text extraction failed: throttled' });
+    expect(archive.files.size).toBe(1);
+  });
+
+  it('does not run OCR on plain text, or when the stage has no extractor', async () => {
+    const extractor = reader({ extractionStatus: 'done', extractedText: 'OCR' });
+    const text = await run(extractor, ok(new TextEncoder().encode('Plain words.'), 'text/plain'));
+    expect(text).toMatchObject({ extractedText: 'Plain words.' });
+    expect(extractor.read).not.toHaveBeenCalled();
+    expect(await run(new NoExtractor())).toMatchObject({ extractionStatus: 'pending' });
+  });
+});
+
+describe('BINARY_ATTACHMENT_MIME_TYPES', () => {
+  it('is every archivable type except text, so a served PDF or image is base64-encoded by the Lambda adapter', () => {
+    expect(BINARY_ATTACHMENT_MIME_TYPES).toEqual(['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'image/gif']);
+    expect(BINARY_ATTACHMENT_MIME_TYPES).not.toContain('text/plain');
+    expect(ATTACHMENT_MIME_TYPES.filter((t) => !BINARY_ATTACHMENT_MIME_TYPES.includes(t))).toEqual(['text/plain']);
+  });
+
+  it('caps a file so that, base64-encoded, it still fits in a 6 MB Lambda response', () => {
+    expect(Math.ceil((MAX_ATTACHMENT_BYTES * 4) / 3)).toBeLessThan(6 * 1024 * 1024);
   });
 });
 

@@ -70,6 +70,32 @@ describe('GreedProd', () => {
     expect(exportBehavior?.CachePolicyId).toEqual({ Ref: exportPolicy });
   });
 
+  it('archives evidence in a private, versioned, TLS-only bucket that prod retains', () => {
+    data.hasResourceProperties('AWS::S3::Bucket', {
+      PublicAccessBlockConfiguration: { BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true },
+      VersioningConfiguration: { Status: 'Enabled' },
+      BucketEncryption: { ServerSideEncryptionConfiguration: [{ ServerSideEncryptionByDefault: { SSEAlgorithm: 'AES256' } }] },
+    });
+    data.hasResource('AWS::S3::Bucket', { DeletionPolicy: 'Retain', UpdateReplacePolicy: 'Retain' });
+    data.hasResourceProperties('AWS::S3::BucketPolicy', {
+      PolicyDocument: { Statement: Match.arrayWith([Match.objectLike({ Effect: 'Deny', Condition: { Bool: { 'aws:SecureTransport': 'false' } } })]) },
+    });
+    expect(JSON.stringify(data.toJSON())).not.toContain('Custom::S3AutoDeleteObjects');
+  });
+
+  it('lets the API read and write the archive, and run OCR, but never delete evidence', () => {
+    api.hasResourceProperties('AWS::Lambda::Function', {
+      Timeout: 29,
+      Environment: { Variables: Match.objectLike({ ARCHIVE_BUCKET: Match.anyValue(), ARCHIVE_OCR: 'textract' }) },
+    });
+    const policies = JSON.stringify(api.findResources('AWS::IAM::Policy'));
+    expect(policies).toContain('textract:DetectDocumentText');
+    expect(policies).toContain('s3:PutObject');
+    expect(policies).toContain('s3:GetObject*');
+    expect(policies).not.toContain('s3:DeleteObject');
+    expect(policies).not.toMatch(/"s3:\*"/);
+  });
+
   it('caps the whole API at 20 req/s (burst 40) so a flood from many IPs is answered with 429', () => {
     api.hasResourceProperties('AWS::ApiGatewayV2::Stage', {
       DefaultRouteSettings: { ThrottlingRateLimit: 20, ThrottlingBurstLimit: 40 },
@@ -170,7 +196,12 @@ describe('GreedProd', () => {
 });
 
 describe('GreedDev', () => {
-  const { web } = synth('dev');
+  const { data, web } = synth('dev');
+
+  it('lets dev tear down its archive, unlike prod', () => {
+    data.hasResource('AWS::S3::Bucket', { DeletionPolicy: 'Delete' });
+    data.resourceCountIs('Custom::S3AutoDeleteObjects', 1);
+  });
 
   it('walls dev off with basic auth on both behaviors and no WAF', () => {
     web.resourceCountIs('AWS::CloudFront::Function', 2);

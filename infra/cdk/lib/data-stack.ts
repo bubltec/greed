@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import type { Construct } from 'constructs';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import type { EnvConfig } from './config.js';
 
 export interface DataStackProps extends cdk.StackProps {
@@ -16,6 +17,7 @@ export class DataStack extends cdk.Stack {
   readonly contentTable: dynamodb.Table;
   readonly usersTable: dynamodb.Table;
   readonly authTable: dynamodb.Table;
+  readonly archiveBucket: s3.Bucket;
 
   constructor(scope: Construct, id: string, props: DataStackProps) {
     super(scope, id, props);
@@ -53,6 +55,19 @@ export class DataStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       timeToLiveAttribute: 'ttl',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    // Archived evidence (docs/data-model.md, "Attachments"): objects are keyed by the SHA-256 of
+    // their bytes and written once. Private, TLS only, versioned, and retained in prod like the
+    // content that cites it. Served to readers only through the BFF, never directly.
+    this.archiveBucket = new s3.Bucket(this, 'ArchiveBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      versioned: true,
+      lifecycleRules: [{ noncurrentVersionExpiration: cdk.Duration.days(90) }],
+      removalPolicy,
+      autoDeleteObjects: !isProd,
     });
   }
 }
