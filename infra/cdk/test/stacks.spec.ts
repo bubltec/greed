@@ -89,7 +89,8 @@ describe('GreedProd', () => {
       Environment: { Variables: Match.objectLike({ ARCHIVE_BUCKET: Match.anyValue(), ARCHIVE_OCR: 'textract' }) },
     });
     const policies = JSON.stringify(api.findResources('AWS::IAM::Policy'));
-    expect(policies).toContain('textract:DetectDocumentText');
+    for (const action of ['DetectDocumentText', 'StartDocumentTextDetection', 'GetDocumentTextDetection']) expect(policies).toContain(`textract:${action}`);
+    expect(policies).not.toMatch(/textract:(\*|Analyze)/);
     expect(policies).toContain('s3:PutObject');
     expect(policies).toContain('s3:GetObject*');
     expect(policies).not.toContain('s3:DeleteObject');

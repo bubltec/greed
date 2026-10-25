@@ -163,6 +163,119 @@ describe('audit_content and apply_audit_fixes', () => {
   });
 });
 
+describe('audit_links', () => {
+  let asked: string[];
+  let answers: Record<string, { status: number; location?: string } | Error>;
+  let links: McpService;
+  const check = (args: Record<string, unknown> = {}) => links.call('audit_links', args, 'tester (mcp)') as Promise<any>;
+
+  beforeEach(() => {
+    asked = [];
+    answers = {};
+    links = new McpService(content, undefined, undefined, undefined, async (url) => {
+      asked.push(url.href);
+      const answer = answers[url.href] ?? { status: 200 };
+      if (answer instanceof Error) throw answer;
+      return answer;
+    });
+  });
+
+  const cite = async (topicId: string, label: string, url?: string, extra: Record<string, unknown> = {}) =>
+    (await run('add_reference', { topicId, label, ...(url ? { url } : {}), ...extra })).added.id as string;
+
+  it('reports one line per problem, counts the healthy ones, and requests each distinct URL once', async () => {
+    const a = await topic('Alpha');
+    const b = await topic('Beta');
+    const dead = await cite(a.id, 'Dead page', 'https://example.com/dead');
+    const dup = await cite(b.id, 'Same dead page', 'https://example.com/dead');
+    await cite(a.id, 'Fine', 'https://example.com/fine');
+    await cite(a.id, 'No link yet');
+    const moved = await cite(b.id, 'Moved', 'https://example.com/old');
+    answers = {
+      'https://example.com/dead': { status: 404 },
+      'https://example.com/old': { status: 301, location: '/new' },
+      'https://example.com/new': { status: 200 },
+    };
+
+    const report = await check();
+    expect(report).toMatchObject({ checked: 3, totalUrls: 3, healthy: 1, nextOffset: null, counts: { LINK_BROKEN: 2, LINK_MOVED: 1 } });
+    expect(report.lines).toEqual([
+      `${a.id} | reference:${dead} | LINK_BROKEN high | 404 | https://example.com/dead`,
+      `${b.id} | reference:${dup} | LINK_BROKEN high | 404 | https://example.com/dead`,
+      `${b.id} | reference:${moved} | LINK_MOVED high | permanent redirect | https://example.com/old → https://example.com/new`,
+    ]);
+    expect(asked.filter((u) => u === 'https://example.com/dead')).toHaveLength(1);
+  });
+
+  it('only ever requests URLs already on a reference, never one the caller supplies', async () => {
+    const a = await topic('Alpha');
+    await cite(a.id, 'Fine', 'https://example.com/fine');
+    await expect(check({ url: 'http://169.254.169.254/' })).resolves.toBeDefined(); // ignored: not a parameter
+    expect(asked).toEqual(['https://example.com/fine']);
+    expect(Object.keys((links.listTools().find((t) => t.name === 'audit_links')!.inputSchema as { properties: object }).properties)).not.toContain('url');
+  });
+
+  it('refuses to dial a cited address on a private network', async () => {
+    const a = await topic('Alpha');
+    await cite(a.id, 'Metadata', 'http://169.254.169.254/latest/meta-data');
+    const report = await check();
+    expect(report.lines[0]).toContain('LINK_UNCHECKED low | link points at a non-public address');
+    expect(asked).toEqual([]);
+  });
+
+  it('scopes by topic and status, filters by code, and pages with nextOffset', async () => {
+    const a = await topic('Alpha');
+    const b = await topic('Beta');
+    for (let i = 0; i < 3; i++) await cite(a.id, `A${i}`, `https://example.com/a${i}`);
+    await cite(b.id, 'B', 'https://example.com/b', { status: 'draft' });
+    answers = { 'https://example.com/a1': { status: 404 }, 'https://example.com/b': { status: 404 } };
+
+    const first = await check({ ids: [a.id], limit: 2 });
+    expect(first).toMatchObject({ checked: 2, totalUrls: 3, offset: 0, nextOffset: 2 });
+    const rest = await check({ ids: [a.id], limit: 2, offset: 2 });
+    expect(rest).toMatchObject({ checked: 1, offset: 2, nextOffset: null });
+    // Across the pages every link is checked exactly once: two healthy, one broken.
+    expect(first.healthy + rest.healthy).toBe(2);
+    expect((first.counts.LINK_BROKEN ?? 0) + (rest.counts.LINK_BROKEN ?? 0)).toBe(1);
+    expect(first.lines.concat(rest.lines).filter((l: string) => l.includes('example.com/a1'))).toHaveLength(1);
+
+    expect((await check({ ids: [b.id] })).counts).toEqual({ LINK_BROKEN: 1 });
+    await run('publish_topic', { topicId: a.id });
+    expect((await check({ status: 'published' })).totalUrls).toBe(3);
+    expect((await check({ status: 'draft' })).totalUrls).toBe(1);
+    const onlyMoved = await check({ codes: ['LINK_MOVED'] });
+    expect(onlyMoved.lines).toEqual([]);
+    expect(onlyMoved.counts).toEqual({ LINK_BROKEN: 2 }); // counts show everything found; lines are filtered
+  });
+
+  it('flags a cited paywalled outlet without requesting it', async () => {
+    await run('create_outlet', { name: 'The Times', domain: 'nytimes.com', paywall: true, accuracy: 'high', bias: 'low', oneSided: false, factual: 'high' });
+    const a = await topic('Alpha');
+    await cite(a.id, 'Times story', 'https://www.nytimes.com/2026/story');
+    expect((await check()).lines[0]).toContain('LINK_PAYWALLED medium');
+    expect(asked).toEqual([]);
+  });
+
+  it('turns a failing server into a finding rather than an error, and rejects bad arguments', async () => {
+    const a = await topic('Alpha');
+    await cite(a.id, 'Down', 'https://example.com/down');
+    answers = { 'https://example.com/down': Object.assign(new Error('x'), { code: 'ETIMEDOUT' }) };
+    expect((await check()).lines[0]).toContain('LINK_ERROR medium | timed out');
+    await expect(check({ status: 'live' })).rejects.toThrow(/status must be/);
+    await expect(check({ codes: ['LINK_NOPE'] })).rejects.toThrow(/codes must be chosen/);
+    await expect(check({ codes: 'LINK_BROKEN' })).rejects.toThrow(/codes must be chosen/);
+    await expect(check({ ids: [''] })).rejects.toThrow(/ids must be/);
+    await expect(check({ ids: 'alpha' })).rejects.toThrow(/ids must be/);
+    expect((await check({ limit: 'many', offset: -5 })).offset).toBe(0); // junk numbers fall back
+  });
+
+  it('is read-only and open-world, and reports an empty record cleanly', async () => {
+    const def = links.listTools().find((t) => t.name === 'audit_links')!;
+    expect(def.annotations).toEqual({ readOnlyHint: true, openWorldHint: true });
+    expect(await check()).toEqual({ checked: 0, totalUrls: 0, healthy: 0, counts: {}, offset: 0, nextOffset: null, lines: [] });
+  });
+});
+
 describe('attach_document and attachment tools', () => {
   const pdf = new TextEncoder().encode('%PDF-1.7 signed addendum');
   const sha = createHash('sha256').update(pdf).digest('hex');
@@ -240,6 +353,22 @@ describe('attach_document and attachment tools', () => {
     const { ref } = await setup();
     const bare = new McpService(content);
     await expect(bare.call('attach_document', { referenceId: ref, url: 'https://justice.gov/a.pdf', caption: 'c', altText: 'a' }, 'tester')).rejects.toThrow(/not configured/);
+  });
+
+  it('audits attachments: fixes a damaged caption, only reports damaged extracted text, and flags a draft on a published topic', async () => {
+    const { a, ref } = await setup();
+    const id = (await attach(ref)).added.id;
+    await call('update_attachment', { topicId: a.id, attachmentId: id, caption: 'Tom &amp; Jerry order', extractedText: 'Order &amp; terms' });
+    await run('set_status', { status: 'published', items: [{ type: 'topic', id: a.id }] });
+
+    const report = await run('audit_content', { ids: [a.id] });
+    expect(report.lines.some((l: string) => l.includes(`attachment:${id} | caption | ENC_HTML_ENTITY high`))).toBe(true);
+    expect(report.lines.some((l: string) => l.includes(`attachment:${id} | extractedText | ENC_HTML_ENTITY`) && !l.includes('→'))).toBe(true);
+
+    const applied = await run('apply_audit_fixes', { ids: [a.id] });
+    expect(applied.fixed.filter((l: string) => l.includes(`attachment:${id}`))).toHaveLength(1);
+    const stored = (await run('get_topic', { id: a.id })).attachments[0];
+    expect(stored).toMatchObject({ caption: 'Tom & Jerry order', extractedText: 'Order &amp; terms', sha256: sha });
   });
 
   describe('with text extraction', () => {

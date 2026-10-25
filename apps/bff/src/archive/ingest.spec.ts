@@ -147,7 +147,7 @@ describe('archiveFromUrl with an extractor', () => {
   it('reads a scan through the extractor and carries the text and the caution back', async () => {
     const extractor = reader({ extractionStatus: 'done', extractedText: 'Continue.', note: 'check it' });
     expect(await run(extractor)).toMatchObject({ extractionStatus: 'done', extractedText: 'Continue.', extractionNote: 'check it' });
-    expect(extractor.read).toHaveBeenCalledWith({ bytes: pdf, mimeType: 'application/pdf' });
+    expect(extractor.read).toHaveBeenCalledWith({ bytes: pdf, mimeType: 'application/pdf', key: archiveKey(createHash('sha256').update(pdf).digest('hex')) });
   });
 
   it('still archives the file when extraction fails, and says it can be retried', async () => {

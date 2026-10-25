@@ -40,7 +40,8 @@ export function auditTools(content: ContentService): Tool[] {
         description:
           'Audit topics (or every entry, outlets and pages included, when ids is omitted) for text damage ' +
           '(HTML entities, percent-encoding, literal \\n and \\" escapes, mojibake, raw HTML, doubled spaces), ' +
-          'structure problems (points citing nothing, references nothing cites, near-duplicate perspectives, published topics with draft sources or links) ' +
+          'structure problems (points citing nothing, references nothing cites, near-duplicate perspectives, published topics with draft sources, links or attachments) ' +
+          'including attachment captions, alt text and extracted text (extracted text is reported, never auto-fixed: it must match the file) ' +
           'and stale "as of"/pending language. Returns one line per issue with the topic id, field, and a before → after repair where one is safe; ' +
           'page through with offset. Writes nothing.',
         inputSchema: {
@@ -194,7 +195,7 @@ async function applyFixes(content: ContentService, args: AuditArgs, limit: numbe
       // Pages are edited through their working copy: audit fields are draft.title/draft.body.
       const applied = group.filter((f) => setField(input, type === 'page' ? f.field.replace(/^draft\./, '') : f.field, f.after!));
       if (applied.length === 0) throw new Error('field no longer matches the audit');
-      const parentId = type === 'reference' || type === 'perspective' ? first.topicId : undefined;
+      const parentId = type === 'reference' || type === 'perspective' || type === 'attachment' ? first.topicId : undefined;
       await content.update(type, { id: first.id, parentId }, await dto(spec.dto, input), by);
       for (const f of applied) fixed.push(`fixed ${f.line}`);
       for (const f of group) if (!applied.includes(f)) skipped.push(`skipped ${f.line} (field changed since audit)`);

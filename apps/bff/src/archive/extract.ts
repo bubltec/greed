@@ -1,4 +1,4 @@
-import { DetectDocumentTextCommand } from '@aws-sdk/client-textract';
+import { DetectDocumentTextCommand, GetDocumentTextDetectionCommand, StartDocumentTextDetectionCommand } from '@aws-sdk/client-textract';
 import type { ArchivedFile } from './archive.js';
 
 export const EXTRACTOR = Symbol('EXTRACTOR');
@@ -21,7 +21,12 @@ export interface ExtractionOutcome {
  */
 export interface Extractor {
   configured(): boolean;
-  read(file: ArchivedFile): Promise<ExtractionOutcome>;
+  read(file: ExtractInput): Promise<ExtractionOutcome>;
+}
+
+/** The file, and where the archive holds it (`attachments/<sha256>`), for readers that work from storage. */
+export interface ExtractInput extends ArchivedFile {
+  key: string;
 }
 
 export class NoExtractor implements Extractor {
@@ -46,14 +51,44 @@ const OCR_TYPES = ['application/pdf', 'image/png', 'image/jpeg'];
 /** Textract answers these when the document cannot be read inline, e.g. a PDF with more than one page. */
 const UNREADABLE = ['UnsupportedDocumentException', 'BadDocumentException', 'DocumentTooLargeException'];
 
+export interface TextractOptions {
+  /** The archive bucket. With it, a PDF too long to read inline goes to Textract's asynchronous API. */
+  bucket?: string;
+  /** How long one call waits on an asynchronous job before leaving it for a retry. Default 12 s. */
+  budgetMs?: number;
+  pollMs?: number;
+  sleep?: (ms: number) => Promise<void>;
+  now?: () => number;
+}
+
+interface TextractBlock {
+  BlockType?: string;
+  Text?: string;
+  Page?: number;
+}
+
+const lineText = (blocks: TextractBlock[]) =>
+  blocks
+    .filter((b) => b.BlockType === 'LINE' && b.Text)
+    .map((b) => b.Text)
+    .join('\n')
+    .trim();
+
 export class TextractExtractor implements Extractor {
-  constructor(private readonly client: Sender) {}
+  private readonly options: Required<Omit<TextractOptions, 'bucket'>> & { bucket?: string };
+
+  constructor(
+    private readonly client: Sender,
+    options: TextractOptions = {},
+  ) {
+    this.options = { budgetMs: 12_000, pollMs: 2_000, sleep: (ms) => new Promise((r) => setTimeout(r, ms)), now: Date.now, ...options };
+  }
 
   configured() {
     return true;
   }
 
-  async read(file: ArchivedFile): Promise<ExtractionOutcome> {
+  async read(file: ExtractInput): Promise<ExtractionOutcome> {
     if (!OCR_TYPES.includes(file.mimeType)) {
       return { extractionStatus: 'pending', note: `${file.mimeType} cannot be read automatically; transcribe it with update_attachment` };
     }
@@ -62,22 +97,71 @@ export class TextractExtractor implements Extractor {
       blocks = (await this.client.send(new DetectDocumentTextCommand({ Document: { Bytes: file.bytes } }))).Blocks;
     } catch (error) {
       if (UNREADABLE.includes((error as { name?: string }).name ?? '')) {
+        // A PDF of several pages cannot be read inline; it can be read from the archive as a job.
+        if (file.mimeType === 'application/pdf' && this.options.bucket) return this.readJob(file.key);
         return { extractionStatus: 'pending', note: 'Textract cannot read this file inline (a PDF must be a single page); transcribe it with update_attachment' };
       }
       throw error;
     }
-    const text = (blocks ?? [])
-      .filter((b) => b.BlockType === 'LINE' && b.Text)
-      .map((b) => b.Text)
-      .join('\n')
-      .trim();
+    const text = lineText(blocks ?? []);
     if (!text) return { extractionStatus: 'pending', note: 'No text was found in the file' };
     return { extractionStatus: 'done', extractedText: text.slice(0, MAX_EXTRACTED_CHARS), note: 'Machine-read text: check it against the file before quoting' };
+  }
+
+  /**
+   * Reads a multi-page PDF straight from the archive. The job's idempotency token is the file's hash, so
+   * calling again (after the wait ran out) picks up the same job rather than paying for another.
+   */
+  private async readJob(key: string): Promise<ExtractionOutcome> {
+    const { bucket, budgetMs, pollMs, sleep, now } = this.options;
+    const started = await this.client.send(
+      new StartDocumentTextDetectionCommand({
+        DocumentLocation: { S3Object: { Bucket: bucket, Name: key } },
+        ClientRequestToken: key.slice(key.lastIndexOf('/') + 1).slice(0, 64),
+      }),
+    );
+    const jobId = started.JobId as string | undefined;
+    if (!jobId) return { extractionStatus: 'failed', note: 'Textract did not start a job' };
+
+    const deadline = now() + budgetMs;
+    const blocks: TextractBlock[] = [];
+    let nextToken: string | undefined;
+    for (;;) {
+      const page = await this.client.send(new GetDocumentTextDetectionCommand({ JobId: jobId, NextToken: nextToken }));
+      if (page.JobStatus === 'IN_PROGRESS') {
+        if (now() >= deadline) {
+          return { extractionStatus: 'pending', note: 'Textract is still reading this PDF; run extract_attachment_text again in a minute' };
+        }
+        await sleep(pollMs);
+        continue;
+      }
+      if (page.JobStatus !== 'SUCCEEDED') {
+        // PARTIAL_SUCCESS means some pages are missing: incomplete evidence is not stored as complete.
+        const why = page.JobStatus === 'PARTIAL_SUCCESS' ? 'some pages could not be read' : (page.StatusMessage ?? 'the job failed');
+        return { extractionStatus: 'failed', note: `Textract: ${why}` };
+      }
+      blocks.push(...((page.Blocks as TextractBlock[] | undefined) ?? []));
+      if (!page.NextToken) break;
+      nextToken = page.NextToken as string;
+    }
+    const pages = new Map<number, TextractBlock[]>();
+    for (const block of blocks) pages.set(block.Page ?? 1, [...(pages.get(block.Page ?? 1) ?? []), block]);
+    const text = [...pages.entries()]
+      .sort(([a], [b]) => a - b)
+      .map(([, list]) => lineText(list))
+      .filter(Boolean)
+      .join('\n\n');
+    if (!text) return { extractionStatus: 'pending', note: 'No text was found in the file' };
+    return {
+      extractionStatus: 'done',
+      extractedText: text.slice(0, MAX_EXTRACTED_CHARS),
+      note: `Machine-read text from ${pages.size} page${pages.size === 1 ? '' : 's'}: check it against the file before quoting`,
+    };
   }
 }
 
 /** Runs an extractor so that a failure is an outcome, never an exception: the file is archived either way. */
-export async function readSafely(extractor: Extractor, file: ArchivedFile): Promise<ExtractionOutcome> {
+export async function readSafely(extractor: Extractor, file: ExtractInput): Promise<ExtractionOutcome> {
   try {
     return await extractor.read(file);
   } catch (error) {

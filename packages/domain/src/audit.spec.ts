@@ -136,6 +136,48 @@ describe('auditContent', () => {
     expect(thesis.findings.filter((f) => f.code === 'POINT_NO_CITATION')).toEqual([]);
   });
 
+  describe('attachments', () => {
+    const attachment = (over: Record<string, unknown> = {}) => ({
+      id: 'att1', topicId: 'alpha', referenceId: 'r1', kind: 'primary-document', caption: 'Signed addendum', altText: 'A signed page',
+      capturedAt: '2026-10-01', sha256: 'a'.repeat(64), mimeType: 'application/pdf', bytes: 10, extractionStatus: 'pending',
+      createdAt: at, updatedAt: at, status: 'published', ...over,
+    });
+    const ref = { id: 'r1', topicId: 'alpha', label: 'DOJ', createdAt: at, updatedAt: at, status: 'published' as const };
+
+    it('repairs caption and alt text like any prose, with the parent topic on the line', () => {
+      const report = auditContent(snapshot({
+        references: [ref],
+        attachments: [attachment({ caption: 'Tom &amp; Jerry  order', altText: 'a \\"page\\"' })] as never,
+      }), { now: NOW, categories: ['text'] });
+      const byField = new Map(report.findings.map((f) => [`${f.field}:${f.code}`, f]));
+      expect(byField.get('caption:ENC_HTML_ENTITY')).toMatchObject({ type: 'attachment', topicId: 'alpha', after: 'Tom & Jerry order' });
+      expect(byField.get('altText:ESC_QUOTE')).toMatchObject({ after: 'a "page"' });
+      expect(report.findings[0]!.line).toContain('alpha | attachment:att1 |');
+      expect(report.scanned.attachments).toBe(1);
+    });
+
+    it('reports damage in extracted text but never offers to repair it', () => {
+      const report = auditContent(snapshot({
+        references: [ref],
+        attachments: [attachment({ extractedText: 'The order &amp; the cafÃ© stays.', extractionStatus: 'done' })] as never,
+      }), { now: NOW, categories: ['text'] });
+      const found = report.findings.filter((f) => f.field === 'extractedText');
+      expect(found.map((f) => f.code).sort()).toEqual(['ENC_HTML_ENTITY', 'MOJIBAKE']);
+      for (const f of found) {
+        expect(f.after).toBeUndefined();
+        expect(f.message).toMatch(/must match the file/);
+      }
+    });
+
+    it('flags a draft attachment on a published topic, and honors scope and status filters', () => {
+      const snap = snapshot({ references: [ref], attachments: [attachment({ status: 'draft' }), attachment({ id: 'att2', topicId: 'beta' })] as never, topics: [topic(), topic({ id: 'beta', title: 'Beta' })] });
+      const found = auditContent(snap, { now: NOW, categories: ['structure'] }).findings.filter((f) => f.code === 'PUBLISHED_WITH_DRAFT_CHILD');
+      expect(found.map((f) => `${f.type}:${f.id}`)).toEqual(['attachment:att1']);
+      expect(auditContent(snap, { now: NOW, ids: ['beta'] }).scanned.attachments).toBe(1);
+      expect(auditContent(snap, { now: NOW, status: 'draft' }).scanned.attachments).toBe(1);
+    });
+  });
+
   it('flags stale "as of" dates and old pending language, but not fresh entries', () => {
     const stale = auditContent(snapshot({
       topics: [

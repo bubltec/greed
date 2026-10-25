@@ -63,7 +63,9 @@ export class PublicController {
     const file = attachment && (await this.archive.get(archiveKey(attachment.sha256)));
     if (!attachment || !file) throw new NotFoundException(`No attachment "${id}"`);
     reply.header('content-type', file.mimeType);
-    reply.header('content-disposition', 'inline');
+    // Chrome's PDF viewer refuses a response with a sandbox CSP, so a PDF is a download (which also keeps
+    // its embedded scripts out of the page); an image or text file is shown inline.
+    reply.header('content-disposition', file.mimeType === 'application/pdf' ? `attachment; filename="${attachment.id}.pdf"` : 'inline');
     reply.header('x-content-type-options', 'nosniff');
     reply.header('content-security-policy', "default-src 'none'; sandbox");
     reply.header('cache-control', preview === '1' ? 'private, no-store' : 'public, max-age=300');

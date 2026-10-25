@@ -13,5 +13,5 @@ export function archiveFromEnv(env: NodeJS.ProcessEnv = process.env): Archive {
 
 /** Textract when the stage asks for it (`ARCHIVE_OCR=textract`), otherwise none. */
 export function extractorFromEnv(env: NodeJS.ProcessEnv = process.env): Extractor {
-  return env.ARCHIVE_OCR === 'textract' ? new TextractExtractor(new TextractClient({ region: region() })) : new NoExtractor();
+  return env.ARCHIVE_OCR === 'textract' ? new TextractExtractor(new TextractClient({ region: region() }), { bucket: env.ARCHIVE_BUCKET }) : new NoExtractor();
 }
