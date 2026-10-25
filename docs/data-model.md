@@ -36,18 +36,28 @@ before publishing existed have no `status` and count as published.
 attachment. This is the only place the server fetches a caller-chosen address, so it is narrow:
 only hosts a document provider owns (CourtListener, Federal Register, GovInfo) or a **published,
 non-paywalled outlet** in the catalog (add an outlet for `justice.gov` or any other primary source
-first); every redirect hop is re-checked against the same list; 5 MB maximum (a served file has to
-fit in one Lambda response); PDF, PNG, JPEG, WebP, GIF and plain text only. The file is stored under
-its SHA-256, so the same bytes are stored once and a row can never name another file.
+first); every redirect hop is re-checked against the same list; 4 MB maximum (a served file has to
+fit in one 6 MB Lambda response once base64-encoded, which adds a third; `lambda.ts` lists the
+binary types so a served PDF is not corrupted); PDF, PNG, JPEG, WebP, GIF and plain text only. The
+file is stored under its SHA-256, so the same bytes are stored once and a row can never name another file.
+
+Storage is a private, versioned, TLS-only S3 bucket (`ArchiveBucket` in the `Data` stack, retained in
+prod). Objects are written once (`IfNoneMatch: *`); the API's role can read and put but not delete.
+Readers never get a bucket URL: files go through the BFF. The Lambda finds the bucket through
+`ARCHIVE_BUCKET`, and OCR through `ARCHIVE_OCR=textract`; without them the stage is "not configured".
 
 Archived files are served at `GET /api/attachments/:id/file`: published attachments only (an editor's
 `?preview=1` also gets drafts), with the stored type, `nosniff` and a sandboxing CSP.
 
-Extracted text: plain text is read on archive. A scan or image is left `pending` (the connector's
-`find_gaps` lists these as `attachmentsNeedingText`) until its text is saved with `update_attachment`:
-the OCR adapter is a follow-up, and a transcription must be exactly what the file says. Deleting a
-reference removes its attachment rows; the archived file is kept. **A stage with no archive wired in
-refuses `attach_document`** with "not configured" rather than storing nowhere.
+Extracted text: plain text is read on archive. A PNG, JPEG or **single-page** PDF goes to Amazon
+Textract (synchronous `DetectDocumentText`); the text it returns is a machine reading, so check it
+against the file before quoting it. Anything it cannot read (a multi-page PDF, WebP, GIF, a blank
+scan) is left `pending`, and an OCR error leaves it `failed`; the file is archived either way.
+`find_gaps` lists both as `attachmentsNeedingText`. `extract_attachment_text` retries from the
+archived copy (no fetch), and a person can always save an exact transcription with
+`update_attachment`. Deleting a reference removes its attachment rows; the archived file is kept.
+**A stage with no archive wired in refuses `attach_document`** with "not configured" rather than
+storing nowhere.
 
 ## Pages
 

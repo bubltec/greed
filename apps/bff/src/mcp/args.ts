@@ -21,6 +21,13 @@ export function optionalString(args: Args, key: string): string | undefined {
   return v;
 }
 
+export function optionalBoolean(args: Args, key: string): boolean | undefined {
+  const v = args[key];
+  if (v === undefined) return undefined;
+  if (typeof v !== 'boolean') throw new BadRequestException(`${key} must be true or false`);
+  return v;
+}
+
 /** A calendar day, YYYY-MM-DD. */
 export function optionalDate(args: Args, key: string): string | undefined {
   const v = optionalString(args, key);

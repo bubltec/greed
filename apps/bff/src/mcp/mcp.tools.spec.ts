@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryContentStore } from '@greed/domain';
 import { InMemoryArchive } from '../archive/archive.js';
+import type { ExtractionOutcome, Extractor } from '../archive/extract.js';
 import type { BinaryResponse } from '../archive/ingest.js';
 import { ContentService } from '../content/content.service.js';
 import { dto, pick, requireString } from './args.js';
@@ -198,7 +199,7 @@ describe('attach_document and attachment tools', () => {
     const stored = (await run('get_topic', { id: a.id })).attachments[0];
     expect(stored).toMatchObject({ sha256: sha, sourceUrl: 'https://www.justice.gov/media/addendum.pdf', capturedAt: '2026-10-01', altText: 'A signed page', status: 'draft' });
     expect((await run('list_drafts')).drafts.some((d: { type: string }) => d.type === 'attachment')).toBe(true);
-    expect((await run('find_gaps')).attachmentsNeedingText).toEqual([{ topicId: a.id, attachmentId: done.added.id, caption: 'Signed addendum' }]);
+    expect((await run('find_gaps')).attachmentsNeedingText).toEqual([{ topicId: a.id, attachmentId: done.added.id, caption: 'Signed addendum', extraction: 'pending' }]);
   });
 
   it('reads a plain-text file immediately, takes a kind, and defaults the capture date to today', async () => {
@@ -239,6 +240,81 @@ describe('attach_document and attachment tools', () => {
     const { ref } = await setup();
     const bare = new McpService(content);
     await expect(bare.call('attach_document', { referenceId: ref, url: 'https://justice.gov/a.pdf', caption: 'c', altText: 'a' }, 'tester')).rejects.toThrow(/not configured/);
+  });
+
+  describe('with text extraction', () => {
+    let outcome: ExtractionOutcome;
+    let reads: number;
+    let ocr: McpService;
+    const extractor: Extractor = {
+      configured: () => true,
+      read: async () => {
+        reads++;
+        return outcome;
+      },
+    };
+    const extract = (args: Record<string, unknown>) => ocr.call('extract_attachment_text', args, 'tester (mcp)') as Promise<any>;
+    const attachWith = async (service: McpService) => {
+      const { a, ref } = await setup();
+      const done = (await service.call('attach_document', { referenceId: ref, url: 'https://www.justice.gov/media/addendum.pdf', caption: 'Signed addendum', altText: 'A signed page' }, 'tester (mcp)')) as any;
+      return { a, id: done.added.id as string, done };
+    };
+
+    beforeEach(() => {
+      reads = 0;
+      outcome = { extractionStatus: 'done', extractedText: 'Continue the order.', note: 'check it' };
+      ocr = new McpService(content, archive, async (url) => (fetched.push(url), reply), extractor);
+    });
+
+    it('reads a scan on attach, and hands back the caution', async () => {
+      const { a, done } = await attachWith(ocr);
+      expect(done.added).toMatchObject({ extraction: 'done', note: 'check it' });
+      expect((await run('get_topic', { id: a.id })).attachments[0]).toMatchObject({ extractedText: 'Continue the order.', extractionStatus: 'done' });
+      expect((await run('find_gaps')).attachmentsNeedingText).toEqual([]);
+    });
+
+    it('keeps the file and lists it as a gap when extraction fails, then retries from the archive without fetching', async () => {
+      outcome = { extractionStatus: 'failed', note: 'throttled' };
+      const { a, id } = await attachWith(ocr);
+      expect((await run('find_gaps')).attachmentsNeedingText).toEqual([{ topicId: a.id, attachmentId: id, caption: 'Signed addendum', extraction: 'failed' }]);
+      expect(fetched).toHaveLength(1);
+
+      outcome = { extractionStatus: 'done', extractedText: 'Continue the order.' };
+      expect(await extract({ attachmentId: id })).toEqual({ attachmentId: id, extraction: 'done', characters: 19, note: undefined });
+      expect(fetched).toHaveLength(1);
+      expect((await run('get_topic', { id: a.id })).attachments[0]).toMatchObject({ extractionStatus: 'done', extractedText: 'Continue the order.', sha256: sha });
+      expect((await run('find_gaps')).attachmentsNeedingText).toEqual([]);
+    });
+
+    it('leaves the row alone when the answer is no different, and records a new failure', async () => {
+      outcome = { extractionStatus: 'pending', note: 'No text was found in the file' };
+      const { a, id } = await attachWith(ocr);
+      expect(await extract({ attachmentId: id })).toMatchObject({ extraction: 'pending', characters: 0, note: /No text/ });
+      outcome = { extractionStatus: 'failed', note: 'down' };
+      await extract({ attachmentId: id });
+      expect((await run('get_topic', { id: a.id })).attachments[0]).toMatchObject({ extractionStatus: 'failed' });
+    });
+
+    it('will not replace text that is there unless told to, and a human transcription survives', async () => {
+      const { a, id } = await attachWith(ocr);
+      await call('update_attachment', { topicId: a.id, attachmentId: id, extractedText: 'Typed by hand.' });
+      const before = reads;
+      await expect(extract({ attachmentId: id })).rejects.toThrow(/already has text/);
+      expect(reads).toBe(before);
+      outcome = { extractionStatus: 'done', extractedText: 'Machine reading.' };
+      await extract({ attachmentId: id, overwrite: true });
+      expect((await run('get_topic', { id: a.id })).attachments[0]).toMatchObject({ extractedText: 'Machine reading.' });
+      await expect(extract({ attachmentId: id, overwrite: 'yes' })).rejects.toThrow(/overwrite must be true or false/);
+    });
+
+    it('refuses an unknown attachment, a missing archive copy, and a stage without extraction', async () => {
+      await expect(extract({ attachmentId: 'att_nope' })).rejects.toThrow(/No attachment/);
+      await expect(extract({})).rejects.toThrow(/attachmentId is required/);
+      const { id } = await attachWith(tools);
+      await expect(call('extract_attachment_text', { attachmentId: id })).rejects.toThrow(/not configured/);
+      archive.files.clear();
+      await expect(extract({ attachmentId: id })).rejects.toThrow(/archived file was not found/);
+    });
   });
 
   it('edits only the human fields through update_attachment, and a transcription finishes the extraction', async () => {

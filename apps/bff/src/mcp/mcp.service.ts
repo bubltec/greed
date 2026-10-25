@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable, Optional } from '@nestjs/common';
 import { ARCHIVE, type Archive, UnconfiguredArchive } from '../archive/archive.js';
+import { EXTRACTOR, type Extractor, NoExtractor } from '../archive/extract.js';
 import { BINARY_GET, type BinaryGet, liveBinaryGet } from '../archive/ingest.js';
 import { ContentService } from '../content/content.service.js';
 import { attachmentTools } from './attachment-tools.js';
@@ -23,9 +24,10 @@ export class McpService {
     content: ContentService,
     @Optional() @Inject(ARCHIVE) archive: Archive = new UnconfiguredArchive(),
     @Optional() @Inject(BINARY_GET) get: BinaryGet = liveBinaryGet,
+    @Optional() @Inject(EXTRACTOR) extractor: Extractor = new NoExtractor(),
   ) {
     this.tools = new Map(
-      [...bespokeTools(content), ...auditTools(content), ...attachmentTools(content, archive, get), ...crudTools(content)].map((t) => [t.definition.name, t]),
+      [...bespokeTools(content), ...auditTools(content), ...attachmentTools(content, archive, get, extractor), ...crudTools(content)].map((t) => [t.definition.name, t]),
     );
   }
 

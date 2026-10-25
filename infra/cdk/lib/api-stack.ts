@@ -15,6 +15,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import type * as s3 from 'aws-cdk-lib/aws-s3';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import { grantSsmConfigRead } from '@bubltec/mycota-cdk';
@@ -46,6 +47,7 @@ export interface ApiStackProps extends cdk.StackProps {
   contentTable: dynamodb.Table;
   usersTable: dynamodb.Table;
   authTable: dynamodb.Table;
+  archiveBucket: s3.IBucket;
 }
 
 /**
@@ -165,6 +167,8 @@ export class ApiStack extends cdk.Stack {
         CONTENT_TABLE_NAME: props.contentTable.tableName,
         USERS_TABLE_NAME: props.usersTable.tableName,
         AUTH_TABLE_NAME: props.authTable.tableName,
+        ARCHIVE_BUCKET: props.archiveBucket.bucketName,
+        ARCHIVE_OCR: 'textract',
         WEB_ORIGIN: origin,
         ...webAssetEnv(),
         EDITORS,
@@ -189,6 +193,12 @@ export class ApiStack extends cdk.Stack {
         resources: [memory.attrMemoryArn],
       }),
     );
+
+    // Evidence is written once and never deleted by the app: read and put, no delete.
+    props.archiveBucket.grantRead(handler);
+    props.archiveBucket.grantPut(handler);
+    // Synchronous OCR of the bytes the BFF sends; Textract has no resource ARNs to scope to.
+    handler.addToRolePolicy(new iam.PolicyStatement({ actions: ['textract:DetectDocumentText'], resources: ['*'] }));
 
     props.contentTable.grantReadWriteData(handler);
     props.usersTable.grantReadWriteData(handler);

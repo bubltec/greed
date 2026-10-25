@@ -1,6 +1,7 @@
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import awsLambdaFastify from '@fastify/aws-lambda';
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
+import { BINARY_ATTACHMENT_MIME_TYPES } from './archive/ingest.js';
 import { createApp } from './app.js';
 
 type Proxy = (event: unknown, context: unknown) => Promise<unknown>;
@@ -32,7 +33,8 @@ async function bootstrap(): Promise<Proxy> {
   const adapter = new FastifyAdapter();
   const app = await createApp(adapter);
   await app.init();
-  return awsLambdaFastify(adapter.getInstance()) as Proxy;
+  // Archived PDFs and images are binary; unlisted types are sent as UTF-8 text and arrive corrupted.
+  return awsLambdaFastify(adapter.getInstance(), { binaryMimeTypes: BINARY_ATTACHMENT_MIME_TYPES }) as Proxy;
 }
 
 export const handler = async (event: unknown, context: unknown) => {

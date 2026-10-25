@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { DYNAMO_DOC_CLIENT } from '@bubltec/mycota-dynamo';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { EditorSession } from '../auth/editor-session.js';
-import { ARCHIVE, UnconfiguredArchive } from '../archive/archive.js';
+import { ARCHIVE } from '../archive/archive.js';
+import { EXTRACTOR } from '../archive/extract.js';
+import { archiveFromEnv, extractorFromEnv } from '../archive/live.js';
 import { contentTableName } from '../env.js';
 import { ContentService } from './content.service.js';
 import { CONTENT_STORE } from './content.tokens.js';
@@ -21,11 +23,12 @@ import { PublicController } from './public.controller.js';
       inject: [DYNAMO_DOC_CLIENT],
       useFactory: (db: DynamoDBDocumentClient) => new DynamoContentStore(db, contentTableName()),
     },
-    // No storage is wired in yet: a stage reports the archive as unconfigured until an S3 adapter replaces this.
-    { provide: ARCHIVE, useValue: new UnconfiguredArchive() },
+    // S3 and Textract when the stage sets ARCHIVE_BUCKET / ARCHIVE_OCR; otherwise the archive reports itself unconfigured.
+    { provide: ARCHIVE, useFactory: () => archiveFromEnv() },
+    { provide: EXTRACTOR, useFactory: () => extractorFromEnv() },
     ContentService,
     EditorSession,
   ],
-  exports: [ContentService, ARCHIVE],
+  exports: [ContentService, ARCHIVE, EXTRACTOR],
 })
 export class ContentModule {}
