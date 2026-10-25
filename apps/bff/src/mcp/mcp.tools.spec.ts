@@ -82,6 +82,83 @@ describe('add_points', () => {
   });
 });
 
+describe('audit_content and apply_audit_fixes', () => {
+  it('returns one compact line per issue, pages, and scopes by ids and codes', async () => {
+    const a = await topic('Alpha &amp; Omega', { summary: 'Tom &amp; Jerry  did it.', tags: ['oil&amp;gas'] });
+    await topic('Beta', { summary: 'Clean.' });
+    await run('add_points', { topicId: a.id, sectionLabel: 'Facts', points: [{ text: 'Trumpâ€™s claim.' }] });
+
+    const report = await run('audit_content', { categories: ['text'] });
+    expect(report.scanned.topics).toBe(2);
+    expect(report.total).toBeGreaterThanOrEqual(4);
+    expect(report.counts.ENC_HTML_ENTITY).toBeGreaterThanOrEqual(2);
+    expect(report.lines.join('\n')).toContain('MOJIBAKE');
+    for (const line of report.lines) expect(line).toMatch(/^[^|]+\| (topic|reference|perspective|relation|outlet|page):/);
+
+    const paged = await run('audit_content', { categories: ['text'], limit: 1 });
+    expect(paged.lines).toHaveLength(1);
+    expect(paged.nextOffset).toBe(1);
+    const rest = await run('audit_content', { categories: ['text'], limit: 1, offset: paged.nextOffset });
+    expect(rest.lines[0]).not.toBe(paged.lines[0]);
+
+    const scoped = await run('audit_content', { ids: [a.id], categories: ['text'] });
+    expect(scoped.lines.every((l: string) => l.startsWith(`${a.id} |`))).toBe(true);
+    expect((await run('audit_content', { ids: ['nope'] })).total).toBe(0);
+    expect((await run('audit_content', { codes: ['MOJIBAKE'] })).lines).toHaveLength(1);
+    expect((await run('audit_content', { status: 'published', categories: ['text'] })).total).toBe(0);
+  });
+
+  it('applies only high-confidence text repairs, preserving status, and is idempotent', async () => {
+    const a = await topic('Alpha &amp; Omega', { summary: 'Tom &amp; Jerry  did it.', tags: ['oil&amp;gas'] });
+    const ref = (await run('add_reference', { topicId: a.id, label: 'NPR', excerpt: 'the \\"quote\\" from cafÃ©' })).added;
+    await run('add_points', { topicId: a.id, sectionLabel: 'Facts', points: [{ text: 'Uncited and â€œdirtyâ€ point.' }] });
+    await run('publish_topic', { topicId: a.id });
+
+    const applied = await run('apply_audit_fixes', { ids: [a.id] });
+    expect(applied.fixed.length).toBeGreaterThanOrEqual(4);
+    expect(applied.skipped).toEqual([]);
+    expect(applied.remainingFixable).toBe(0);
+
+    const full = await run('get_topic', { id: a.id });
+    expect(full.topic).toMatchObject({ title: 'Alpha & Omega', summary: 'Tom & Jerry did it.', tags: ['oil&gas'], status: 'published' });
+    expect(full.topic.sections[0].points[0].text).toBe('Uncited and “dirty” point.');
+    expect(full.references[0]).toMatchObject({ id: ref.id, excerpt: 'the "quote" from café', status: 'published' });
+
+    // Structure findings are reported, never auto-fixed.
+    const structure = await run('audit_content', { ids: [a.id], categories: ['structure'] });
+    expect(structure.lines.join('\n')).toContain('POINT_NO_CITATION');
+    expect(await run('apply_audit_fixes', { ids: [a.id] })).toMatchObject({ fixed: [], remainingFixable: 0 });
+  });
+
+  it('repairs relation notes, outlet notes and page working copies, honoring the field limit', async () => {
+    const a = await topic('Alpha');
+    const b = await topic('Beta');
+    await run('link_topics', { fromId: a.id, toId: b.id, kind: 'related', note: 'cafÃ©  link' });
+    await run('create_outlet', { name: 'NPR', domain: 'npr.org', paywall: false, accuracy: 'high', bias: 'low', oneSided: false, factual: 'high', note: 'solid  outlet' });
+    await run('update_page', { id: 'home', body: 'Body &amp; soul\\ntext' });
+
+    const one = await run('apply_audit_fixes', { limit: 1 });
+    expect(one.fixed).toHaveLength(1);
+    const rest = await run('apply_audit_fixes', {});
+    expect(one.fixed.join('\n') + rest.fixed.join('\n')).toContain('relation:');
+    expect(rest.fixed.join('\n')).toContain('outlet:');
+    expect(rest.fixed.join('\n')).toContain('page:home');
+    expect(rest.remainingFixable).toBe(0);
+    expect((await run('get_topic', { id: a.id })).related[0].relation.note).toBe('café link');
+    expect((await run('get_page', { id: 'home' })).body).toBe('Body & soul\ntext');
+    expect((await run('list_outlets')).outlets[0].note).toBe('solid outlet');
+  });
+
+  it('rejects malformed audit arguments', async () => {
+    await expect(run('audit_content', { status: 'live' })).rejects.toThrow(/status must be/);
+    await expect(run('audit_content', { categories: ['bogus'] })).rejects.toThrow(/categories must be/);
+    await expect(run('audit_content', { codes: ['NOPE'] })).rejects.toThrow(/codes must be/);
+    await expect(run('audit_content', { ids: 'alpha' })).rejects.toThrow(/ids must be/);
+    await expect(run('audit_content', { ids: [''] })).rejects.toThrow(/ids must be/);
+    await expect(run('apply_audit_fixes', { staleDays: 'soon' })).resolves.toBeDefined(); // junk numbers fall back, never crash
+  });
+});
+
 describe('generated tools', () => {
   it('updates only the fields passed, and refuses invalid values with the field named', async () => {
     const a = await topic('Alpha', { tags: ['keep'] });

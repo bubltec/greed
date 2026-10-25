@@ -73,6 +73,21 @@ export {
 } from './seo.js';
 export { parsePoint, type ParsedCitation, type ParsedPoint } from './citations.js';
 export {
+  AUDIT_CATEGORIES,
+  AUDIT_CODES,
+  auditContent,
+  repairText,
+  type AuditCategory,
+  type AuditCode,
+  type AuditConfidence,
+  type AuditFinding,
+  type AuditItemType,
+  type AuditOptions,
+  type AuditReport,
+  type TextIssue,
+  type TextRepair,
+} from './audit.js';
+export {
   OUTLET_FILTER_CAP,
   compareOutlets,
   hostMatches,
