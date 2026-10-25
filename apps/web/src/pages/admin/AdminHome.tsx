@@ -224,6 +224,7 @@ const TYPE_LABEL: Record<DraftEntry['type'], string> = {
   perspective: 'Perspective',
   relation: 'Link',
   outlet: 'Outlet',
+  attachment: 'Evidence',
 };
 
 /** The review queue: drafts grouped by entry, with one publish button per entry. */

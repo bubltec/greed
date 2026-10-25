@@ -8,9 +8,12 @@ import { ItemStatus } from './PublishControls';
 const blank: ReferenceInput = { label: '', url: '', publishedOn: '', excerpt: '', note: '' };
 
 function clean(input: ReferenceInput): ReferenceInput {
-  // Empty optional strings would fail the BFF's URL/date validators; omit them.
+  // Empty optional strings would fail the BFF's URL/date validators; omit them. A verdict only goes with a viral claim.
+  const viral = input.viralClaim === true;
   return Object.fromEntries(
-    Object.entries(input).filter(([k, v]) => k === 'label' || (typeof v === 'string' && v.trim())),
+    Object.entries(input).filter(
+      ([k, v]) => k === 'label' || (k === 'viralClaim' ? viral : k === 'verdict' ? viral && typeof v === 'string' && v.trim() : typeof v === 'string' && v.trim()),
+    ),
   ) as unknown as ReferenceInput;
 }
 
@@ -96,6 +99,7 @@ function ReferenceRow({
           </>
         )}
         {reference.publishedOn && <span className="text-slate"> · {reference.publishedOn}</span>}{' '}
+        {reference.viralClaim && <span className="text-slate"> · Viral claim: {reference.verdict}</span>}{' '}
         <ItemStatus type="reference" id={reference.id} status={reference.status} onChanged={onStatus} />
       </span>
       <button className="text-xs text-ice underline" onClick={onEdit}>
@@ -157,6 +161,19 @@ function ReferenceForm({
       <Field label="Note">
         <input value={form.note ?? ''} onChange={(e) => set('note', e.target.value)} placeholder="e.g. paywalled; archived copy at…" />
       </Field>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={form.viralClaim === true}
+          onChange={(e) => setForm((f) => ({ ...f, viralClaim: e.target.checked }))}
+        />
+        Viral claim: cited and answered, never embedded
+      </label>
+      {form.viralClaim === true && (
+        <Field label="Verdict" hint="One line on what the record shows about the claim.">
+          <input value={form.verdict ?? ''} onChange={(e) => set('verdict', e.target.value)} required maxLength={500} />
+        </Field>
+      )}
       {error && <ErrorBox error={error} />}
       <div className="flex flex-wrap gap-2">
         <button className="btn" disabled={busy}>

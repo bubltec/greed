@@ -88,6 +88,48 @@ describe('outlet drafts', () => {
   });
 });
 
+describe('attachments', () => {
+  const att = (id: string, over: Partial<NonNullable<ContentSnapshot['attachments']>[number]> = {}) => ({
+    id,
+    topicId: 'live',
+    referenceId: 'r-pub',
+    kind: 'scan' as const,
+    caption: `Caption ${id}`,
+    altText: 'Alt',
+    capturedAt: '2026-10-01',
+    sha256: 'a'.repeat(64),
+    mimeType: 'application/pdf',
+    bytes: 3,
+    extractionStatus: 'pending' as const,
+    updatedBy: 'me@example.com',
+    ...stamp,
+    ...over,
+  });
+  const withAttachments: ContentSnapshot = {
+    ...snapshot,
+    attachments: [
+      att('ok', { status: 'published' }),
+      att('draft', { status: 'draft' }),
+      att('hidden-ref', { status: 'published', referenceId: 'r-draft' }),
+      att('hidden-topic', { status: 'published', topicId: 'wip', referenceId: 'r-hidden-topic' }),
+      att('legacy-published'),
+    ],
+  };
+
+  it('are public only when published, with a published topic and a published reference, and never expose an editor email', () => {
+    const pub = publishedOnly(withAttachments);
+    expect(pub.attachments!.map((a) => a.id)).toEqual(['ok', 'legacy-published']);
+    expect(pub.attachments![0]!.updatedBy).toBe('editor');
+    expect(publishedOnly(snapshot).attachments).toEqual([]); // a snapshot from before attachments existed
+  });
+
+  it('show up in the review queue with their caption, and on the topic view', () => {
+    expect(drafts(withAttachments).find((d) => d.type === 'attachment')).toMatchObject({ id: 'draft', label: 'Caption draft', topicPublished: true });
+    expect(new ContentIndex(withAttachments).view('live')!.attachments.map((a) => a.id).sort()).toEqual(['draft', 'hidden-ref', 'legacy-published', 'ok']);
+    expect(new ContentIndex(snapshot).view('live')!.attachments).toEqual([]);
+  });
+});
+
 describe('public authorship', () => {
   it('never exposes an editor email, but keeps system writers', () => {
     const pub = publishedOnly({

@@ -1,4 +1,8 @@
 import {
+  ATTACHMENT_KINDS,
+  type AttachmentKind,
+  EXTRACTION_STATUSES,
+  type ExtractionStatus,
   type EntityName,
   RELATION_KINDS,
   RELATION_PROVENANCES,
@@ -21,12 +25,14 @@ import {
   IsArray,
   IsBoolean,
   IsIn,
+  IsInt,
   IsOptional,
   IsString,
   IsUrl,
   Length,
   Matches,
   MaxLength,
+  Min,
   ValidateNested,
 } from 'class-validator';
 
@@ -131,7 +137,74 @@ export class ReferenceInputDto {
   @MaxLength(2000)
   note?: string;
 
+  /** A circulating claim that is cited and answered, never embedded; needs a verdict. */
+  @IsOptional()
+  @IsBoolean()
+  viralClaim?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  verdict?: string;
+
   /** Omit to keep the current status (updates) or use the default (creates; see ContentService). */
+  @IsOptional()
+  @IsIn(STATUSES)
+  status?: Status;
+}
+
+export class AttachmentInputDto {
+  @IsString()
+  @Length(1, 80)
+  referenceId!: string;
+
+  @IsIn(ATTACHMENT_KINDS)
+  kind!: AttachmentKind;
+
+  @IsString()
+  @Length(1, 500)
+  caption!: string;
+
+  /** Describes the file for someone who cannot see it. */
+  @IsString()
+  @Length(1, 500)
+  altText!: string;
+
+  // The next five are set by the server when it archives a file. Edits cannot change them,
+  // so an attachment can never point at a different file than the one that was archived.
+  @IsOptional()
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
+  @MaxLength(2000)
+  sourceUrl?: string;
+
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'capturedAt must be YYYY-MM-DD' })
+  capturedAt?: string;
+
+  @IsOptional()
+  @Matches(/^[0-9a-f]{64}$/, { message: 'sha256 must be 64 lowercase hex characters' })
+  sha256?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  mimeType?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  bytes?: number;
+
+  /** Text read out of the file. Setting it without a status marks the extraction done. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(200000)
+  extractedText?: string;
+
+  @IsOptional()
+  @IsIn(EXTRACTION_STATUSES)
+  extractionStatus?: ExtractionStatus;
+
   @IsOptional()
   @IsIn(STATUSES)
   status?: Status;

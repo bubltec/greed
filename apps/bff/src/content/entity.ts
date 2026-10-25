@@ -82,6 +82,13 @@ export interface EntitySpec<Item extends { id: string } = any, Input extends obj
   /** Status of a new item when the input gives none; default is the parent's, else draft. */
   defaultStatus?(input: Input, ctx: EntityCtx<Item>): Status;
 
+  /**
+   * Rows are written only by server code (a file the server archived), never by a REST
+   * create or a generic MCP create, so callers can't claim facts the server didn't verify.
+   * `ContentService.create` still works for that server code; updates and deletes are normal.
+   */
+  serverCreated?: boolean;
+
   /** Ids are fixed (site pages): update creates the row on first save, and the type can't be created or deleted. */
   fixedIds?: { all(): readonly string[]; has(id: string): boolean };
 

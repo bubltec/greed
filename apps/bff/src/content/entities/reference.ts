@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { ENTITY_DEFS, type Reference } from '@greed/domain';
 import { ReferenceInputDto } from '../content.dto.js';
 import { defineEntity, type Effect } from '../entity.js';
@@ -8,21 +9,36 @@ export const referenceSpec = defineEntity<Reference, ReferenceInputDto>({
   dto: ReferenceInputDto,
   route: 'references',
 
-  fields: (input) => ({
-    label: input.label.trim(),
-    url: input.url?.trim() || undefined,
-    publishedOn: input.publishedOn || undefined,
-    excerpt: input.excerpt?.trim() || undefined,
-    note: input.note?.trim() || undefined,
-  }),
+  fields: (input, { index, existing }) => {
+    const verdict = input.verdict?.trim() || undefined;
+    const viralClaim = input.viralClaim === true;
+    if (viralClaim && !verdict) throw new BadRequestException('A viral claim needs a verdict: one line on what the record shows');
+    if (!viralClaim && verdict) throw new BadRequestException('A verdict only goes with a viral claim; set viralClaim too');
+    // Viral claims are cited and answered, never embedded; evidence already attached means this is a real source.
+    if (viralClaim && existing && (index.snapshot.attachments ?? []).some((a) => a.referenceId === existing.id)) {
+      throw new BadRequestException('This reference has archived evidence attached, so it cannot be marked a viral claim');
+    }
+    return {
+      label: input.label.trim(),
+      url: input.url?.trim() || undefined,
+      publishedOn: input.publishedOn || undefined,
+      excerpt: input.excerpt?.trim() || undefined,
+      note: input.note?.trim() || undefined,
+      viralClaim: viralClaim || undefined,
+      verdict,
+    };
+  },
 
-  /** Deleting a source unlinks it from the points and perspectives that cited it. */
+  /** Deleting a source unlinks it from the points and perspectives that cited it, and drops its evidence rows. */
   onDelete: (reference, { index, by, now }) => {
     const topic = index.topicsById.get(reference.topicId);
     const view = index.view(reference.topicId);
     if (!topic || !view) return [];
     const drop = (ids: string[]) => ids.filter((id) => id !== reference.id);
-    const effects: Effect[] = [];
+    // The archived file stays: it is content-addressed, may back another row, and is evidence worth keeping.
+    const effects: Effect[] = view.attachments
+      .filter((a) => a.referenceId === reference.id)
+      .map((a) => ({ remove: { entity: 'attachment' as const, ref: { id: a.id, parentId: a.topicId } } }));
     if (topic.sections.some((s) => s.points.some((p) => p.refIds.includes(reference.id)))) {
       effects.push({
         put: {
@@ -62,6 +78,8 @@ export const referenceSpec = defineEntity<Reference, ReferenceInputDto>({
       publishedOn: 'YYYY, YYYY-MM or YYYY-MM-DD.',
       excerpt: 'A short quote from the source supporting the claim.',
       note: 'e.g. "paywalled", "archived copy".',
+      viralClaim: 'True for a circulating claim (a viral screenshot or post). It is cited and answered with a verdict, never embedded or attached.',
+      verdict: 'Required with viralClaim: one line on what the record shows about the claim.',
     },
     result: (view, item) => ({ ...compactTopicView(view), added: item }),
   },
