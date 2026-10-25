@@ -78,11 +78,16 @@ describe('GET /api/attachments/:id/file', () => {
     expect(res.body).toBe('%PDF live');
     expect(res.headers).toMatchObject({
       'content-type': 'application/pdf',
-      'content-disposition': 'inline',
+      'content-disposition': 'attachment; filename="published-file.pdf"',
       'x-content-type-options': 'nosniff',
       'content-security-policy': "default-src 'none'; sandbox",
       'cache-control': 'public, max-age=300',
     });
+  });
+
+  it('shows an image inline, since only a PDF is made a download', async () => {
+    const res = await get('/api/attachments/draft-file/file?preview=1', editor);
+    expect(res.headers['content-disposition']).toBe('inline');
   });
 
   it('never gives a draft file, or one on a draft topic, to the public; an editor previews them uncached', async () => {

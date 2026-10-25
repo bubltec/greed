@@ -42,7 +42,7 @@ export const AUDIT_CODES = [
 export type AuditCode = (typeof AUDIT_CODES)[number];
 
 export type AuditConfidence = 'high' | 'medium' | 'low';
-export type AuditItemType = 'topic' | 'reference' | 'perspective' | 'relation' | 'outlet' | 'page';
+export type AuditItemType = 'topic' | 'reference' | 'perspective' | 'relation' | 'outlet' | 'attachment' | 'page';
 
 export interface AuditFinding {
   category: AuditCategory;
@@ -75,7 +75,7 @@ export interface AuditOptions {
 }
 
 export interface AuditReport {
-  scanned: { topics: number; references: number; perspectives: number; relations: number; outlets: number; pages: number; fields: number };
+  scanned: { topics: number; references: number; perspectives: number; relations: number; outlets: number; attachments: number; pages: number; fields: number };
   total: number;
   counts: Partial<Record<AuditCode, number>>;
   findings: AuditFinding[];
@@ -246,6 +246,8 @@ interface FieldRef {
   value: string;
   multiline?: boolean;
   page?: boolean;
+  /** Must match a file exactly (OCR or a transcription): problems are reported, never repaired. */
+  verbatim?: boolean;
 }
 
 const MONTHS: Record<string, number> = {
@@ -282,9 +284,11 @@ export function auditContent(snapshot: ContentSnapshot, options: AuditOptions = 
   const referencesAll = snapshot.references.filter((r) => inScope(r.topicId));
   const perspectivesAll = snapshot.perspectives.filter((p) => inScope(p.topicId));
   const relationsAll = snapshot.relations.filter((r) => inScope(r.fromId) || inScope(r.toId));
+  const attachmentsAll = (snapshot.attachments ?? []).filter((a) => inScope(a.topicId));
   const references = byStatus(referencesAll);
   const perspectives = byStatus(perspectivesAll);
   const relations = byStatus(relationsAll);
+  const attachments = byStatus(attachmentsAll);
   const outlets = scope ? [] : (snapshot.outlets ?? []);
   const pages = scope ? [] : (snapshot.pages ?? []);
 
@@ -325,6 +329,13 @@ export function auditContent(snapshot: ContentSnapshot, options: AuditOptions = 
   for (const r of relations) {
     add({ type: 'relation', id: r.id, topicId: r.fromId, topicTitle: topicById.get(r.fromId)?.title ?? r.fromId, field: 'note', value: r.note });
   }
+  for (const a of attachments) {
+    const base = { type: 'attachment' as const, id: a.id, topicId: a.topicId, topicTitle: topicById.get(a.topicId)?.title ?? a.topicId };
+    add({ ...base, field: 'caption', value: a.caption });
+    add({ ...base, field: 'altText', value: a.altText });
+    // OCR output and transcriptions are evidence of what a file says; damage here is flagged, not "fixed".
+    add({ ...base, field: 'extractedText', value: a.extractedText ?? '', multiline: true, verbatim: true });
+  }
   for (const o of outlets) {
     const base = { type: 'outlet' as const, id: o.id, topicId: o.id, topicTitle: o.name };
     add({ ...base, field: 'name', value: o.name });
@@ -341,12 +352,12 @@ export function auditContent(snapshot: ContentSnapshot, options: AuditOptions = 
       const repair = repairText(f.value, { multiline: f.multiline, page: f.page });
       const changed = repair.after !== f.value;
       for (const issue of repair.issues) {
-        const fixable = changed && issue.confidence === 'high';
+        const fixable = changed && issue.confidence === 'high' && !f.verbatim;
         push({
           category: 'text', code: issue.code, confidence: issue.confidence,
           type: f.type, id: f.id, topicId: f.topicId, topicTitle: f.topicTitle, field: f.field,
           before: f.value, ...(fixable ? { after: repair.after } : {}),
-          message: fixable ? 'Repair available' : 'Needs a human look',
+          message: fixable ? 'Repair available' : f.verbatim ? 'Extracted text must match the file; check it against the original' : 'Needs a human look',
         });
       }
     }
@@ -396,6 +407,7 @@ export function auditContent(snapshot: ContentSnapshot, options: AuditOptions = 
           });
         for (const r of referencesAll) if (r.topicId === t.id && statusOf(r) === 'draft') draftChild('reference', r.id, 'label', 'reference');
         for (const p of perspectivesAll) if (p.topicId === t.id && statusOf(p) === 'draft') draftChild('perspective', p.id, 'body', 'perspective');
+        for (const a of attachmentsAll) if (a.topicId === t.id && statusOf(a) === 'draft') draftChild('attachment', a.id, 'caption', 'attachment');
         for (const r of relationsAll) {
           if ((r.fromId === t.id || r.toId === t.id) && statusOf(r) === 'draft') draftChild('relation', r.id, 'note', 'link');
         }
@@ -446,7 +458,7 @@ export function auditContent(snapshot: ContentSnapshot, options: AuditOptions = 
   return {
     scanned: {
       topics: topics.length, references: references.length, perspectives: perspectives.length,
-      relations: relations.length, outlets: outlets.length, pages: pages.length, fields: fields.length,
+      relations: relations.length, outlets: outlets.length, attachments: attachments.length, pages: pages.length, fields: fields.length,
     },
     total: findings.length,
     counts,

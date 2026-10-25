@@ -6,7 +6,7 @@ import { ApiError, api } from '../lib/api';
 import { formatDate, RELATION_LABEL, STANCE_COLOR, STANCE_LABEL } from '../lib/labels';
 import { usePreview } from '../lib/preview';
 import { useSession } from '../lib/session';
-import type { RelatedTopic, TopicView } from '../lib/types';
+import type { Attachment, RelatedTopic, TopicView } from '../lib/types';
 import { useAsync } from '../lib/useAsync';
 import { usePageMeta } from '../lib/usePageMeta';
 
@@ -177,6 +177,12 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
                       </>
                     )}
                     {!r.url && <span className="text-slate"> · link needed</span>}
+                    {r.viralClaim && (
+                      <span className="mt-1 block text-steel">
+                        <span className="pixel mr-2 text-[0.4375rem] text-bolt">Viral claim</span>
+                        {r.verdict}
+                      </span>
+                    )}
                     {r.excerpt && <span className="mt-1 block italic text-steel">“{r.excerpt}”</span>}
                     {r.note && <span className="mt-1 block text-steel">{r.note}</span>}
                   </span>
@@ -185,6 +191,17 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
             </ol>
           )}
         </section>
+
+        {view.attachments.length > 0 && (
+          <section className="mb-8">
+            <SectionTitle>Evidence</SectionTitle>
+            <div className="flex flex-col gap-5">
+              {view.attachments.map((a) => (
+                <Evidence key={a.id} attachment={a} source={refNumber.get(a.referenceId)} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       <aside className="lg:sticky lg:top-6 lg:self-start">
@@ -196,6 +213,67 @@ function TopicBody({ view, titles }: { view: TopicView; titles: Map<string, stri
         )}
       </aside>
     </article>
+  );
+}
+
+const EVIDENCE_LABEL: Record<Attachment['kind'], string> = { 'primary-document': 'Primary document', chart: 'Chart', scan: 'Scan' };
+
+/** An archived file: the image itself (or a link, for a PDF), what it is, where it came from, and its text. */
+function Evidence({ attachment: a, source }: { attachment: Attachment; source: number | undefined }) {
+  // A draft is only served to a signed-in editor previewing the entry.
+  const file = `/api/attachments/${encodeURIComponent(a.id)}/file${a.status === 'draft' ? '?preview=1' : ''}`;
+  const isImage = a.mimeType.startsWith('image/');
+  return (
+    <figure className="border-l-2 border-deep pl-4 text-sm">
+      {isImage && (
+        <a href={file} target="_blank" rel="noopener noreferrer">
+          <img src={file} alt={a.altText} loading="lazy" className="mb-2 max-h-96 max-w-full border border-deep" />
+        </a>
+      )}
+      <figcaption className="text-snow">
+        {a.caption}
+        {a.status === 'draft' && (
+          <>
+            {' '}
+            <DraftFlag small />
+          </>
+        )}
+        <span className="mt-1 block text-xs text-slate">
+          {EVIDENCE_LABEL[a.kind]}
+          {source !== undefined && (
+            <>
+              {' · supports '}
+              <a href={`#ref-${a.referenceId}`}>[{source}]</a>
+            </>
+          )}
+          {' · captured '}
+          {a.capturedAt}
+          {!isImage && (
+            <>
+              {' · '}
+              <a href={file} target="_blank" rel="noopener noreferrer">
+                Download {a.mimeType === 'application/pdf' ? 'PDF' : 'file'}
+              </a>
+            </>
+          )}
+          {a.sourceUrl && (
+            <>
+              {' · '}
+              <a href={a.sourceUrl} target="_blank" rel="noopener noreferrer">
+                Original
+              </a>
+            </>
+          )}
+          <span className="block break-all">SHA-256 {a.sha256}</span>
+        </span>
+      </figcaption>
+      {a.extractedText && (
+        <details className="mt-2 text-steel">
+          <summary className="cursor-pointer text-xs text-ice">Text of the document</summary>
+          <p className="prose-body mt-2 whitespace-pre-line text-xs">{a.extractedText}</p>
+        </details>
+      )}
+    </figure>
   );
 }
 

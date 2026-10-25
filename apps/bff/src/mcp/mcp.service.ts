@@ -3,10 +3,12 @@ import { ARCHIVE, type Archive, UnconfiguredArchive } from '../archive/archive.j
 import { EXTRACTOR, type Extractor, NoExtractor } from '../archive/extract.js';
 import { BINARY_GET, type BinaryGet, liveBinaryGet } from '../archive/ingest.js';
 import { ContentService } from '../content/content.service.js';
+import { LINK_PROBE, liveProbe, type Probe } from '../links/probe.js';
 import { attachmentTools } from './attachment-tools.js';
 import { auditTools } from './audit-tools.js';
 import { bespokeTools } from './bespoke-tools.js';
 import { crudTools } from './crud-tools.js';
+import { linkTools } from './link-tools.js';
 import type { Tool, ToolDefinition } from './tool.js';
 
 /**
@@ -25,9 +27,10 @@ export class McpService {
     @Optional() @Inject(ARCHIVE) archive: Archive = new UnconfiguredArchive(),
     @Optional() @Inject(BINARY_GET) get: BinaryGet = liveBinaryGet,
     @Optional() @Inject(EXTRACTOR) extractor: Extractor = new NoExtractor(),
+    @Optional() @Inject(LINK_PROBE) probe: Probe = liveProbe,
   ) {
     this.tools = new Map(
-      [...bespokeTools(content), ...auditTools(content), ...attachmentTools(content, archive, get, extractor), ...crudTools(content)].map((t) => [t.definition.name, t]),
+      [...bespokeTools(content), ...auditTools(content), ...attachmentTools(content, archive, get, extractor), ...linkTools(content, probe), ...crudTools(content)].map((t) => [t.definition.name, t]),
     );
   }
 

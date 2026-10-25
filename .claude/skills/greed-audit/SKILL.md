@@ -32,6 +32,27 @@ context window and will not finish — do not do it.
    finding and push it through `update_*` unless the user approved that
    exact wording. `apply_audit_fixes` exists so repairs are deterministic.
 
+## Attachments and links
+
+- `audit_content` also covers attachments: caption and alt text are repaired like
+  prose; **extracted text is never auto-fixed** (it must match the file), so a
+  finding there means compare it with the archived file and fix it with
+  `update_attachment` only with wording the user approved. A draft attachment
+  on a published topic shows up as `PUBLISHED_WITH_DRAFT_CHILD`.
+- `find_gaps` lists scans still needing text (`pending` or `failed`); run
+  `extract_attachment_text` on them. A multi-page PDF may answer "still
+  reading": call again after a minute. OCR text is a machine reading, so say so
+  when you quote it.
+- `audit_links` checks whether cited URLs still work. It requests only URLs
+  already on references, pages ~25 URLs per call (`offset`/`nextOffset`), and
+  reports lines like `topic | reference:id | CODE confidence | detail | url`.
+  `LINK_BROKEN` (404/410 or the domain is gone) and `LINK_MOVED … → new` are
+  worth acting on: fix a moved link with `update_reference` after opening the
+  new address to confirm it is the same page. `LINK_BLOCKED` means the site
+  refuses automated checks, not that the link is dead: leave it or ask the user.
+  `LINK_PAYWALLED` flags a cited paywalled outlet; `LINK_UNCHECKED` is a URL it
+  will not request (private address, odd port). It never edits anything.
+
 ## What the codes mean
 
 - **Text, auto-fixable (`high`):** `ENC_HTML_ENTITY`, `ENC_DOUBLE`,

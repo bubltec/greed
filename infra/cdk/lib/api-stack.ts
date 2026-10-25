@@ -197,8 +197,14 @@ export class ApiStack extends cdk.Stack {
     // Evidence is written once and never deleted by the app: read and put, no delete.
     props.archiveBucket.grantRead(handler);
     props.archiveBucket.grantPut(handler);
-    // Synchronous OCR of the bytes the BFF sends; Textract has no resource ARNs to scope to.
-    handler.addToRolePolicy(new iam.PolicyStatement({ actions: ['textract:DetectDocumentText'], resources: ['*'] }));
+    // OCR: bytes sent inline for one page, and a job over the archived object for a longer PDF (Textract
+    // reads the object with this role's own S3 access). Textract has no resource ARNs to scope to.
+    handler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['textract:DetectDocumentText', 'textract:StartDocumentTextDetection', 'textract:GetDocumentTextDetection'],
+        resources: ['*'],
+      }),
+    );
 
     props.contentTable.grantReadWriteData(handler);
     props.usersTable.grantReadWriteData(handler);

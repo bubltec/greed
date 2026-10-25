@@ -1,5 +1,6 @@
 export type {
   ActivityBrowse,
+  Attachment,
   ActivityEntry,
   ActivityType,
   ContentSnapshot,

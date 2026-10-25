@@ -138,7 +138,7 @@ export async function archiveFromUrl(
   const read =
     local.extractionStatus === 'done' || !deps.extractor?.configured()
       ? local
-      : await readSafely(deps.extractor, { bytes: response.bytes, mimeType });
+      : await readSafely(deps.extractor, { bytes: response.bytes, mimeType, key: archiveKey(sha256) });
   return {
     sha256,
     mimeType,

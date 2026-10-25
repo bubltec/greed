@@ -47,12 +47,17 @@ Readers never get a bucket URL: files go through the BFF. The Lambda finds the b
 `ARCHIVE_BUCKET`, and OCR through `ARCHIVE_OCR=textract`; without them the stage is "not configured".
 
 Archived files are served at `GET /api/attachments/:id/file`: published attachments only (an editor's
-`?preview=1` also gets drafts), with the stored type, `nosniff` and a sandboxing CSP.
+`?preview=1` also gets drafts), with the stored type, `nosniff` and a sandboxing CSP. Images are shown
+inline on the topic page's Evidence section; a PDF is a download, because Chrome's viewer refuses a
+response with a sandbox CSP.
 
-Extracted text: plain text is read on archive. A PNG, JPEG or **single-page** PDF goes to Amazon
-Textract (synchronous `DetectDocumentText`); the text it returns is a machine reading, so check it
-against the file before quoting it. Anything it cannot read (a multi-page PDF, WebP, GIF, a blank
-scan) is left `pending`, and an OCR error leaves it `failed`; the file is archived either way.
+Extracted text: plain text is read on archive. A PNG, JPEG or one-page PDF goes to Amazon Textract
+(synchronous `DetectDocumentText`). A longer PDF is read as a Textract job over the archived object;
+the job's idempotency token is the file's hash, so calling `extract_attachment_text` again joins the
+same job instead of starting another. One call waits about 12 s, then leaves the file `pending`
+for a retry. A job that fails or reads only some pages is `failed`, never stored as complete. The text
+is a machine reading, so check it against the file before quoting it. Anything Textract cannot read
+(WebP, GIF, a blank scan) is left `pending`, and an OCR error leaves it `failed`; the file is archived either way.
 `find_gaps` lists both as `attachmentsNeedingText`. `extract_attachment_text` retries from the
 archived copy (no fetch), and a person can always save an exact transcription with
 `update_attachment`. Deleting a reference removes its attachment rows; the archived file is kept.
