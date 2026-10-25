@@ -43,6 +43,9 @@ export interface ReferenceInput {
   publishedOn?: string;
   excerpt?: string;
   note?: string;
+  /** A circulating claim that is cited and answered, never embedded. Needs a verdict. */
+  viralClaim?: boolean;
+  verdict?: string;
 }
 
 export interface PerspectiveInput {

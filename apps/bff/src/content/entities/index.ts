@@ -1,5 +1,6 @@
 import type { EntityName } from '@greed/domain';
 import type { EntitySpec } from '../entity.js';
+import { attachmentSpec } from './attachment.js';
 import { outletSpec } from './outlet.js';
 import { pageSpec } from './page.js';
 import { perspectiveSpec } from './perspective.js';
@@ -19,6 +20,7 @@ export const ENTITIES: Record<EntityName, EntitySpec> = {
   perspective: perspectiveSpec,
   relation: relationSpec,
   outlet: outletSpec,
+  attachment: attachmentSpec,
   page: pageSpec,
 };
 

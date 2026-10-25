@@ -54,6 +54,29 @@ describe('page documents', () => {
     expect(pageDocument('/t/missing', published)).toMatchObject({ status: 404, robots: 'noindex, nofollow' });
   });
 
+  it('lists archived evidence under its source number, and states a viral claim’s verdict instead of showing it', () => {
+    const doc = pageDocument(
+      '/t/alpha',
+      index({
+        references: [
+          { id: 'r1', topicId: 'alpha', label: 'DOJ press release', url: 'https://justice.gov/x', createdAt: at, updatedAt: at, status: 'published' },
+          { id: 'r2', topicId: 'alpha', label: 'Viral post', viralClaim: true, verdict: 'The addendum does not say this.', createdAt: '2026-04-02T00:00:00.000Z', updatedAt: at, status: 'published' },
+          { id: 'r3', topicId: 'alpha', label: 'Unjudged post', viralClaim: true, createdAt: '2026-04-03T00:00:00.000Z', updatedAt: at, status: 'published' },
+        ],
+        attachments: [
+          { id: 'a1', topicId: 'alpha', referenceId: 'r1', kind: 'scan', caption: 'Signed addendum', altText: 'A signed page', sourceUrl: 'https://justice.gov/x.pdf', capturedAt: '2026-10-01', sha256: 'a'.repeat(64), mimeType: 'application/pdf', bytes: 10, extractedText: 'The addendum reads: payments continue.', extractionStatus: 'done', createdAt: at, updatedAt: at, status: 'published' },
+          { id: 'a2', topicId: 'alpha', referenceId: 'gone', kind: 'chart', caption: 'Orphan chart', altText: 'A chart', capturedAt: '2026-10-02', sha256: 'b'.repeat(64), mimeType: 'image/png', bytes: 5, extractionStatus: 'pending', createdAt: at, updatedAt: at, status: 'published' },
+        ],
+      }),
+    );
+    expect(doc.text).toContain('[2] Viral post · Viral claim: The addendum does not say this.');
+    expect(doc.text).toContain('[3] Unjudged post · Viral claim: no verdict recorded');
+    expect(doc.text).toContain('Evidence');
+    expect(doc.text).toContain('Source [1] — Signed addendum (Scan, captured 2026-10-01 from https://justice.gov/x.pdf)\nThe addendum reads: payments continue.');
+    expect(doc.text).toContain('Source [?] — Orphan chart (Chart, captured 2026-10-02)');
+    expect(pageDocument('/t/beta', published).text).not.toContain('Evidence');
+  });
+
   it('keeps drafts out of the public document', () => {
     const withDraft = index({
       topics: [

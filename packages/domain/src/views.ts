@@ -1,4 +1,5 @@
 import {
+  type Attachment,
   type ContentSnapshot,
   type Perspective,
   type Reference,
@@ -34,6 +35,8 @@ export interface TopicView {
   topic: Topic;
   references: Reference[];
   perspectives: Perspective[];
+  /** Archived evidence for this topic's references. */
+  attachments: Attachment[];
   related: RelatedTopic[];
 }
 
@@ -57,6 +60,7 @@ export class ContentIndex {
   readonly topicsById = new Map<string, Topic>();
   private readonly refsByTopic = new Map<string, Reference[]>();
   private readonly perspectivesByTopic = new Map<string, Perspective[]>();
+  private readonly attachmentsByTopic = new Map<string, Attachment[]>();
   private readonly relationsByTopic = new Map<string, Relation[]>();
 
   private publicIndex?: ContentIndex;
@@ -75,6 +79,7 @@ export class ContentIndex {
     for (const t of snapshot.topics) this.topicsById.set(t.id, t);
     for (const r of snapshot.references) push(this.refsByTopic, r.topicId, r);
     for (const p of snapshot.perspectives) push(this.perspectivesByTopic, p.topicId, p);
+    for (const a of snapshot.attachments ?? []) push(this.attachmentsByTopic, a.topicId, a);
     for (const rel of snapshot.relations) {
       // A relation whose other end was deleted is invisible, not an error.
       if (!this.topicsById.has(rel.fromId) || !this.topicsById.has(rel.toId)) continue;
@@ -129,6 +134,7 @@ export class ContentIndex {
       topic,
       references: [...(this.refsByTopic.get(topicId) ?? [])].sort(byCreated),
       perspectives: [...(this.perspectivesByTopic.get(topicId) ?? [])].sort(byCreated),
+      attachments: [...(this.attachmentsByTopic.get(topicId) ?? [])].sort(byCreated),
       related,
     };
   }

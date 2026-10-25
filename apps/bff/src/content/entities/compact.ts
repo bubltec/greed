@@ -10,6 +10,14 @@ export function compactTopicView(view: TopicView) {
     sections: view.topic.sections.map((s) => ({ label: s.label, points: s.points.length })),
     references: view.references.map((r) => ({ id: r.id, label: r.label, url: r.url, status: statusOf(r) })),
     perspectives: view.perspectives.map((p) => ({ id: p.id, stance: p.stance, holder: p.holder, status: statusOf(p) })),
+    attachments: view.attachments.map((a) => ({
+      id: a.id,
+      referenceId: a.referenceId,
+      kind: a.kind,
+      caption: a.caption,
+      extraction: a.extractionStatus,
+      status: statusOf(a),
+    })),
     related: view.related.map((r) => ({
       relationId: r.relation.id,
       kind: r.relation.kind,

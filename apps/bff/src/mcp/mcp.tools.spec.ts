@@ -1,5 +1,8 @@
+import { createHash } from 'node:crypto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryContentStore } from '@greed/domain';
+import { InMemoryArchive } from '../archive/archive.js';
+import type { BinaryResponse } from '../archive/ingest.js';
 import { ContentService } from '../content/content.service.js';
 import { dto, pick, requireString } from './args.js';
 import { dtoKeys, dtoSchema } from './dto-schema.js';
@@ -156,6 +159,135 @@ describe('audit_content and apply_audit_fixes', () => {
     await expect(run('audit_content', { ids: 'alpha' })).rejects.toThrow(/ids must be/);
     await expect(run('audit_content', { ids: [''] })).rejects.toThrow(/ids must be/);
     await expect(run('apply_audit_fixes', { staleDays: 'soon' })).resolves.toBeDefined(); // junk numbers fall back, never crash
+  });
+});
+
+describe('attach_document and attachment tools', () => {
+  const pdf = new TextEncoder().encode('%PDF-1.7 signed addendum');
+  const sha = createHash('sha256').update(pdf).digest('hex');
+  let archive: InMemoryArchive;
+  let fetched: string[];
+  let reply: BinaryResponse;
+  let tools: McpService;
+  const call = (name: string, args: Record<string, unknown> = {}) => tools.call(name, args, 'tester (mcp)') as Promise<any>;
+
+  beforeEach(async () => {
+    archive = new InMemoryArchive();
+    fetched = [];
+    reply = { status: 200, headers: { 'content-type': 'application/pdf' }, bytes: pdf };
+    tools = new McpService(content, archive, async (url) => (fetched.push(url), reply));
+    await run('create_outlet', { name: 'Justice Dept', domain: 'justice.gov', paywall: false, accuracy: 'high', bias: 'low', oneSided: false, factual: 'high' });
+    await run('set_status', { status: 'published', items: [{ type: 'outlet', id: 'justice-gov' }] });
+  });
+
+  const setup = async () => {
+    const a = await topic('Alpha');
+    const ref = (await run('add_reference', { topicId: a.id, label: 'DOJ addendum' })).added.id;
+    return { a, ref };
+  };
+  const attach = (referenceId: string, over: Record<string, unknown> = {}) =>
+    call('attach_document', { referenceId, url: 'https://www.justice.gov/media/addendum.pdf', caption: 'Signed addendum', altText: 'A signed page', capturedAt: '2026-10-01', ...over });
+
+  it('archives the file, hashes it, and creates a draft attachment from what the server saw', async () => {
+    const { a, ref } = await setup();
+    const done = await attach(ref);
+    expect(fetched).toEqual(['https://www.justice.gov/media/addendum.pdf']);
+    expect(done.added).toMatchObject({ sha256: sha, mimeType: 'application/pdf', bytes: pdf.byteLength, extraction: 'pending' });
+    expect(done.attachments).toEqual([{ id: done.added.id, referenceId: ref, kind: 'primary-document', caption: 'Signed addendum', extraction: 'pending', status: 'draft' }]);
+    expect(archive.files.get(`attachments/${sha}`)).toBeDefined();
+    const stored = (await run('get_topic', { id: a.id })).attachments[0];
+    expect(stored).toMatchObject({ sha256: sha, sourceUrl: 'https://www.justice.gov/media/addendum.pdf', capturedAt: '2026-10-01', altText: 'A signed page', status: 'draft' });
+    expect((await run('list_drafts')).drafts.some((d: { type: string }) => d.type === 'attachment')).toBe(true);
+    expect((await run('find_gaps')).attachmentsNeedingText).toEqual([{ topicId: a.id, attachmentId: done.added.id, caption: 'Signed addendum' }]);
+  });
+
+  it('reads a plain-text file immediately, takes a kind, and defaults the capture date to today', async () => {
+    const { ref } = await setup();
+    reply = { status: 200, headers: { 'content-type': 'text/plain' }, bytes: new TextEncoder().encode('Exact words.') };
+    const done = await attach(ref, { kind: 'chart', capturedAt: undefined });
+    expect(done.added.extraction).toBe('done');
+    expect(done.attachments[0]).toMatchObject({ kind: 'chart', extraction: 'done' });
+    expect((await run('find_gaps')).attachmentsNeedingText).toEqual([]);
+  });
+
+  it('refuses before any fetch: unknown reference, viral claim, untrusted host, bad arguments', async () => {
+    const { a, ref } = await setup();
+    const viral = (await run('add_reference', { topicId: a.id, label: 'Viral post', viralClaim: true, verdict: 'False.' })).references.find((r: { label: string }) => r.label === 'Viral post').id;
+    await expect(attach('ref_nope')).rejects.toThrow(/No reference/);
+    await expect(attach(viral)).rejects.toThrow(/never attached/);
+    await expect(attach(ref, { url: 'https://example.com/a.pdf' })).rejects.toThrow(/not a trusted source/);
+    await expect(attach(ref, { url: 'http://justice.gov/a.pdf' })).rejects.toThrow(/https/);
+    await expect(attach(ref, { kind: 'screenshot' })).rejects.toThrow(/kind/);
+    await expect(attach(ref, { caption: '' })).rejects.toThrow(/caption/);
+    await expect(attach(ref, { altText: undefined })).rejects.toThrow(/altText is required/);
+    await expect(attach(ref, { capturedAt: 'yesterday' })).rejects.toThrow(/YYYY-MM-DD/);
+    expect(fetched).toEqual([]);
+    expect(archive.files.size).toBe(0);
+  });
+
+  it('refuses a file that fails the fetch checks, and the same file twice on one reference', async () => {
+    const { ref } = await setup();
+    reply = { status: 200, headers: { 'content-type': 'text/html' }, bytes: pdf };
+    await expect(attach(ref)).rejects.toThrow(/cannot be archived/);
+    reply = { status: 200, headers: { 'content-type': 'application/pdf' }, bytes: pdf };
+    await attach(ref);
+    await expect(attach(ref)).rejects.toThrow(/already attached/);
+    expect((await run('find_gaps')).attachmentsNeedingText).toHaveLength(1);
+  });
+
+  it('says so when this stage has no archive', async () => {
+    const { ref } = await setup();
+    const bare = new McpService(content);
+    await expect(bare.call('attach_document', { referenceId: ref, url: 'https://justice.gov/a.pdf', caption: 'c', altText: 'a' }, 'tester')).rejects.toThrow(/not configured/);
+  });
+
+  it('edits only the human fields through update_attachment, and a transcription finishes the extraction', async () => {
+    const { a, ref } = await setup();
+    const id = (await attach(ref)).added.id;
+    const schema = tools.listTools().find((t) => t.name === 'update_attachment')!.inputSchema as { properties: Record<string, unknown>; required: string[] };
+    expect(schema.required).toEqual(['topicId', 'attachmentId']);
+    for (const owned of ['sha256', 'mimeType', 'bytes', 'capturedAt', 'sourceUrl', 'status', 'id']) expect(schema.properties).not.toHaveProperty(owned);
+    expect(tools.listTools().map((t) => t.name)).not.toContain('create_attachment');
+
+    // A forged hash is ignored: the tool never offered it.
+    const edited = await call('update_attachment', { topicId: a.id, attachmentId: id, caption: 'Retitled', extractedText: 'The addendum reads: continue.', sha256: 'f'.repeat(64) });
+    expect(edited.attachments[0]).toMatchObject({ caption: 'Retitled', extraction: 'done' });
+    expect((await run('get_topic', { id: a.id })).attachments[0]).toMatchObject({ sha256: sha, altText: 'A signed page', extractedText: 'The addendum reads: continue.' });
+    expect((await run('find_gaps')).attachmentsNeedingText).toEqual([]);
+    await expect(call('update_attachment', { topicId: a.id, attachmentId: id, kind: 'screenshot' })).rejects.toThrow(/kind/);
+    await expect(call('update_attachment', { topicId: a.id, attachmentId: 'nope', caption: 'x' })).rejects.toThrow(/No attachment/);
+  });
+
+  it('is a draft you can delete with delete_draft, and goes when its reference does; the archived file stays', async () => {
+    const { a, ref } = await setup();
+    const first = (await attach(ref)).added.id;
+    expect(await call('delete_draft', { type: 'attachment', id: first })).toEqual({ deleted: first, type: 'attachment' });
+    expect((await run('get_topic', { id: a.id })).attachments).toEqual([]);
+
+    await attach(ref);
+    await call('delete_draft', { type: 'reference', id: ref });
+    expect((await run('get_topic', { id: a.id })).attachments).toEqual([]);
+    expect(archive.files.has(`attachments/${sha}`)).toBe(true);
+  });
+
+  it('publishes with its topic, and shows on the public topic only then', async () => {
+    const { a, ref } = await setup();
+    await attach(ref);
+    const draftView = (await content.index(true)).published().view(a.id);
+    expect(draftView).toBeUndefined();
+    await run('publish_topic', { topicId: a.id });
+    expect((await content.index(true)).published().view(a.id)!.attachments).toHaveLength(1);
+  });
+
+  it('tags a viral claim with a verdict instead of attaching it, and refuses an inconsistent one', async () => {
+    const { a } = await setup();
+    await expect(run('add_reference', { topicId: a.id, label: 'Viral post', viralClaim: true })).rejects.toThrow(/needs a verdict/);
+    await expect(run('add_reference', { topicId: a.id, label: 'Post', verdict: 'False.' })).rejects.toThrow(/only goes with a viral claim/);
+    const added = await run('add_reference', { topicId: a.id, label: 'Viral post', viralClaim: true, verdict: ' The addendum does not say this. ' });
+    expect(added.added).toMatchObject({ viralClaim: true, verdict: 'The addendum does not say this.' });
+    const cleared = await run('update_reference', { topicId: a.id, referenceId: added.added.id, viralClaim: false, verdict: '' });
+    expect(cleared.references.find((r: { id: string }) => r.id === added.added.id)).toBeDefined();
+    expect((await run('get_topic', { id: a.id })).references.find((r: { id: string }) => r.id === added.added.id).viralClaim).toBeUndefined();
   });
 });
 

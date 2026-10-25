@@ -55,7 +55,7 @@ export const topicSpec = defineEntity<Topic, TopicInputDto>({
   publish: {
     cascade: (topic, { index }, { includeChildren, includeLinked }) => {
       if (!includeChildren && !includeLinked) return [];
-      const items: { type: 'topic' | 'reference' | 'perspective' | 'relation'; id: string }[] = [];
+      const items: { type: 'topic' | 'reference' | 'perspective' | 'relation' | 'attachment'; id: string }[] = [];
       const seen = new Set<string>();
       const add = (type: (typeof items)[number]['type'], id: string) => {
         const key = `${type}:${id}`;
@@ -68,6 +68,7 @@ export const topicSpec = defineEntity<Topic, TopicInputDto>({
         if (!view) return;
         for (const r of view.references) if (statusOf(r) === 'draft') add('reference', r.id);
         for (const p of view.perspectives) if (statusOf(p) === 'draft') add('perspective', p.id);
+        for (const a of view.attachments) if (statusOf(a) === 'draft') add('attachment', a.id);
       };
 
       draftsOn(topic.id);

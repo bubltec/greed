@@ -184,9 +184,9 @@ describe('MCP connector', () => {
     const toolList = (await rpc(token, 'tools/list')).json().result.tools as { name: string; inputSchema: any }[];
     expect(toolList.map((t) => t.name).sort()).toEqual(
       [
-        'add_perspective', 'add_points', 'add_reference', 'apply_audit_fixes', 'audit_content', 'create_outlet', 'create_topic', 'delete_draft', 'fetch_source', 'find_gaps', 'get_page', 'get_topic',
+        'add_perspective', 'add_points', 'add_reference', 'apply_audit_fixes', 'attach_document', 'audit_content', 'create_outlet', 'create_topic', 'delete_draft', 'fetch_source', 'find_gaps', 'get_page', 'get_topic',
         'link_topics', 'list_document_providers', 'list_drafts', 'list_outlets', 'publish_page', 'publish_topic', 'read_document', 'research_topic', 'search_documents', 'search_topics', 'set_status', 'suggest_missing_urls', 'suggest_reference_urls', 'unlink_topics',
-        'update_outlet', 'update_page', 'update_perspective', 'update_reference', 'update_topic',
+        'update_attachment', 'update_outlet', 'update_page', 'update_perspective', 'update_reference', 'update_topic',
       ].sort(),
     );
     // Schemas come from the DTOs: constraints and required fields included, with the hand-written descriptions.
@@ -201,7 +201,7 @@ describe('MCP connector', () => {
     expect(schema('update_perspective').required).toEqual(['topicId', 'perspectiveId']);
     expect(schema('link_topics').required).toEqual(['fromId', 'toId', 'kind', 'note']);
     expect(schema('update_page').properties.id.enum).toEqual(['home', 'about']);
-    expect(schema('delete_draft').properties.type.enum).toEqual(['topic', 'reference', 'perspective', 'relation', 'outlet']);
+    expect(schema('delete_draft').properties.type.enum).toEqual(['topic', 'reference', 'perspective', 'relation', 'outlet', 'attachment']);
 
     const a = await call(token, 'create_topic', { title: 'Oil money and the EPA', summary: 'Donations preceded rollbacks.' });
     const b = await call(token, 'create_topic', { title: 'Coal plant emergency orders', summary: 'DOE kept plants open.' });

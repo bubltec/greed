@@ -243,3 +243,129 @@ describe('ContentService', () => {
     expect((cleared.item as unknown as { note?: string }).note).toBeUndefined();
   });
 });
+
+describe('attachments and viral claims', () => {
+  const SHA = 'a'.repeat(64);
+  const file = { kind: 'scan', caption: ' Signed addendum ', altText: ' A signed page ', sourceUrl: 'https://justice.gov/a.pdf', capturedAt: '2026-10-01', sha256: SHA, mimeType: 'application/pdf', bytes: 10 };
+  const attachments = async (svc: ContentService) => (await svc.index(true)).snapshot.attachments ?? [];
+  const addAttachment = (svc: ContentService, topicId: string, referenceId: string, over: Record<string, unknown> = {}) =>
+    svc.create('attachment', { ...file, referenceId, ...over }, 'ed', topicId);
+
+  async function withRef() {
+    const svc = service();
+    const refId = (await addRef(svc, 'a', { label: 'DOJ', url: 'https://justice.gov/x' })).references[0]!.id;
+    return { svc, refId };
+  }
+
+  it('stores an attachment for a reference, trimmed, taking its topic’s status, and shows it on the topic view', async () => {
+    const { svc, refId } = await withRef();
+    const { item } = await addAttachment(svc, 'a', refId);
+    // The seeded topic is published, so the evidence inherits that unless a status is given.
+    expect(item).toMatchObject({ topicId: 'a', referenceId: refId, caption: 'Signed addendum', altText: 'A signed page', sha256: SHA, status: 'published', extractionStatus: 'pending', updatedBy: 'ed' });
+    expect((await addAttachment(svc, 'a', refId, { sha256: 'd'.repeat(64), status: 'draft' })).item.status).toBe('draft');
+    expect((await topicView(svc, 'a')).attachments).toHaveLength(2);
+  });
+
+  it('refuses a reference from another topic, an unknown one, and a viral claim', async () => {
+    const { svc, refId } = await withRef();
+    const other = (await addRef(svc, 'b', { label: 'AP' })).references[0]!.id;
+    await expect(addAttachment(svc, 'a', other)).rejects.toThrow(/not on this topic/);
+    await expect(addAttachment(svc, 'a', 'ref_nope')).rejects.toThrow(/not on this topic/);
+    const viral = (await addRef(svc, 'a', { label: 'Viral post', viralClaim: true, verdict: 'False.' })).references.find((r) => r.label === 'Viral post')!;
+    await expect(addAttachment(svc, 'a', viral.id)).rejects.toThrow(/never attached/);
+    expect(await attachments(svc)).toEqual([]);
+    expect(refId).toBeDefined();
+  });
+
+  it('needs the facts only the server can vouch for, and refuses the same file twice on one reference', async () => {
+    const { svc, refId } = await withRef();
+    for (const missing of ['sha256', 'mimeType', 'bytes', 'capturedAt']) {
+      await expect(addAttachment(svc, 'a', refId, { [missing]: undefined })).rejects.toThrow(/attach_document/);
+    }
+    const first = (await addAttachment(svc, 'a', refId)).item;
+    await expect(addAttachment(svc, 'a', refId)).rejects.toThrow(new RegExp(`already attached to this reference \\(${first.id}\\)`));
+    // The same file may back a different reference, and a different file the same one.
+    const second = (await addRef(svc, 'a', { label: 'Court order' })).references.find((r) => r.label === 'Court order')!;
+    await expect(addAttachment(svc, 'a', second.id)).resolves.toBeDefined();
+    await expect(addAttachment(svc, 'a', refId, { sha256: 'b'.repeat(64) })).resolves.toBeDefined();
+  });
+
+  it('edits only the human fields: the archived facts cannot change, and text marks the extraction done', async () => {
+    const { svc, refId } = await withRef();
+    const { id } = (await addAttachment(svc, 'a', refId)).item;
+    const edited = (
+      await svc.update(
+        'attachment',
+        { id, parentId: 'a' },
+        { ...file, referenceId: refId, caption: 'Retitled', altText: 'Alt', sha256: 'f'.repeat(64), mimeType: 'text/html', bytes: 1, capturedAt: '2020-01-01', sourceUrl: 'https://evil.example/x', extractedText: '  The addendum reads: continue.  ' },
+        'ed',
+      )
+    ).item;
+    expect(edited).toMatchObject({
+      caption: 'Retitled', sha256: SHA, mimeType: 'application/pdf', bytes: 10, capturedAt: '2026-10-01', sourceUrl: 'https://justice.gov/a.pdf',
+      extractedText: 'The addendum reads: continue.', extractionStatus: 'done',
+    });
+    const failed = (await svc.update('attachment', { id, parentId: 'a' }, { ...file, referenceId: refId, caption: 'c', altText: 'a', extractedText: 'x', extractionStatus: 'failed' }, 'ed')).item;
+    expect(failed.extractionStatus).toBe('failed');
+    const cleared = (await svc.update('attachment', { id, parentId: 'a' }, { ...file, referenceId: refId, caption: 'c', altText: 'a' }, 'ed')).item as unknown as { extractedText?: string; extractionStatus: string };
+    expect(cleared.extractedText).toBeUndefined();
+    expect(cleared.extractionStatus).toBe('failed'); // no new text, no status given: unchanged
+    // Moving it to another reference is allowed on the same topic only.
+    const second = (await addRef(svc, 'a', { label: 'Court order' })).references.find((r) => r.label === 'Court order')!;
+    await expect(svc.update('attachment', { id, parentId: 'a' }, { ...file, referenceId: second.id, caption: 'c', altText: 'a' }, 'ed')).resolves.toBeDefined();
+    const otherTopic = (await addRef(svc, 'b', { label: 'AP' })).references[0]!.id;
+    await expect(svc.update('attachment', { id, parentId: 'a' }, { ...file, referenceId: otherTopic, caption: 'c', altText: 'a' }, 'ed')).rejects.toThrow(/not on this topic/);
+  });
+
+  it('puts a file back in the queue when its text is cleared, since done always means there is text', async () => {
+    const { svc, refId } = await withRef();
+    const { id } = (await addAttachment(svc, 'a', refId, { extractedText: 'Words.' })).item;
+    expect((await attachments(svc))[0]).toMatchObject({ extractionStatus: 'done', extractedText: 'Words.' });
+    const row = (await svc.update('attachment', { id, parentId: 'a' }, { ...file, referenceId: refId, caption: 'c', altText: 'a', extractionStatus: 'done' }, 'ed')).item;
+    expect(row).toMatchObject({ extractionStatus: 'pending' });
+    expect((row as { extractedText?: string }).extractedText).toBeUndefined();
+  });
+
+  it('goes with its reference and with its topic, but never deletes the archived file’s row twice', async () => {
+    const { svc, refId } = await withRef();
+    const keep = (await addRef(svc, 'a', { label: 'Other' })).references.find((r) => r.label === 'Other')!;
+    await addAttachment(svc, 'a', refId);
+    const kept = (await addAttachment(svc, 'a', keep.id, { sha256: 'c'.repeat(64) })).item;
+    await svc.remove('reference', { id: refId, parentId: 'a' }, 'ed');
+    expect((await attachments(svc)).map((a) => a.id)).toEqual([kept.id]);
+    await svc.remove('topic', { id: 'a' }, 'ed');
+    expect(await attachments(svc)).toEqual([]);
+  });
+
+  it('publishes with its topic, and can be deleted only while a draft', async () => {
+    const svc = service();
+    const draftTopic = (await createTopic(svc)).topic.id;
+    const refId = (await addRef(svc, draftTopic, { label: 'DOJ' })).references[0]!.id;
+    const { id } = (await addAttachment(svc, draftTopic, refId)).item;
+    expect((await attachments(svc))[0]!.status).toBe('draft'); // a draft topic's evidence is a draft
+    await svc.publish('topic', draftTopic, 'ed');
+    expect((await attachments(svc))[0]!.status).toBe('published');
+    await expect(svc.removeDraft('attachment', id, 'ed')).rejects.toThrow(/published/);
+    await svc.setStatus({ status: 'draft', items: [{ type: 'attachment', id }] }, 'ed');
+    await expect(svc.removeDraft('attachment', id, 'ed')).resolves.toEqual({ deleted: id, type: 'attachment' });
+  });
+
+  it('requires a verdict for a viral claim, and a viral claim for a verdict', async () => {
+    const svc = service();
+    await expect(addRef(svc, 'a', { label: 'Post', viralClaim: true })).rejects.toThrow(/needs a verdict/);
+    await expect(addRef(svc, 'a', { label: 'Post', viralClaim: true, verdict: '   ' })).rejects.toThrow(/needs a verdict/);
+    await expect(addRef(svc, 'a', { label: 'Post', verdict: 'False.' })).rejects.toThrow(/only goes with a viral claim/);
+    const ref = (await addRef(svc, 'a', { label: 'Post', viralClaim: true, verdict: ' Not in the addendum. ' })).references[0]!;
+    expect(ref).toMatchObject({ viralClaim: true, verdict: 'Not in the addendum.' });
+    const plain = (await addRef(svc, 'a', { label: 'NPR', viralClaim: false })).references.find((r) => r.label === 'NPR')!;
+    expect(plain.viralClaim).toBeUndefined();
+    expect(plain.verdict).toBeUndefined();
+  });
+
+  it('will not mark a reference viral once evidence is attached to it', async () => {
+    const { svc, refId } = await withRef();
+    await addAttachment(svc, 'a', refId);
+    await expect(svc.update('reference', { id: refId, parentId: 'a' }, { label: 'DOJ', viralClaim: true, verdict: 'x' }, 'ed')).rejects.toThrow(/archived evidence/);
+    await expect(svc.update('reference', { id: refId, parentId: 'a' }, { label: 'DOJ renamed' }, 'ed')).resolves.toBeDefined();
+  });
+});

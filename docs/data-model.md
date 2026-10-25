@@ -6,7 +6,8 @@ Defined in `packages/domain/src/entities.ts`.
 | --- | --- | --- |
 | Topic | `id` (slug), `kind`, `title`, `summary`, `sections[]`, `disputed`, `notes`, `tags[]` | `kind`: case, person, organization, synthesis, thesis. `disputed` is a one-sentence closing note on the main denial or open question |
 | Section | `id`, `label`, `points[]` | A point is `{ text, refIds[] }` |
-| Reference | `id`, `topicId`, `label`, `url?`, `publishedOn?`, `excerpt?`, `note?` | Belongs to exactly one topic |
+| Reference | `id`, `topicId`, `label`, `url?`, `publishedOn?`, `excerpt?`, `note?`, `viralClaim?`, `verdict?` | Belongs to exactly one topic. A circulating claim (a viral screenshot or post) is a reference with `viralClaim` and a one-line `verdict`; it is cited and answered, never embedded or attached |
+| Attachment | `id`, `topicId`, `referenceId`, `kind`, `caption`, `altText`, `sourceUrl?`, `capturedAt`, `sha256`, `mimeType`, `bytes`, `extractedText?`, `extractionStatus` | Archived evidence (`kind`: primary-document, chart, scan) for one reference of its topic; the points that cite that reference are the points it supports. Created only by the server when it archives a file, so the hash, type and size are never caller-supplied. The file lives in the archive under `attachments/<sha256>` |
 | Perspective | `id`, `topicId`, `stance`, `holder`, `body`, `refIds[]` | May cite only its topic's references |
 | Relation | `id`, `fromId`, `toId`, `kind`, `note`, `provenance` | Directional only for `cause-effect` |
 | Outlet | `id`, `name`, `domain`, `paywall`, `accuracy`, `bias`, `oneSided`, `factual`, `note?` | A publication in the trust catalog, not a citation. `paywall` is a hard avoid. Ratings are `high` \| `mixed` \| `low`; for bias, low ranks first |
@@ -28,6 +29,25 @@ connector always writes drafts. `POST /api/topics/:id/publish` publishes a topic
 (`includeLinked: true` also publishes draft topics it links to, and their sources and perspectives);
 `POST /api/status` sets any mix of items; `GET /api/drafts` is the review queue. Rows imported
 before publishing existed have no `status` and count as published.
+
+## Evidence archive
+
+`attach_document` (connector) archives a PDF, image or text file from a public https URL as a draft
+attachment. This is the only place the server fetches a caller-chosen address, so it is narrow:
+only hosts a document provider owns (CourtListener, Federal Register, GovInfo) or a **published,
+non-paywalled outlet** in the catalog (add an outlet for `justice.gov` or any other primary source
+first); every redirect hop is re-checked against the same list; 5 MB maximum (a served file has to
+fit in one Lambda response); PDF, PNG, JPEG, WebP, GIF and plain text only. The file is stored under
+its SHA-256, so the same bytes are stored once and a row can never name another file.
+
+Archived files are served at `GET /api/attachments/:id/file`: published attachments only (an editor's
+`?preview=1` also gets drafts), with the stored type, `nosniff` and a sandboxing CSP.
+
+Extracted text: plain text is read on archive. A scan or image is left `pending` (the connector's
+`find_gaps` lists these as `attachmentsNeedingText`) until its text is saved with `update_attachment`:
+the OCR adapter is a follow-up, and a transcription must be exactly what the file says. Deleting a
+reference removes its attachment rows; the archived file is kept. **A stage with no archive wired in
+refuses `attach_document`** with "not configured" rather than storing nowhere.
 
 ## Pages
 
@@ -56,6 +76,7 @@ pnpm data:refresh-dev --yes    # replace greed-dev-content with a copy of greed-
 | `TOPIC#<id>` | `TOPIC` | topic |
 | `TOPIC#<id>` | `REF#<refId>` | reference |
 | `TOPIC#<id>` | `PERSP#<pId>` | perspective |
+| `TOPIC#<id>` | `ATT#<attId>` | attachment |
 | `REL#<id>` | `REL` | relation |
 | `OUTLET#<id>` | `OUTLET` | outlet |
 

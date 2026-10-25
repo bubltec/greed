@@ -1,6 +1,6 @@
 import type { ContentIndex, TopicView } from './views.js';
 import { publicPage, parsePageBody, type PageBlock, type PageContent } from './pages.js';
-import type { RelationKind, Stance, TopicKind } from './entities.js';
+import type { AttachmentKind, RelationKind, Stance, TopicKind } from './entities.js';
 
 /** Shown when a page has no lead of its own, and in the static shell before a page loads. */
 export const SITE_DESCRIPTION =
@@ -14,6 +14,12 @@ const KIND_LABEL: Record<TopicKind, string> = {
   organization: 'Organization',
   synthesis: 'Synthesis',
   thesis: 'Thesis',
+};
+
+const ATTACHMENT_LABEL: Record<AttachmentKind, string> = {
+  'primary-document': 'Primary document',
+  chart: 'Chart',
+  scan: 'Scan',
 };
 
 const RELATION_LABEL: Record<RelationKind, string> = {
@@ -202,7 +208,7 @@ export function topicDocument(id: string, index: ContentIndex, titles = titlesOf
 }
 
 function topicText(view: TopicView, titles: Map<string, string>): string {
-  const { topic, references, perspectives, related } = view;
+  const { topic, references, perspectives, attachments, related } = view;
   const parts = [`${topic.title}`, `${KIND_LABEL[topic.kind]}`, plain(topic.summary, titles)];
   for (const section of topic.sections) {
     const points = section.points.map((p) => plain(p.text, titles)).filter(Boolean);
@@ -220,9 +226,27 @@ function topicText(view: TopicView, titles: Map<string, string>): string {
   if (topic.disputed.trim()) parts.push(`Note\n${plain(topic.disputed, titles)}`);
   parts.push(
     references.length
-      ? ['Sources', ...references.map((r, i) => `[${i + 1}] ${r.label}${r.url ? ` (${r.url})` : ''}${r.publishedOn ? ` · ${r.publishedOn}` : ''}`)].join('\n')
+      ? [
+          'Sources',
+          ...references.map(
+            (r, i) =>
+              `[${i + 1}] ${r.label}${r.url ? ` (${r.url})` : ''}${r.publishedOn ? ` · ${r.publishedOn}` : ''}${r.viralClaim ? ` · Viral claim: ${r.verdict ?? 'no verdict recorded'}` : ''}`,
+          ),
+        ].join('\n')
       : 'Sources\nNo sources attached yet.',
   );
+  if (attachments.length) {
+    const number = new Map(references.map((r, i) => [r.id, i + 1]));
+    parts.push(
+      [
+        'Evidence',
+        ...attachments.map(
+          (a) =>
+            `Source [${number.get(a.referenceId) ?? '?'}] — ${a.caption} (${ATTACHMENT_LABEL[a.kind]}, captured ${a.capturedAt}${a.sourceUrl ? ` from ${a.sourceUrl}` : ''})${a.extractedText ? `\n${a.extractedText}` : ''}`,
+        ),
+      ].join('\n\n'),
+    );
+  }
   parts.push(
     related.length
       ? ['Connections', ...related.map((r) => `${RELATION_LABEL[r.relation.kind]} — ${r.other.title}${r.relation.note ? `\n${plain(r.relation.note, titles)}` : ''}`)].join('\n\n')

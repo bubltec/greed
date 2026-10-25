@@ -20,12 +20,14 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | --- | --- |
 | `search_topics` | Search titles, summaries and tags |
 | `get_topic` | Full topic: sections, references (with ids), perspectives, links |
-| `find_gaps` | The editors' worklist: missing URLs, no perspectives, no links, no sources |
+| `find_gaps` | The editors' worklist: missing URLs, scans waiting for their text, no perspectives, no links, no sources |
 | `audit_content` | Bulk audit of named topics (or everything): text damage (HTML entities, percent-encoding, literal `\n`/`\"` escapes, mojibake, raw HTML, doubled spaces), structure (uncited points, orphaned references, near-duplicate perspectives, published topics with draft children) and stale "as of"/pending language. One line per issue with a before → after repair where one is safe; pages with `offset`. Writes nothing |
 | `apply_audit_fixes` | Applies `audit_content`'s high-confidence text repairs, recomputed server-side, preserving every item's status. Structure and staleness findings are never auto-fixed. One line per repaired field |
 | `create_topic` / `update_topic` | Create, or change only the fields passed |
 | `add_points` | Append cited points to a section (created if new) |
-| `add_reference` / `update_reference` | Attach a source / fix one (e.g. add the missing URL) |
+| `add_reference` / `update_reference` | Attach a source / fix one (e.g. add the missing URL). `viralClaim` + `verdict` mark a circulating claim that is cited and answered, never embedded |
+| `attach_document` | Archive a PDF, image or text file from a public https URL as draft evidence for a reference: SHA-256, archived copy, plain text read automatically. Only document-provider hosts and published, non-paywalled outlets (add the outlet first for another primary source); 5 MB; refuses viral claims. Needs the archive configured on the stage |
+| `update_attachment` | Fix an attachment's caption, alt text or reference, or save the text of a scan (`extractedText`). The archived file's hash, type and size can't be changed |
 | `add_perspective` / `update_perspective` | Attributed view: critic, defender, official, legal, expert, editorial / change one (only the fields you pass) |
 | `link_topics` / `unlink_topics` | Typed links; provenance defaults to `inferred` |
 | `list_outlets` | Trust catalog, best first. Paywalled outlets are a hard avoid |
@@ -39,7 +41,7 @@ Claude Code: `claude mcp add --transport http greed https://greed.bubbletech.io/
 | `list_document_providers` | Which providers exist and whether each is configured on this stage |
 | `list_drafts` | The review queue: everything not yet published |
 | `publish_topic` | Publish a topic with its drafts (sources, perspectives, links to live topics). `includeLinked: true` also publishes draft topics it links to, with their sources and perspectives; it does not follow links past those |
-| `delete_draft` | Permanently delete a draft topic, source, perspective or link (published items are refused) |
+| `delete_draft` | Permanently delete a draft topic, source, perspective, link, outlet or attachment (published items are refused) |
 | `set_status` | Publish or unpublish individual items |
 | `get_page` / `update_page` / `publish_page` | Edit the home intro and About page (working copy; live on publish) |
 
@@ -83,7 +85,7 @@ content type opts in with an `mcp` block listing the operations to expose, and t
 JSON Schemas (from the DTO's validators, so they can't drift from the CMS) and handlers follow.
 Updates are partial: only the fields passed change. A new content type has no tools until it
 opts in. The bespoke tools are `search_topics`, `find_gaps`, `add_points`, `list_drafts` and
-`set_status`, `research_topic`, `suggest_reference_urls`, `suggest_missing_urls`, `fetch_source`, `search_documents`, `read_document` and `list_document_providers` (`apps/bff/src/mcp/bespoke-tools.ts`), plus `audit_content` and `apply_audit_fixes` (`apps/bff/src/mcp/audit-tools.ts`), whose checks live in `packages/domain/src/audit.ts`. A project skill for running bulk audits lives at `.claude/skills/greed-audit/SKILL.md`. See "Adding a content type" in
+`set_status`, `research_topic`, `suggest_reference_urls`, `suggest_missing_urls`, `fetch_source`, `search_documents`, `read_document` and `list_document_providers` (`apps/bff/src/mcp/bespoke-tools.ts`), plus `audit_content` and `apply_audit_fixes` (`apps/bff/src/mcp/audit-tools.ts`), whose checks live in `packages/domain/src/audit.ts`, and `attach_document` (`apps/bff/src/mcp/attachment-tools.ts`, over the archive port in `apps/bff/src/archive/`). `attachment` is a generated type with `update` and `deleteDraft` only: it has no REST or generic MCP create, because only the server may vouch for a file's hash. A project skill for running bulk audits lives at `.claude/skills/greed-audit/SKILL.md`. See "Adding a content type" in
 `.cursor/rules/greed-architecture.mdc`.
 
 ## How auth works

@@ -37,6 +37,10 @@ export function publishedOnly(snapshot: ContentSnapshot): ContentSnapshot {
     relations: snapshot.relations
       .filter((r) => published(r) && topicIds.has(r.fromId) && topicIds.has(r.toId))
       .map(anon),
+    // Evidence is public only with its topic and the reference it supports.
+    attachments: (snapshot.attachments ?? [])
+      .filter((a) => published(a) && topicIds.has(a.topicId) && refIds.has(a.referenceId))
+      .map(anon),
     outlets: (snapshot.outlets ?? []).filter(published).map(anon),
     // Only the published copy of a page is public; working copies stay with editors.
     pages: (snapshot.pages ?? [])
@@ -48,7 +52,7 @@ export function publishedOnly(snapshot: ContentSnapshot): ContentSnapshot {
   };
 }
 
-export type ItemType = 'topic' | 'reference' | 'perspective' | 'relation' | 'outlet';
+export type ItemType = 'topic' | 'reference' | 'perspective' | 'relation' | 'outlet' | 'attachment';
 
 export interface DraftEntry {
   type: ItemType;
@@ -101,6 +105,16 @@ export function drafts(snapshot: ContentSnapshot): DraftEntry[] {
       label: `${p.stance}: ${p.holder}`,
       updatedAt: p.updatedAt,
       updatedBy: p.updatedBy,
+    })),
+    ...(snapshot.attachments ?? []).filter(draft).map((a) => ({
+      type: 'attachment' as const,
+      id: a.id,
+      topicId: a.topicId,
+      topicTitle: title(a.topicId),
+      topicPublished: topicPublished(a.topicId),
+      label: a.caption,
+      updatedAt: a.updatedAt,
+      updatedBy: a.updatedBy,
     })),
     ...snapshot.relations.filter(draft).map((r) => ({
       type: 'relation' as const,

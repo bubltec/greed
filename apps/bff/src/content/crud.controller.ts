@@ -38,7 +38,7 @@ type Handler = (this: { content: ContentService }, ...args: any[]) => unknown;
  * Builds the editor REST controller for one entity from its spec, so a new type
  * gets its endpoints without a hand-written controller:
  *
- *   POST   <base>            create        (not for fixed-id types)
+ *   POST   <base>            create        (not for fixed-id or server-created types)
  *   PUT    <base>/:id        update
  *   DELETE <base>/:id        delete        (not for fixed-id types)
  *   POST   <base>/:id/publish               (when the spec can be published)
@@ -97,15 +97,17 @@ export function crudController(spec: EntitySpec): Type<unknown> {
     };
 
   if (!spec.fixedIds) {
-    add(
-      'create',
-      Post,
-      base,
-      [...scope, body, user],
-      scoped(async function (this: { content: ContentService }, parentId: string | undefined, input: Record<string, unknown>, u: Editor) {
-        return (await this.content.create(def.name, input, editorName(u), parentId)).result;
-      }),
-    );
+    if (!spec.serverCreated) {
+      add(
+        'create',
+        Post,
+        base,
+        [...scope, body, user],
+        scoped(async function (this: { content: ContentService }, parentId: string | undefined, input: Record<string, unknown>, u: Editor) {
+          return (await this.content.create(def.name, input, editorName(u), parentId)).result;
+        }),
+      );
+    }
     add(
       'remove',
       Delete,

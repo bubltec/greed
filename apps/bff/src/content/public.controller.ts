@@ -1,6 +1,7 @@
-import { Controller, Get, Header, NotFoundException, Param, Query, Req } from '@nestjs/common';
-import type { FastifyRequest } from 'fastify';
+import { Controller, Get, Header, Inject, NotFoundException, Param, Query, Req, Res } from '@nestjs/common';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { browseActivity, browseTopics, type ContentIndex, isPageId, parseActivityQuery, parseBrowseQuery } from '@greed/domain';
+import { ARCHIVE, type Archive, archiveKey } from '../archive/archive.js';
 import { EditorSession } from '../auth/editor-session.js';
 import { ContentService } from './content.service.js';
 
@@ -13,6 +14,7 @@ export class PublicController {
   constructor(
     private readonly content: ContentService,
     private readonly session: EditorSession,
+    @Inject(ARCHIVE) private readonly archive: Archive,
   ) {}
 
   private async visible(request: FastifyRequest, preview?: string): Promise<ContentIndex> {
@@ -44,6 +46,28 @@ export class PublicController {
     const view = (await this.visible(req, preview)).view(id);
     if (!view) throw new NotFoundException(`No topic "${id}"`);
     return view;
+  }
+
+  /**
+   * An archived file, published attachments only (an editor's `?preview=1` also sees drafts). The type comes
+   * from the archive, which only ever stored an allowlisted one, and the response cannot be sniffed or scripted.
+   */
+  @Get('attachments/:id/file')
+  async attachmentFile(
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+    @Param('id') id: string,
+    @Query('preview') preview?: string,
+  ) {
+    const attachment = ((await this.visible(req, preview)).snapshot.attachments ?? []).find((a) => a.id === id);
+    const file = attachment && (await this.archive.get(archiveKey(attachment.sha256)));
+    if (!attachment || !file) throw new NotFoundException(`No attachment "${id}"`);
+    reply.header('content-type', file.mimeType);
+    reply.header('content-disposition', 'inline');
+    reply.header('x-content-type-options', 'nosniff');
+    reply.header('content-security-policy', "default-src 'none'; sandbox");
+    reply.header('cache-control', preview === '1' ? 'private, no-store' : 'public, max-age=300');
+    return Buffer.from(file.bytes);
   }
 
   @Get('graph')
