@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ACTIVITY_TYPES, documentTitle, LOG_LEAD, metaDescription, parseActivityQuery } from '@greed/domain';
 import { ErrorBox, Loading } from '../components/bits';
 import { Pagination } from '../components/Pagination';
+import { SortDirSelect } from '../components/SortDirSelect';
 import { api } from '../lib/api';
 import { formatDate } from '../lib/labels';
 import { usePreview } from '../lib/preview';
@@ -30,8 +31,8 @@ export function ActivityPage() {
       <h1 className="pixel mb-2 text-sm text-snow">Log</h1>
       <p className="mb-4 text-sm text-steel">Additions and edits across the record.</p>
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by type">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="contents" role="group" aria-label="Filter by type">
           <button className={`btn ${view.type ? 'btn-ghost' : ''}`} onClick={() => set({ type: null })}>
             All{data ? ` (${all})` : ''}
           </button>
@@ -41,10 +42,7 @@ export function ActivityPage() {
             </button>
           ))}
         </div>
-        <select value={view.dir} onChange={(e) => set({ dir: e.target.value === 'desc' ? null : e.target.value })} aria-label="Order" className="sm:w-auto">
-          <option value="desc">Newest first</option>
-          <option value="asc">Oldest first</option>
-        </select>
+        <SortDirSelect dir={view.dir} onChange={(dir) => set({ dir: dir === 'desc' ? null : dir })} />
       </div>
 
       {loading && !data && <Loading />}
