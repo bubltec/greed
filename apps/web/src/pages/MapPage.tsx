@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Text } from '@bubltec/uiux';
 import { useNavigate } from 'react-router-dom';
 import { documentTitle, MAP_LEAD, metaDescription, TOPIC_KINDS } from '@greed/domain';
 import { ErrorBox, Loading } from '../components/bits';
@@ -52,7 +53,7 @@ export function MapPage() {
     <div>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="pixel mb-2 text-sm text-snow">Map</h1>
+          <Text variant="display" className="mb-2">Map</Text>
           <p className="text-sm text-steel">
             {data.nodes.length} entries, {data.edges.length} links. Hover to trace, click to open.
           </p>

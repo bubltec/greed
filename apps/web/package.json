@@ -10,6 +10,7 @@
     "lint": "oxlint -c ../../.oxlintrc.json src"
   },
   "dependencies": {
+    "@bubltec/uiux": "0.0.1",
     "@fontsource/press-start-2p": "5.2.7",
     "@greed/domain": "workspace:*",
     "react": "19.3.0",

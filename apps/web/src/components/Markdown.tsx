@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { pageLink, parsePageBody, type AlertTone } from '@greed/domain';
+import { Card, Text } from '@bubltec/uiux';
 import { SectionTitle } from './bits';
 
 /**
@@ -34,10 +35,10 @@ export function Markdown({ source, lead = true }: { source: string; lead?: boole
         if (block.type === 'alert') {
           const style = ALERT[block.tone];
           return (
-            <aside key={i} className={`mb-6 border-2 ${style.border} bg-night px-4 py-3`}>
-              <p className={`pixel mb-2 text-[0.5rem] ${style.label}`}>{style.title}</p>
+            <Card key={i} className={`mb-6 ${style.border} bg-night`}>
+              <Text variant="label" className={style.label}>{style.title}</Text>
               {block.text && <p className="text-snow">{inline(block.text)}</p>}
-            </aside>
+            </Card>
           );
         }
         const isLead = lead && paragraphs++ === 0;

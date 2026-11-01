@@ -1,4 +1,5 @@
 import { documentTitle, metaDescription, pageLead } from '@greed/domain';
+import { Text } from '@bubltec/uiux';
 import { Markdown } from '../components/Markdown';
 import { usePage } from '../lib/usePage';
 import { usePageMeta } from '../lib/usePageMeta';
@@ -17,7 +18,7 @@ export function AboutPage() {
   });
   return (
     <div className="prose-body max-w-2xl text-snow">
-      <h1 className="pixel mb-6 text-sm">{page.title}</h1>
+      <Text variant="display" className="mb-6">{page.title}</Text>
       <Markdown source={page.body} />
     </div>
   );

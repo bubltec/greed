@@ -132,6 +132,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@bubltec/uiux':
+        specifier: 0.0.1
+        version: 0.0.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fontsource/press-start-2p':
         specifier: 5.2.7
         version: 5.2.7
@@ -499,6 +502,13 @@ packages:
 
   '@bubltec/mycota-mail@1.0.1':
     resolution: {integrity: sha512-IuUiQONPPIeaJZhdkO6/YhD0ZCjEuWuv28o5hqxRdKj91gM9zsx+0UJZ1P1xByRBLhkN/Y+wMiT/DjUsa2kNVw==}
+
+  '@bubltec/uiux@0.0.1':
+    resolution: {integrity: sha512-fZNmsnu1FatpCHE4Vhk5x2HFOeFFv5/+H+61rB4AbynFF8dnF9XIDuTyKto7gMUKwr+Z6ewuZ1zOQVq9t7DXSg==}
+    engines: {node: '>=26'}
+    peerDependencies:
+      react: ^19
+      react-dom: ^19
 
   '@esbuild/aix-ppc64@0.28.2':
     resolution: {integrity: sha512-XExcO+dvLKvVtNTibSTBej1NCAbaGhWn9Ww1ZPx80qsahhPFe/8jgWP0IchNe0F3HwkU7n8ejhH8bjonqht8mQ==}
@@ -2679,6 +2689,11 @@ snapshots:
       '@nestjs/common': 12.0.3(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
 
   '@bubltec/mycota-mail@1.0.1': {}
+
+  '@bubltec/uiux@0.0.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
 
   '@esbuild/aix-ppc64@0.28.2':
     optional: true
