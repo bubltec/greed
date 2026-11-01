@@ -1,3 +1,4 @@
+import { Text } from '@bubltec/uiux';
 import { Link } from 'react-router-dom';
 import { ACTIVITY_TYPES, documentTitle, LOG_LEAD, metaDescription, parseActivityQuery } from '@greed/domain';
 import { ErrorBox, Loading } from '../components/bits';
@@ -28,7 +29,7 @@ export function ActivityPage() {
   const all = Object.values(data?.types ?? {}).reduce((n, c) => n + c, 0);
   return (
     <div className="max-w-3xl">
-      <h1 className="pixel mb-2 text-sm text-snow">Log</h1>
+      <Text variant="display" className="mb-2">Log</Text>
       <p className="mb-4 text-sm text-steel">Additions and edits across the record.</p>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">

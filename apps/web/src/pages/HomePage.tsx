@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DEFAULT_TOPIC_SORT, documentTitle, metaDescription, pageLead, parseBrowseQuery, TOPIC_KINDS, TOPIC_SORTS } from '@greed/domain';
+import { Input, Select, Text } from '@bubltec/uiux';
 import { DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
 import { Pagination } from '../components/Pagination';
 import { SortDirSelect } from '../components/SortDirSelect';
@@ -61,14 +62,14 @@ export function HomePage() {
   return (
     <div>
       <section className="mb-8 max-w-3xl">
-        <h1 className="pixel mb-4 text-sm leading-relaxed text-snow sm:text-base">{intro.title}</h1>
+        <Text variant="display" className="mb-4 leading-relaxed sm:text-base">{intro.title}</Text>
         <div className="prose-body [&_p]:mb-3 [&_p]:text-base [&_p]:text-steel">
           <Markdown source={intro.body} lead={false} />
         </div>
       </section>
 
       <div ref={top} className="mb-4 flex scroll-mt-4 flex-col gap-3 sm:flex-row sm:items-center">
-        <input
+        <Input
           type="search"
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -76,19 +77,14 @@ export function HomePage() {
           aria-label="Search topics"
           className="sm:max-w-sm"
         />
-        <div className="flex min-w-0 items-center gap-2">
-          <select
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <Select
             value={view.sort}
             onChange={(e) => set({ sort: e.target.value === DEFAULT_TOPIC_SORT ? null : e.target.value, dir: null })}
             aria-label="Sort by"
-            className="min-w-0 flex-1 sm:w-auto sm:flex-none"
-          >
-            {TOPIC_SORTS.map((s) => (
-              <option key={s} value={s}>
-                {SORT_LABEL[s]}
-              </option>
-            ))}
-          </select>
+            className="control-auto shrink-0"
+            options={TOPIC_SORTS.map((s) => ({ value: s, label: SORT_LABEL[s] }))}
+          />
           <SortDirSelect dir={view.dir} onChange={(dir) => set({ dir })} />
         </div>
       </div>

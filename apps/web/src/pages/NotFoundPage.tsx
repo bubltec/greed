@@ -1,4 +1,5 @@
 import { documentTitle, NOT_FOUND_LEAD } from '@greed/domain';
+import { buttonClass, Text } from '@bubltec/uiux';
 import { Link } from 'react-router-dom';
 import { usePageMeta } from '../lib/usePageMeta';
 
@@ -12,9 +13,9 @@ export function NotFoundPage() {
   });
   return (
     <div className="py-16 text-center">
-      <p className="pixel mb-4 text-sm text-hurt">Game over</p>
-      <p className="mb-6 text-steel">That page doesn’t exist.</p>
-      <Link to="/" className="btn">
+      <Text variant="display" className="mb-4 text-hurt">Game over</Text>
+      <Text variant="muted" className="mb-6">That page doesn’t exist.</Text>
+      <Link to="/" className={buttonClass()}>
         Continue
       </Link>
     </div>

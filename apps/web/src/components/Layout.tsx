@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { AppFooter, AppFrame, AppHeader, AppMain, Notice } from '@bubltec/uiux';
 import { usePreview } from '../lib/preview';
 import { useSession } from '../lib/session';
 
@@ -25,63 +26,57 @@ export function Layout() {
     el.setAttribute('content', 'noindex, nofollow');
   }, [admin]);
   return (
-    <>
-      {preview && session?.editor && (
-        <div className="bg-bolt text-void">
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-2 sm:px-6">
-            <span className="pixel text-[0.5625rem]">Preview · drafts are visible</span>
-            <button className="pixel text-[0.5625rem] underline" onClick={() => setPreview(false)}>
-              Exit preview
-            </button>
-          </div>
-        </div>
-      )}
-    <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-4 sm:px-6">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-mega py-5">
-        <NavLink to="/" className="no-underline" aria-label="GREED home">
-          <span className="pixel text-lg text-snow sm:text-xl">
-            GR<span className="text-bolt">EE</span>D
-          </span>
-          <span className="pixel ml-3 hidden text-[0.5rem] text-slate sm:inline">
-            POWER · MONEY · OVERSIGHT
-          </span>
-        </NavLink>
-        <nav className="flex flex-wrap items-center gap-1">
-          {nav.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `pixel px-2 py-1 text-[0.5625rem] no-underline ${isActive ? 'bg-mega text-snow' : 'text-ice hover:text-snow'}`
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-          {session?.editor && (
-            <NavLink
-              to="/admin"
-              className={({ isActive }) =>
-                `pixel px-2 py-1 text-[0.5625rem] no-underline ${isActive ? 'bg-bolt text-void' : 'text-bolt hover:text-cream'}`
-              }
-            >
-              Edit
-            </NavLink>
-          )}
-        </nav>
-      </header>
-      <main className="flex-1 py-8">
+    <AppFrame
+      banner={
+        preview && session?.editor ? (
+          <Notice tone="preview">
+            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-2 sm:px-6">
+              <span>Preview · drafts are visible</span>
+              <button className="underline" onClick={() => setPreview(false)}>
+                Exit preview
+              </button>
+            </div>
+          </Notice>
+        ) : null
+      }
+    >
+      <AppHeader
+        brand={
+          <NavLink to="/" className="no-underline" aria-label="GREED home">
+            <span className="pixel text-lg text-snow sm:text-xl">
+              GR<span className="text-bolt">EE</span>D
+            </span>
+            <span className="pixel ml-3 hidden text-[0.5rem] text-slate sm:inline">POWER · MONEY · OVERSIGHT</span>
+          </NavLink>
+        }
+        nav={
+          <>
+            {nav.map((item) => (
+              <NavLink key={item.to} to={item.to} end={item.end}>
+                {item.label}
+              </NavLink>
+            ))}
+            {session?.editor && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) => (isActive ? 'bg-bolt text-void' : 'text-bolt hover:text-cream')}
+              >
+                Edit
+              </NavLink>
+            )}
+          </>
+        }
+      />
+      <AppMain>
         <Outlet />
-      </main>
-      <footer className="flex flex-wrap justify-between gap-3 border-t-2 border-deep py-5 text-xs text-slate">
+      </AppMain>
+      <AppFooter>
         <span>Every claim is sourced. Every entry is cross-linked.</span>
         <span className="flex gap-4">
           <a href="/api/export">Download data</a>
           <NavLink to="/admin">Editors</NavLink>
         </span>
-      </footer>
-    </div>
-    </>
+      </AppFooter>
+    </AppFrame>
   );
 }

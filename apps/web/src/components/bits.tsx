@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { Badge, ErrorBox as StatusError, Loading, Text } from '@bubltec/uiux';
 import { KIND_COLOR, KIND_LABEL } from '../lib/labels';
 import type { TopicKind } from '../lib/types';
 
@@ -14,13 +15,7 @@ export function KindBadge({ kind }: { kind: TopicKind }) {
 
 /** Yellow: not public yet. Only editors in preview (or the editor) ever see it. */
 export function DraftFlag({ small }: { small?: boolean }) {
-  return (
-    <span
-      className={`pixel inline-block border-2 border-bolt text-bolt ${small ? 'px-1 py-0 text-[0.4375rem]' : 'px-1.5 py-0.5 text-[0.5rem]'}`}
-    >
-      Draft
-    </span>
-  );
+  return <Badge tone="warn" className={small ? 'text-[0.4375rem]' : undefined}>Draft</Badge>;
 }
 
 /**
@@ -46,23 +41,16 @@ export function EnergyBar({ value, max = 12, label }: { value: number; max?: num
 export function SectionTitle({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
     <div className="mb-3 flex items-center justify-between gap-3">
-      <h2 className="pixel text-[0.6875rem] text-sky">{children}</h2>
+      <Text variant="title" className="text-[0.6875rem] text-sky">{children}</Text>
       {right}
     </div>
   );
 }
 
-export function Loading() {
-  return <p className="pixel animate-pulse text-[0.625rem] text-sky">Loading…</p>;
-}
+export { Loading };
 
 export function ErrorBox({ error }: { error: Error }) {
-  return (
-    <div className="border-2 border-hurt p-4 text-sm text-snow">
-      <p className="pixel mb-2 text-[0.625rem] text-hurt">Error</p>
-      {error.message}
-    </div>
-  );
+  return <StatusError>{error.message}</StatusError>;
 }
 
 const URL_RE = /(https?:\/\/[^\s)]+)/g;
