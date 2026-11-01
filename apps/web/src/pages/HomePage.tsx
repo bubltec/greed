@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { DEFAULT_TOPIC_SORT, documentTitle, metaDescription, pageLead, parseBrowseQuery, TOPIC_KINDS, TOPIC_SORTS } from '@greed/domain';
 import { DraftFlag, EnergyBar, ErrorBox, KindBadge, Loading } from '../components/bits';
 import { Pagination } from '../components/Pagination';
+import { SortDirSelect } from '../components/SortDirSelect';
 import { api } from '../lib/api';
 import { KIND_LABEL } from '../lib/labels';
 import { usePreview } from '../lib/preview';
@@ -75,12 +76,12 @@ export function HomePage() {
           aria-label="Search topics"
           className="sm:max-w-sm"
         />
-        <div className="flex gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <select
             value={view.sort}
             onChange={(e) => set({ sort: e.target.value === DEFAULT_TOPIC_SORT ? null : e.target.value, dir: null })}
             aria-label="Sort by"
-            className="sm:w-auto"
+            className="min-w-0 flex-1 sm:w-auto sm:flex-none"
           >
             {TOPIC_SORTS.map((s) => (
               <option key={s} value={s}>
@@ -88,14 +89,7 @@ export function HomePage() {
               </option>
             ))}
           </select>
-          <button
-            className="btn btn-ghost"
-            onClick={() => set({ dir: view.dir === 'asc' ? 'desc' : 'asc' })}
-            aria-label={view.dir === 'asc' ? 'Ascending. Switch to descending' : 'Descending. Switch to ascending'}
-            title={view.dir === 'asc' ? 'Ascending' : 'Descending'}
-          >
-            {view.dir === 'asc' ? '▲ Asc' : '▼ Desc'}
-          </button>
+          <SortDirSelect dir={view.dir} onChange={(dir) => set({ dir })} />
         </div>
       </div>
 
